@@ -1,0 +1,43 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFramework>net8.0</TargetFramework>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+	</PropertyGroup>
+
+	<!-- Tự động sao chép tất cả các tệp trong thư mục Templates -->
+	<ItemGroup>
+		<Content Include="Templates\**\*">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</Content>
+	</ItemGroup>
+
+	<ItemGroup>
+		<Content Include="Assets\**\*">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</Content>
+	</ItemGroup>
+
+	<ItemGroup>
+		<Folder Include="Mapping\" />
+		<Folder Include="Utils\" />
+	</ItemGroup>
+
+	<!-- Thêm AutoMapper -->
+	<ItemGroup>
+		<PackageReference Include="AutoMapper" Version="13.0.1" />
+		<PackageReference Include="Microsoft.ML" Version="4.0.0" />
+	</ItemGroup>
+
+	<!-- Tham chiếu đến dự án MoneyMind_DAL -->
+	<ItemGroup>
+		<ProjectReference Include="..\MoneyMind_DAL\MoneyMind_DAL.csproj" />
+	</ItemGroup>
+	<ItemGroup>
+	  <None Update="transaction_model.zip">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </None>
+	</ItemGroup>
+
+</Project>

@@ -1,0 +1,34 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.12.35514.174 d17.12
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MoneyMind_API", "MoneyMind_API\MoneyMind_API.csproj", "{5F440C94-5E91-4798-A65E-96A5B1C1F0C5}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MoneyMind_DAL", "MoneyMind_DAL\MoneyMind_DAL.csproj", "{141C6A1B-B8B1-4ED1-B621-8850D35F9556}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MoneyMind_BLL", "MoneyMind_BLL\MoneyMind_BLL.csproj", "{B6FF0330-02DA-49BA-8744-72766A4AE38E}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{5F440C94-5E91-4798-A65E-96A5B1C1F0C5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5F440C94-5E91-4798-A65E-96A5B1C1F0C5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5F440C94-5E91-4798-A65E-96A5B1C1F0C5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5F440C94-5E91-4798-A65E-96A5B1C1F0C5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{141C6A1B-B8B1-4ED1-B621-8850D35F9556}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{141C6A1B-B8B1-4ED1-B621-8850D35F9556}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{141C6A1B-B8B1-4ED1-B621-8850D35F9556}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{141C6A1B-B8B1-4ED1-B621-8850D35F9556}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B6FF0330-02DA-49BA-8744-72766A4AE38E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B6FF0330-02DA-49BA-8744-72766A4AE38E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B6FF0330-02DA-49BA-8744-72766A4AE38E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B6FF0330-02DA-49BA-8744-72766A4AE38E}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
