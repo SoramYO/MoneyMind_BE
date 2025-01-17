@@ -36,55 +36,63 @@ namespace MoneyMind_BLL.Services.Implementations
             try
             {
                 // Lấy thông tin tài khoản ngân hàng từ database
-                var accountBank = await _accountBankRepository.GetByUserId(userId);
-                if (accountBank == null)
+                var accountBanks = await _accountBankRepository.GetByUserId(userId);
+                if (accountBanks == null || !accountBanks.Any())
                 {
-                    throw new InvalidOperationException("No bank account found for this user");
+                    throw new InvalidOperationException("No bank accounts found for this user.");
                 }
 
-                var request = new MBBankTransactionRequest
+                foreach (var accountBank in accountBanks)
                 {
-                    Username = accountBank.Username,
-                    Password = accountBank.Password,
-                    AccountNumber = accountBank.AccountNumber,
-                    Days = 1
-                };
-
-                var response = await _httpClient.PostAsJsonAsync("http://localhost:3000/api/mbbank/transactions", request);
-                var result = await response.Content.ReadFromJsonAsync<MBBankTransactionResponse>();
-
-                if (result?.Result?.Ok == true)
-                {
-                    foreach (var transaction in result.TransactionHistoryList)
+                    if (accountBank == null)
                     {
-                        if (decimal.TryParse(transaction.DebitAmount, out decimal debitAmount) && debitAmount > 0)
-                        {
-                            var existingTransaction = await _transactionRepository.IsExistTransaction(
-                                transaction.Description,
-                                (double)debitAmount
-                            );
+                        continue; // Bỏ qua tài khoản null
+                    }
 
-                            if (existingTransaction == null)
+                    var request = new MBBankTransactionRequest
+                    {
+                        Username = accountBank.Username,
+                        Password = accountBank.Password,
+                        AccountNumber = accountBank.AccountNumber,
+                        Days = 1
+                    };
+
+                    var response = await _httpClient.PostAsJsonAsync("http://localhost:3000/api/mbbank/transactions", request);
+                    var result = await response.Content.ReadFromJsonAsync<MBBankTransactionResponse>();
+
+                    if (result?.Result?.Ok == true)
+                    {
+                        foreach (var transaction in result.TransactionHistoryList)
+                        {
+                            if (decimal.TryParse(transaction.DebitAmount, out decimal debitAmount) && debitAmount > 0)
                             {
-                                var category = await _mlService.ClassificationCategory(
+                                var existingTransaction = await _transactionRepository.IsExistTransaction(
                                     transaction.Description,
-                                    (float)debitAmount
+                                    (double)debitAmount
                                 );
 
-                                if (category != null)
+                                if (existingTransaction == null)
                                 {
-                                    var newTransaction = new Transaction
-                                    {
-                                        Amount = (double)debitAmount,
-                                        Description = transaction.Description,
-                                        CategoryId = category.Id,
-                                        TransactionDate = DateTime.ParseExact(transaction.TransactionDate, "dd/MM/yyyy HH:mm:ss", CultureInfo.InvariantCulture),
-                                        RecipientName = transaction.BenAccountName,
-                                        Category = category,
-                                        UserId = userId
-                                    };
+                                    var category = await _mlService.ClassificationCategory(
+                                        transaction.Description,
+                                        (float)debitAmount
+                                    );
 
-                                    await _transactionRepository.AddTransaction(newTransaction);
+                                    if (category != null)
+                                    {
+                                        var newTransaction = new Transaction
+                                        {
+                                            Amount = (double)debitAmount,
+                                            Description = transaction.Description,
+                                            CategoryId = category.Id,
+                                            TransactionDate = DateTime.ParseExact(transaction.TransactionDate, "dd/MM/yyyy HH:mm:ss", CultureInfo.InvariantCulture),
+                                            RecipientName = transaction.BenAccountName,
+                                            Category = category,
+                                            UserId = userId
+                                        };
+
+                                        await _transactionRepository.InsertAsync(newTransaction);
+                                    }
                                 }
                             }
                         }

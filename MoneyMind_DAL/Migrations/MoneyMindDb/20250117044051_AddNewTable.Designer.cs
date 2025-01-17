@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using MoneyMind_DAL.DBContexts;
 
@@ -11,9 +12,11 @@ using MoneyMind_DAL.DBContexts;
 namespace MoneyMind_DAL.Migrations.MoneyMindDb
 {
     [DbContext(typeof(MoneyMindDbContext))]
-    partial class MoneyMindDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250117044051_AddNewTable")]
+    partial class AddNewTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

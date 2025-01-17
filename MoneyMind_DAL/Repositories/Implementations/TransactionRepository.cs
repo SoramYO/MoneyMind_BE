@@ -17,10 +17,10 @@ namespace MoneyMind_DAL.Repositories.Implementations
         {
         }
 
-        public async Task AddTransaction(Transaction transaction)
-        {
-            await _dbSet.AddAsync(transaction);
-        }
+        //public async Task AddTransaction(Transaction transaction)
+        //{
+        //    await _dbSet.AddAsync(transaction);
+        //}
 
         public async Task<Transaction> IsExistTransaction(string description, double amount)
         {

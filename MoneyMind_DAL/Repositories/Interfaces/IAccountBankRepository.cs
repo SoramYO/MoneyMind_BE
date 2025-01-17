@@ -7,11 +7,11 @@ using System.Threading.Tasks;
 
 namespace MoneyMind_DAL.Repositories.Interfaces
 {
-    public interface IAccountBankRepository
+    public interface IAccountBankRepository : IGenericRepository<AccountBank>
     {
-        Task<AccountBank> GetByUserId(Guid userId);
+        Task<IEnumerable<AccountBank>> GetByUserId(Guid userId);
 
-        Task<IEnumerable<AccountBank>> GetAllUserIds();
-        Task<AccountBank> Add(AccountBank accountBank);
+        //Task<IEnumerable<AccountBank>> GetAllUserIds();
+        //Task<AccountBank> Add(AccountBank accountBank);
     }
 }

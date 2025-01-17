@@ -17,21 +17,21 @@ namespace MoneyMind_DAL.Repositories.Implementations
 
         }
 
-        public async Task<AccountBank> GetByUserId(Guid userId)
+        public async Task<IEnumerable<AccountBank>> GetByUserId(Guid userId)
         {
-            return await _dbSet.FirstOrDefaultAsync(x => x.UserId == userId);
+            return await _dbSet.Where(a => a.UserId == userId).ToListAsync();
         }
 
-        public async Task<AccountBank> Add(AccountBank accountBank)
-        {
-            await _context.AccountBanks.AddAsync(accountBank);
-            await _context.SaveChangesAsync();
-            return accountBank;
-        }
+        //public async Task<AccountBank> Add(AccountBank accountBank)
+        //{
+        //    await _context.AccountBanks.AddAsync(accountBank);
+        //    await _context.SaveChangesAsync();
+        //    return accountBank;
+        //}
 
-        public async Task<IEnumerable<AccountBank>> GetAllUserIds()
-        {
-            return await _context.AccountBanks.ToListAsync();
-        }
+        //public async Task<IEnumerable<AccountBank>> GetAllUserIds()
+        //{
+        //    return await _context.AccountBanks.ToListAsync();
+        //}
     }
 }
