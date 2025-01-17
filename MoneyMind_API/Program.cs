@@ -68,10 +68,14 @@ builder.Services.AddDbContext<MoneyMindAuthDbContext>(options =>
 builder.Services.AddSingleton(mlContext);
 builder.Services.AddSingleton(loadedModel);
 
+builder.Services.AddHostedService<MBBankSyncBackgroundService>();
+
 //Service
 builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<IMLService, MLService>();
+builder.Services.AddScoped<IAccountBankService, AccountBankService>();
+builder.Services.AddScoped<IMBBankSyncService, MBBankSyncService>();
 
 //Repository
 builder.Services.AddScoped<IAccountBankRepository, AccountBankRepository>();

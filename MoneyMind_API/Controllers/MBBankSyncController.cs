@@ -30,13 +30,13 @@ namespace MoneyMind_API.Controllers
             _logger = logger;
         }
 
-        [HttpPost("sync")]
+        [HttpPost]
+        [Route("sync")]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> SyncTransactions()
         {
             try
             {
-                // L?y danh sách t?t c? ng??i dùng
                 var users = _userManager.Users.ToList();
                 var syncResults = new List<object>();
 
@@ -46,7 +46,7 @@ namespace MoneyMind_API.Controllers
                     {
                         // Kiem tra xem nguoi dùng có tài khoan ngân hàng không
                         var accountBank = await _accountBankService.GetAccoutBankByUserIdAsync(Guid.Parse(user.Id));
-                        if (accountBank != null)
+                        if (accountBank != null && accountBank.Any())
                         {
                             // dong bo giao dich
                             await _mbBankSyncService.SyncTransactions(Guid.Parse(user.Id));
@@ -70,7 +70,6 @@ namespace MoneyMind_API.Controllers
                     }
                     catch (Exception ex)
                     {
-                        // Log l?i và thêm k?t qu? th?t b?i vào danh sách
                         _logger.LogError(ex, "Error syncing transactions for user {UserId}", user.Id);
                         syncResults.Add(new
                         {
@@ -90,13 +89,13 @@ namespace MoneyMind_API.Controllers
             }
             catch (Exception ex)
             {
-                // Log l?i t?ng th? n?u có l?i trong quá trình ??ng b?
                 _logger.LogError(ex, "Error in manual sync process");
                 return StatusCode(500, new { Message = "Internal server error during sync process", Error = ex.Message });
             }
         }
 
-        [HttpPost("sync/{userId}")]
+        [HttpPost]
+        [Route("sync/{userId:Guid}")]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> SyncTransactionsForUser(Guid userId)
         {

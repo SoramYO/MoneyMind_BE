@@ -56,7 +56,7 @@ public class MBBankSyncBackgroundService : BackgroundService
                 try
                 {
                     var accountBank = await accountBankService.GetAccoutBankByUserIdAsync(Guid.Parse(user.Id));
-                    if (accountBank != null)
+                    if (accountBank != null && accountBank.Any())
                     {
                         await mbBankSyncService.SyncTransactions(Guid.Parse(user.Id));
                         _logger.LogInformation("MB Bank transaction sync completed for user {userId} at: {time}",
