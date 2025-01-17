@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using MoneyMind_BLL.DTOs.Accounts;
 using MoneyMind_BLL.Services.Interfaces;
 using MoneyMind_DAL.Repositories.Implementations;
@@ -101,14 +102,29 @@ namespace MoneyMind_API.Controllers
         {
             try
             {
+                var accountBanks = await _accountBankService.GetAccoutBankByUserIdAsync(userId);
+
+                if (accountBanks == null || !accountBanks.Any())
+                {
+                    _logger.LogWarning("No bank accounts found for user {UserId}", userId);
+                    return NotFound(new { Message = $"No bank accounts found for user {userId}" });
+                }
+
                 await _mbBankSyncService.SyncTransactions(userId);
+                _logger.LogInformation("Successfully synced transactions for user {UserId} at {Time}", userId, DateTimeOffset.Now);
+
                 return Ok(new { Message = $"Successfully synced transactions for user {userId}" });
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error syncing transactions for user {UserId}", userId);
-                return StatusCode(500, new { Message = "Error syncing transactions", Error = ex.Message });
+                _logger.LogError(ex, "Error syncing transactions for user {UserId} at {Time}", userId, DateTimeOffset.Now);
+                return StatusCode(500, new
+                {
+                    Message = $"Error syncing transactions for user {userId}",
+                    Error = ex.Message
+                });
             }
         }
+
     }
 }

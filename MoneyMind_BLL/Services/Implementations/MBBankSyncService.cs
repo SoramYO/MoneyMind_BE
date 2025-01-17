@@ -18,23 +18,34 @@ namespace MoneyMind_BLL.Services.Implementations
         private readonly ITransactionRepository _transactionRepository;
         private readonly IMLService _mlService;
         private readonly IAccountBankRepository _accountBankRepository;
+        private readonly ITransactionSyncLogRepository _transactionSyncLogRepository;
 
         public MBBankSyncService(
             HttpClient httpClient,
             ITransactionRepository transactionRepository,
             IMLService mlService,
-            IAccountBankRepository accountBankRepository)
+            IAccountBankRepository accountBankRepository,
+            ITransactionSyncLogRepository transactionSyncLogRepository)
         {
             _httpClient = httpClient;
             _transactionRepository = transactionRepository;
             _mlService = mlService;
             _accountBankRepository = accountBankRepository;
+            _transactionSyncLogRepository = transactionSyncLogRepository;
         }
 
         public async Task SyncTransactions(Guid userId)
         {
+            TransactionSyncLog syncLog = new TransactionSyncLog
+            {
+                UserId = userId
+            };
+
             try
             {
+                // Lưu trạng thái ban đầu của log vào cơ sở dữ liệu
+                await _transactionSyncLogRepository.InsertAsync(syncLog);
+
                 // Lấy thông tin tài khoản ngân hàng từ database
                 var accountBanks = await _accountBankRepository.GetByUserId(userId);
                 if (accountBanks == null || !accountBanks.Any())
@@ -98,9 +109,19 @@ namespace MoneyMind_BLL.Services.Implementations
                         }
                     }
                 }
+
+                // Cập nhật trạng thái log khi thành công
+                syncLog.Status = "Success";
+                await _transactionSyncLogRepository.UpdateAsync(syncLog);
             }
             catch (Exception ex)
             {
+                // Ghi lại lỗi trong log
+                syncLog.Status = "Failed";
+                syncLog.ErrorMessage = ex.Message;
+                await _transactionSyncLogRepository.UpdateAsync(syncLog);
+
+                // Ghi lỗi ra console và throw lại exception
                 Console.WriteLine($"Error syncing transactions: {ex.Message}");
                 throw;
             }

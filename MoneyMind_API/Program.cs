@@ -81,6 +81,7 @@ builder.Services.AddScoped<IMBBankSyncService, MBBankSyncService>();
 builder.Services.AddScoped<IAccountBankRepository, AccountBankRepository>();
 builder.Services.AddScoped<ITransactionRepository, TransactionRepository>();
 builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
+builder.Services.AddScoped<ITransactionSyncLogRepository, TransactionSyncLogRepository>();
 
 // Add Identity services
 builder.Services.AddIdentity<IdentityUser, IdentityRole>()
