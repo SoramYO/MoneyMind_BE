@@ -1,6 +1,9 @@
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using MoneyMind_BLL.DTOs.Accounts;
 using MoneyMind_BLL.Services.Interfaces;
+using MoneyMind_DAL.Repositories.Implementations;
 using MoneyMind_DAL.Repositories.Interfaces;
 
 namespace MoneyMind_API.Controllers
@@ -11,16 +14,19 @@ namespace MoneyMind_API.Controllers
     public class MBBankSyncController : ControllerBase
     {
         private readonly IMBBankSyncService _mbBankSyncService;
-        private readonly IAccountBankRepository _accountBankRepository;
+        private readonly IAccountBankService _accountBankService;
+        private readonly UserManager<IdentityUser> _userManager;
         private readonly ILogger<MBBankSyncController> _logger;
 
         public MBBankSyncController(
             IMBBankSyncService mbBankSyncService,
-            IAccountBankRepository accountBankRepository,
+            IAccountBankService accountBankService,
+            UserManager<IdentityUser> userManager,
             ILogger<MBBankSyncController> logger)
         {
             _mbBankSyncService = mbBankSyncService;
-            _accountBankRepository = accountBankRepository;
+            _accountBankService = accountBankService;
+            _userManager = userManager;
             _logger = logger;
         }
 
@@ -30,26 +36,46 @@ namespace MoneyMind_API.Controllers
         {
             try
             {
-                var accounts = await _accountBankRepository.GetAllUserIds();
+                // L?y danh sách t?t c? ng??i dùng
+                var users = _userManager.Users.ToList();
                 var syncResults = new List<object>();
 
-                foreach (var account in accounts)
+                foreach (var user in users)
                 {
                     try
                     {
-                        await _mbBankSyncService.SyncTransactions(account.UserId);
-                        syncResults.Add(new
+                        // Kiem tra xem nguoi dùng có tài khoan ngân hàng không
+                        var accountBank = await _accountBankService.GetAccoutBankByUserIdAsync(Guid.Parse(user.Id));
+                        if (accountBank != null)
                         {
-                            UserId = account.UserId,
-                            Status = "Success"
-                        });
+                            // dong bo giao dich
+                            await _mbBankSyncService.SyncTransactions(Guid.Parse(user.Id));
+                            syncResults.Add(new
+                            {
+                                UserId = user.Id,
+                                UserName = user.UserName,
+                                Status = "Success"
+                            });
+                        }
+                        else
+                        {
+                            syncResults.Add(new
+                            {
+                                UserId = user.Id,
+                                UserName = user.UserName,
+                                Status = "Skipped",
+                                Message = "No bank account linked"
+                            });
+                        }
                     }
                     catch (Exception ex)
                     {
-                        _logger.LogError(ex, "Error syncing transactions for user {UserId}", account.UserId);
+                        // Log l?i và thêm k?t qu? th?t b?i vào danh sách
+                        _logger.LogError(ex, "Error syncing transactions for user {UserId}", user.Id);
                         syncResults.Add(new
                         {
-                            UserId = account.UserId,
+                            UserId = user.Id,
+                            UserName = user.UserName,
                             Status = "Failed",
                             Error = ex.Message
                         });
@@ -64,6 +90,7 @@ namespace MoneyMind_API.Controllers
             }
             catch (Exception ex)
             {
+                // Log l?i t?ng th? n?u có l?i trong quá trình ??ng b?
                 _logger.LogError(ex, "Error in manual sync process");
                 return StatusCode(500, new { Message = "Internal server error during sync process", Error = ex.Message });
             }

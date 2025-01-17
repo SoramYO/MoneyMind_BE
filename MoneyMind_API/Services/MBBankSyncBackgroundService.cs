@@ -1,10 +1,12 @@
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using MoneyMind_BLL.Services.Interfaces;
-using MoneyMind_DAL.Repositories.Interfaces;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.AspNetCore.Identity;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Extensions.DependencyInjection;
 
 public class MBBankSyncBackgroundService : BackgroundService
 {
@@ -23,34 +25,52 @@ public class MBBankSyncBackgroundService : BackgroundService
     {
         while (!stoppingToken.IsCancellationRequested)
         {
-            var now = TimeZoneInfo.ConvertTime(DateTime.Now, TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time"));
-            var nextRun = now.Date.AddDays(1).AddSeconds(-1); // 23:59:59
-            var delay = nextRun - now;
-
-            if (delay.TotalMilliseconds > 0)
-            {
-                await Task.Delay(delay, stoppingToken);
-            }
-
             try
             {
-                using (var scope = _scopeFactory.CreateScope())
-                {
-                    var accountBankRepository = scope.ServiceProvider.GetRequiredService<IAccountBankRepository>();
-                    var mbBankSyncService = scope.ServiceProvider.GetRequiredService<IMBBankSyncService>();
-
-                    var accounts = await accountBankRepository.GetAllUserIds();
-                    foreach (var account in accounts)
-                    {
-                        await mbBankSyncService.SyncTransactions(account.UserId);
-                        _logger.LogInformation("MB Bank transaction sync completed for user {userId} at: {time}",
-                            account.UserId, DateTimeOffset.Now);
-                    }
-                }
+                await SyncAllAccountsAsync(stoppingToken);
+                _logger.LogInformation("MB Bank transaction sync completed at: {time}", DateTimeOffset.Now);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error occurred while syncing MB Bank transactions");
+            }
+
+            // Delay 24 hours
+            await Task.Delay(TimeSpan.FromHours(24), stoppingToken);
+        }
+    }
+
+    private async Task SyncAllAccountsAsync(CancellationToken stoppingToken)
+    {
+        using (var scope = _scopeFactory.CreateScope())
+        {
+            var userManager = scope.ServiceProvider.GetRequiredService<UserManager<IdentityUser>>();
+            var accountBankService = scope.ServiceProvider.GetRequiredService<IAccountBankService>();
+            var mbBankSyncService = scope.ServiceProvider.GetRequiredService<IMBBankSyncService>();
+            var users = userManager.Users.ToList();
+
+            foreach (var user in users)
+            {
+                if (stoppingToken.IsCancellationRequested) break;
+
+                try
+                {
+                    var accountBank = await accountBankService.GetAccoutBankByUserIdAsync(Guid.Parse(user.Id));
+                    if (accountBank != null)
+                    {
+                        await mbBankSyncService.SyncTransactions(Guid.Parse(user.Id));
+                        _logger.LogInformation("MB Bank transaction sync completed for user {userId} at: {time}",
+                            user.Id, DateTimeOffset.Now);
+                    }
+                    else
+                    {
+                        _logger.LogWarning("No bank account found for user {userId}", user.Id);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Error syncing transactions for user {userId}", user.Id);
+                }
             }
         }
     }

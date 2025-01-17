@@ -22,7 +22,10 @@ namespace MoneyMind_DAL.DBContexts
         public virtual DbSet<Jar> Jars { get; set; }
         public virtual DbSet<MonthlyGoal> MonthlyGoals { get; set; }
         public virtual DbSet<Transaction> Transactions { get; set; }
-        public DbSet<AccountBank> AccountBanks { get; set; }
+        public virtual DbSet<TransactionSyncLog> TransactionSyncLogs { get; set; }
+        public virtual DbSet<AccountBank> AccountBanks { get; set; }
+        public virtual DbSet<Chat> Chats { get; set; }
+        public virtual DbSet<Message> Messages { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             => optionsBuilder.UseSqlServer("Name=MoneyMindConnectionString");
