@@ -12,8 +12,8 @@ using MoneyMind_DAL.DBContexts;
 namespace MoneyMind_DAL.Migrations.MoneyMindDb
 {
     [DbContext(typeof(MoneyMindDbContext))]
-    [Migration("20250117044051_AddNewTable")]
-    partial class AddNewTable
+    [Migration("20250118033534_InitialMoneyMindMigration")]
+    partial class InitialMoneyMindMigration
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
