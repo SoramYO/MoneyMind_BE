@@ -31,9 +31,8 @@ namespace MoneyMind_API.Controllers
             _logger = logger;
         }
 
-        [HttpPost]
+        [HttpGet]
         [Route("sync")]
-        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> SyncTransactions()
         {
             try
@@ -96,13 +95,12 @@ namespace MoneyMind_API.Controllers
         }
 
         [HttpPost]
-        [Route("sync/{userId:Guid}")]
-        [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> SyncTransactionsForUser(Guid userId)
+        [Route("sync/{userId}")]
+        public async Task<IActionResult> SyncTransactionsForUser(string userId)
         {
             try
             {
-                var accountBanks = await _accountBankService.GetAccoutBankByUserIdAsync(userId);
+                var accountBanks = await _accountBankService.GetAccoutBankByUserIdAsync(Guid.Parse(userId));
 
                 if (accountBanks == null || !accountBanks.Any())
                 {
@@ -110,7 +108,7 @@ namespace MoneyMind_API.Controllers
                     return NotFound(new { Message = $"No bank accounts found for user {userId}" });
                 }
 
-                await _mbBankSyncService.SyncTransactions(userId);
+                await _mbBankSyncService.SyncTransactions(Guid.Parse(userId));
                 _logger.LogInformation("Successfully synced transactions for user {UserId} at {Time}", userId, DateTimeOffset.Now);
 
                 return Ok(new { Message = $"Successfully synced transactions for user {userId}" });
