@@ -3,10 +3,11 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Net.Http;
 using System.Net.Http.Json;
+using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using MoneyMind_BLL.DTOs.MBBank;
-
+using System.Text.Json.Serialization;
 using MoneyMind_BLL.Services.Interfaces;
 using MoneyMind_DAL.Entities;
 using MoneyMind_DAL.Repositories.Interfaces;
@@ -65,10 +66,16 @@ namespace MoneyMind_BLL.Services.Implementations
                         Username = accountBank.Username,
                         Password = accountBank.Password,
                         AccountNumber = accountBank.AccountNumber,
-                        Days = 1
+                        Days = 7
                     };
 
-                    var response = await _httpClient.PostAsJsonAsync("http://localhost:3000/api/mbbank/transactions", request);
+                    var options = new JsonSerializerOptions
+                    {
+                        PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower
+                    };
+
+
+                    var response = await _httpClient.PostAsJsonAsync("http://localhost:1234/api/mbbank/transactions", request, options);
                     var result = await response.Content.ReadFromJsonAsync<MBBankTransactionResponse>();
 
                     if (result?.Result?.Ok == true)

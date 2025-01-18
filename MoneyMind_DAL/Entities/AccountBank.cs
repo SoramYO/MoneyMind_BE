@@ -13,6 +13,8 @@ namespace MoneyMind_DAL.Entities
             Id = Guid.NewGuid();
         }
         public Guid Id { get; set; }
+
+        public string BankName { get; set; }
         public string Username { get; set; }
         public string Password { get; set; }
         public string AccountNumber { get; set; }

@@ -17,6 +17,12 @@ namespace MoneyMind_BLL.Services.Implementations
         {
             this.accountBankRepository = accountBankRepository;
         }
+
+        public Task<AccountBank> AddAccountBankAsync(AccountBank accountBank)
+        {
+            return accountBankRepository.Add(accountBank);
+        }
+
         public async Task<IEnumerable<AccountBank>> GetAccoutBankByUserIdAsync(Guid userId)
         {
             return await accountBankRepository.GetByUserId(userId);

@@ -10,5 +10,6 @@ namespace MoneyMind_BLL.Services.Interfaces
     public interface IAccountBankService
     {
         Task<IEnumerable<AccountBank>> GetAccoutBankByUserIdAsync(Guid userId);
+        Task<AccountBank> AddAccountBankAsync(AccountBank accountBank);
     }
 }
