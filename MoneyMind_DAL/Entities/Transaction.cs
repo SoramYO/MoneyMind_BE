@@ -18,7 +18,6 @@ namespace MoneyMind_DAL.Entities
         public DateTime TransactionDate { get; set; }
         public string RecipientName { get; set; }
         public Guid UserId { get; set; }
-
         public Guid CategoryId { get; set; }
         public virtual Category Category { get; set; } = null!;
 
