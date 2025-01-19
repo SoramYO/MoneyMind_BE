@@ -12,7 +12,7 @@ using MoneyMind_DAL.DBContexts;
 namespace MoneyMind_DAL.Migrations.MoneyMindDb
 {
     [DbContext(typeof(MoneyMindDbContext))]
-    [Migration("20250118033534_InitialMoneyMindMigration")]
+    [Migration("20250119142841_InitialMoneyMindMigration")]
     partial class InitialMoneyMindMigration
     {
         /// <inheritdoc />
@@ -32,6 +32,10 @@ namespace MoneyMind_DAL.Migrations.MoneyMindDb
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("AccountNumber")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("BankName")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
