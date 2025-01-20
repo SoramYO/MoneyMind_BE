@@ -12,7 +12,7 @@ using MoneyMind_DAL.DBContexts;
 namespace MoneyMind_DAL.Migrations.MoneyMindDb
 {
     [DbContext(typeof(MoneyMindDbContext))]
-    [Migration("20250119142841_InitialMoneyMindMigration")]
+    [Migration("20250120040944_InitialMoneyMindMigration")]
     partial class InitialMoneyMindMigration
     {
         /// <inheritdoc />
