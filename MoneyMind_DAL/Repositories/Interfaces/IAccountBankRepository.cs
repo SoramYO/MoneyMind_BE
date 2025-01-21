@@ -12,6 +12,6 @@ namespace MoneyMind_DAL.Repositories.Interfaces
         Task<IEnumerable<AccountBank>> GetByUserId(Guid userId);
 
         //Task<IEnumerable<AccountBank>> GetAllUserIds();
-        Task<AccountBank> Add(AccountBank accountBank);
+        //Task<AccountBank> Add(AccountBank accountBank);
     }
 }
