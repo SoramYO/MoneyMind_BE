@@ -14,11 +14,12 @@ namespace MoneyMind_DAL.Entities
             Id = Guid.NewGuid();
             SyncTime = DateTime.Now;
             Status = "InProcess";
+            ErrorMessage = string.Empty;
         }
         public Guid Id { get; set; }
         public DateTime SyncTime { get; set; }
         public string Status { get; set; }
-        public string ErrorMessage { get; set; }
+        public string ErrorMessage { get; set; } = string.Empty;
         public Guid UserId { get; set; }
     }
 }
