@@ -68,7 +68,11 @@ builder.Services.AddDbContext<MoneyMindAuthDbContext>(options =>
 builder.Services.AddSingleton(mlContext);
 builder.Services.AddSingleton(loadedModel);
 
+builder.Services.AddHttpClient();
 
+
+// Background Service
+builder.Services.AddHostedService<SheetSyncService>();
 
 //Service
 builder.Services.AddScoped<ITokenService, TokenService>();
@@ -85,6 +89,7 @@ builder.Services.AddScoped<IGoogleSheetSyncService>(provider =>
     ));
 builder.Services.AddScoped<ISheetService, SheetService>();
 builder.Services.AddScoped<ISheetTransactionRepository, SheetTransactionRepository>();
+builder.Services.AddScoped<IMBBankSyncService, MBBankSyncService>();
 
 //Repository
 builder.Services.AddScoped<IAccountBankRepository, AccountBankRepository>();
@@ -138,9 +143,7 @@ builder.Services.AddCors(options =>
     });
 });
 
-// Add MB Bank sync services
-builder.Services.AddHttpClient();
-builder.Services.AddScoped<IMBBankSyncService, MBBankSyncService>();
+
 
 
 var app = builder.Build();
