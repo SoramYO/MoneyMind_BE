@@ -5,10 +5,10 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #pragma warning disable CA1814 // Prefer jagged arrays over multidimensional
 
-namespace MoneyMind_DAL.Migrations
+namespace MoneyMind_DAL.Migrations.MoneyMindAuthDb
 {
     /// <inheritdoc />
-    public partial class InitialCreate : Migration
+    public partial class InitialAuth : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)

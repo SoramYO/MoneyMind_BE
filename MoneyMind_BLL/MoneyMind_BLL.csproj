@@ -28,6 +28,7 @@
 	<ItemGroup>
 		<PackageReference Include="AutoMapper" Version="13.0.1" />
 		<PackageReference Include="Microsoft.ML" Version="4.0.0" />
+		<PackageReference Include="Google.Apis.Sheets.v4" Version="1.67.0.3148" />
 	</ItemGroup>
 
 	<!-- Tham chiếu đến dự án MoneyMind_DAL -->

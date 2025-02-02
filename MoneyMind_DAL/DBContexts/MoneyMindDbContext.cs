@@ -18,7 +18,8 @@ namespace MoneyMind_DAL.DBContexts
         {
         }
 
-        public virtual DbSet<Category> Categories { get; set; }
+        public virtual DbSet<SheetTransction> SheetTransctions { get; set; }
+		public virtual DbSet<Category> Categories { get; set; }
         public virtual DbSet<Jar> Jars { get; set; }
         public virtual DbSet<MonthlyGoal> MonthlyGoals { get; set; }
         public virtual DbSet<Transaction> Transactions { get; set; }
