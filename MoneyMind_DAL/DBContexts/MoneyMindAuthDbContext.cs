@@ -46,14 +46,5 @@ namespace MoneyMind_DAL.DBContexts
 
             builder.Entity<IdentityRole>().HasData(roles);
         }
-        //protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        //{
-        //    if (!optionsBuilder.IsConfigured)
-        //    {
-        //        optionsBuilder.UseSqlServer(
-        //            "YourConnectionStringHere",
-        //            b => b.MigrationsAssembly("MoneyMind_DAL")); // Tên assembly chứa migrations
-        //    }
-        //}
     }
 }

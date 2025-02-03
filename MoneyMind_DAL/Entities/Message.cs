@@ -13,12 +13,16 @@ namespace MoneyMind_DAL.Entities
             Id = Guid.NewGuid();
         }
         public Guid Id { get; set; }
-        public Guid ChatId { get; set; }
         public Guid SenderId { get; set; }
         public string MessageContent { get; set; } = null!;
         public DateTime SentTime { get; set; }
         public string MessageType { get; set; } = null!;
         public bool IsBotResponse { get; set; }
+
+        /// <summary>
+        /// Properties related 
+        /// </summary>
+        public Guid ChatId { get; set; }
         public virtual Chat Chat { get; set; } = null!;
     }
 }

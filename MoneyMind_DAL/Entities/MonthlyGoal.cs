@@ -7,6 +7,13 @@ using System.Threading.Tasks;
 
 namespace MoneyMind_DAL.Entities
 {
+    public enum GoalStatus
+    {
+        Pending = 0,        // Chưa bắt đầu
+        InProgress = 1,     // Đang thực hiện
+        Completed = 2,      // Hoàn thành
+        Failed = 3          // Không đạt được
+    }
     public class MonthlyGoal
     {
         public MonthlyGoal()
@@ -14,10 +21,17 @@ namespace MoneyMind_DAL.Entities
             Id = Guid.NewGuid();
         }
         public Guid Id { get; set; }
-        public double TargetAmount { get; set; }
-        public double SpentAmount { get; set; }
+        public GoalStatus Status { get; set; }
+        public double TotalAmount { get; set; }
         public int Month { get; set; }
         public int Year { get; set; }
+        public DateTime CreateAt { get; set; }
+        public bool IsCompleted { get; set; } 
+
+        /// <summary>
+        /// Properties related 
+        /// </summary>
         public Guid UserId { get; set; }
+        public virtual ICollection<GoalItem> GoalItems { get; set; } = new List<GoalItem>();
     }
 }

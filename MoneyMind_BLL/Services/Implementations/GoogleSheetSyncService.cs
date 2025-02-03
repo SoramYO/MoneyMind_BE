@@ -7,6 +7,7 @@ using Google.Apis.Auth.OAuth2;
 using Google.Apis.Services;
 using Google.Apis.Sheets.v4;
 using Google.Apis.Sheets.v4.Data;
+using Microsoft.Extensions.Hosting;
 using MoneyMind_BLL.DTOs.GoogleSheet;
 using MoneyMind_BLL.Services.Interfaces;
 using MoneyMind_DAL.Entities;
@@ -25,12 +26,12 @@ namespace MoneyMind_BLL.Services.Implementations
             ITransactionRepository transactionRepository,
             IMLService mlService,
             ITransactionSyncLogRepository syncLogRepository,
-            string contentRootPath)
+            IHostEnvironment hostEnvironment)
         {
             _transactionRepository = transactionRepository;
             _mlService = mlService;
             _syncLogRepository = syncLogRepository;
-            _contentRootPath = contentRootPath;
+            _contentRootPath = hostEnvironment.ContentRootPath;
         }
 
         public async Task SyncTransactionsFromSheet(GoogleSheetRequest request)
@@ -128,19 +129,17 @@ namespace MoneyMind_BLL.Services.Implementations
                                             if (existingTransaction == null)
                                             {
                                                 Console.WriteLine("Transaction is new, getting category classification...");
-                                                var category = await _mlService.ClassificationCategory(
-                                                    sheetRow.Description,
-                                                    (float)amount
+                                                var tag = await _mlService.ClassificationTag(
+                                                    sheetRow.Description
                                                 );
 
-                                                if (category != null)
+                                                if (tag != null)
                                                 {
-                                                    Console.WriteLine($"Category classified as: {category.Name}");
+                                                    Console.WriteLine($"Category classified as: {tag.Name}");
                                                     var transaction = new Transaction
                                                     {
                                                         Amount = (double)amount,
                                                         Description = sheetRow.Description,
-                                                        CategoryId = category.Id,
                                                         TransactionDate = DateTime.ParseExact(
                                                             sheetRow.TransactionDate,
                                                             new string[] { 
@@ -151,8 +150,14 @@ namespace MoneyMind_BLL.Services.Implementations
                                                             CultureInfo.InvariantCulture,
                                                             DateTimeStyles.None),
                                                         RecipientName = sheetRow.CounterAccountName,
-                                                        Category = category,
-                                                        UserId = request.UserId
+                                                        UserId = request.UserId,
+                                                        TransactionTags = new List<TransactionTag>
+                                                        {
+                                                            new TransactionTag
+                                                            {
+                                                                TagId = tag.Id
+                                                            }
+                                                        }
                                                     };
 
                                                     await _transactionRepository.InsertAsync(transaction);

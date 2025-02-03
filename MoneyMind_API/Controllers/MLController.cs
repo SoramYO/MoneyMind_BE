@@ -9,35 +9,33 @@ namespace MoneyMind_API.Controllers
     [ApiController]
     public class MLController : ControllerBase
     {
-        private readonly IMLService _mlService;
+        private readonly IMLService mlService;
 
         public MLController(IMLService mlService)
         {
-            _mlService = mlService;
+            this.mlService = mlService;
         }
 
         // POST: api/ml/classify
         [HttpPost("classify")]
-        public async Task<IActionResult> ClassifyTransaction([FromBody] TransactionToClassificationRequest transactionToClassification)
+        public async Task<IActionResult> ClassifyTag([FromBody] TransactionToClassificationRequest transactionToClassification)
         {
             if (string.IsNullOrWhiteSpace(transactionToClassification.Description))
                 return BadRequest("Description cannot be null or empty.");
 
-            if (transactionToClassification.Amount <= 0)
-                return BadRequest("Amount must be greater than 0.");
-
             try
             {
-                var category = await _mlService.ClassificationCategory(transactionToClassification.Description, transactionToClassification.Amount);
+                var category = await mlService.ClassificationTag(transactionToClassification.Description);
 
                 if (category == null)
-                    return NotFound("No matching category found.");
+                    return NotFound("No matching tag found.");
 
                 return Ok(new
                 {
                     CategoryId = category.Id,
                     CategoryName = category.Name
                 });
+                return null;
             }
             catch (Exception ex)
             {

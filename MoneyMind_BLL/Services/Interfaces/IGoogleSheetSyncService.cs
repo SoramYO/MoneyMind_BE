@@ -8,8 +8,8 @@ using System.Threading.Tasks;
 
 namespace MoneyMind_BLL.Services.Interfaces
 {
-public interface IGoogleSheetSyncService
-{
-    Task SyncTransactionsFromSheet(GoogleSheetRequest request);
-} 
+    public interface IGoogleSheetSyncService
+    {
+        Task SyncTransactionsFromSheet(GoogleSheetRequest request);
+    } 
 }

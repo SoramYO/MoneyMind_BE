@@ -11,6 +11,5 @@ namespace MoneyMind_DAL.Repositories.Interfaces
     {
         Task<Transaction> IsExistTransaction(string description, double amount);
 
-        //Task AddTransaction(Transaction transaction);
     }
 }
