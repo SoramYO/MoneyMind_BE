@@ -20,7 +20,7 @@ namespace MoneyMind_DAL.Repositories
             _dbSet = context.Set<TEntity>();
         }
 
-        public virtual async Task<(IEnumerable<TEntity>, int TotalPages)> GetAsync(
+        public virtual async Task<(IEnumerable<TEntity>, int TotalPages, int TotalRecords)> GetAsync(
             Expression<Func<TEntity, bool>> filter = null,
             Func<IQueryable<TEntity>, IOrderedQueryable<TEntity>> orderBy = null,
             string includeProperties = "",
@@ -57,7 +57,7 @@ namespace MoneyMind_DAL.Repositories
 
             int totalPages = (int)Math.Ceiling((double)totalRecords / (pageSize ?? 12));
 
-            return (await query.ToListAsync(), totalPages);
+            return (await query.ToListAsync(), totalPages, totalRecords);
         }
 
         public virtual async Task<TEntity?> GetByIdAsync(object id)

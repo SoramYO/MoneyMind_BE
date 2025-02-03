@@ -15,23 +15,23 @@ namespace MoneyMind_API.Controllers
     [ApiController]
     public class AccountBankController : ControllerBase
     {
-        private readonly IAccountBankService _accountBankService;
-        private readonly UserManager<IdentityUser> _userManager;
-        private readonly IEmailService _emailService;
+        private readonly IAccountBankService accountBankService;
+        private readonly UserManager<IdentityUser> userManager;
+        private readonly IEmailService emailService;
         public AccountBankController(
             IAccountBankService accountBankService,
             UserManager<IdentityUser> userManager,
             IEmailService emailService)
         {
-            _accountBankService = accountBankService;
-            _userManager = userManager;
-            _emailService = emailService;
+            this.accountBankService = accountBankService;
+            this.userManager = userManager;
+            this.emailService = emailService;
         }
         [HttpPost]
         [Route("add")]
         public async Task<IActionResult> AddAccountBank([FromBody] AccountBankDTO accountBankDTO)
         {
-            var user = await _userManager.FindByIdAsync(accountBankDTO.UserId);
+            var user = await userManager.FindByIdAsync(accountBankDTO.UserId);
             if (user == null)
             {
                 return BadRequest(new { message = "User not found" });
@@ -44,19 +44,19 @@ namespace MoneyMind_API.Controllers
                 Username = accountBankDTO.UserName,
                 Password = accountBankDTO.Password
             };
-            await _accountBankService.AddAccountBankAsync(accountBank);
+            await accountBankService.AddAccountBankAsync(accountBank);
             return Ok(new { message = "Account bank added successfully" });
         }
         [HttpGet]
         [Route("get")]
         public async Task<IActionResult> GetAccountBankByUserId([FromQuery] string userId)
         {
-            var user = await _userManager.FindByIdAsync(userId);
+            var user = await userManager.FindByIdAsync(userId);
             if (user == null)
             {
                 return BadRequest(new { message = "User not found" });
             }
-            var accountBanks = await _accountBankService.GetAccoutBankByUserIdAsync(Guid.Parse(userId));
+            var accountBanks = await accountBankService.GetAccoutBankByUserIdAsync(Guid.Parse(userId));
             return Ok(accountBanks);
         }
     }

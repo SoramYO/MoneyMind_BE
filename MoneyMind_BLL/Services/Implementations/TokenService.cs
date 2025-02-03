@@ -28,7 +28,7 @@ namespace MoneyMind_BLL.Services.Implementations
             var claims = new List<Claim>
             {
                 new Claim(ClaimTypes.Email, user.Email),
-                new Claim("id", user.Id)
+                new Claim("UserId", user.Id)
             };
             claims.AddRange(roles.Select(role => new Claim(ClaimTypes.Role, role)));
 

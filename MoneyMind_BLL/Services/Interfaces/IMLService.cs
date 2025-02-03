@@ -10,6 +10,6 @@ namespace MoneyMind_BLL.Services.Interfaces
 {
     public interface IMLService
     {
-        Task<Category> ClassificationCategory(string description, float amount);
+        Task<Tag> ClassificationTag(string description);
     }
 }

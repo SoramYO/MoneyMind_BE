@@ -8,6 +8,8 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.ML;
 using Microsoft.OpenApi.Models;
 using MoneyMind_API.Middlewares;
+using MoneyMind_BLL.Mapping;
+using MoneyMind_BLL.Services.BackgroundServices;
 using MoneyMind_BLL.Services.Implementations;
 using MoneyMind_BLL.Services.Interfaces;
 using MoneyMind_DAL.DBContexts;
@@ -68,34 +70,33 @@ builder.Services.AddDbContext<MoneyMindAuthDbContext>(options =>
 builder.Services.AddSingleton(mlContext);
 builder.Services.AddSingleton(loadedModel);
 
-builder.Services.AddHttpClient();
-
-
-// Background Service
+//Background Service
+builder.Services.AddHostedService<MBBankSyncBackgroundService>();
 builder.Services.AddHostedService<SheetSyncService>();
 
 //Service
-builder.Services.AddScoped<ITokenService, TokenService>();
-builder.Services.AddScoped<IEmailService, EmailService>();
-builder.Services.AddScoped<IMLService, MLService>();
-builder.Services.AddScoped<IAccountBankService, AccountBankService>();
-builder.Services.AddScoped<IMBBankSyncService, MBBankSyncService>();
-builder.Services.AddScoped<IGoogleSheetSyncService>(provider => 
-    new GoogleSheetSyncService(
-        provider.GetRequiredService<ITransactionRepository>(),
-        provider.GetRequiredService<IMLService>(),
-        provider.GetRequiredService<ITransactionSyncLogRepository>(),
-        builder.Environment.ContentRootPath
-    ));
-builder.Services.AddScoped<ISheetService, SheetService>();
-builder.Services.AddScoped<ISheetTransactionRepository, SheetTransactionRepository>();
-builder.Services.AddScoped<IMBBankSyncService, MBBankSyncService>();
+
+builder.Services.Scan(scan => scan
+    .FromAssemblyOf<IAccountBankService>() 
+    .AddClasses(classes => classes.InNamespaces(
+        "MoneyMind_BLL.Services.Implementations"
+    ))
+    .AsImplementedInterfaces() 
+    .WithScopedLifetime()     
+);
 
 //Repository
-builder.Services.AddScoped<IAccountBankRepository, AccountBankRepository>();
-builder.Services.AddScoped<ITransactionRepository, TransactionRepository>();
-builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
-builder.Services.AddScoped<ITransactionSyncLogRepository, TransactionSyncLogRepository>();
+builder.Services.Scan(scan => scan
+    .FromAssemblyOf<IAccountBankRepository>()
+    .AddClasses(classes => classes.InNamespaces(
+        "MoneyMind_DAL.Repositories.Implementations"
+    ))
+    .AsImplementedInterfaces()
+    .WithScopedLifetime()
+);
+
+// AutoMapper configuration
+builder.Services.AddAutoMapper(typeof(AutoMapperProfiles));
 
 // Add Identity services
 builder.Services.AddIdentity<IdentityUser, IdentityRole>()
@@ -143,8 +144,10 @@ builder.Services.AddCors(options =>
     });
 });
 
-
-
+// Add MB Bank sync services
+builder.Services.AddHttpClient();
+builder.Services.AddScoped<IMBBankSyncService, MBBankSyncService>();
+builder.Services.AddHostedService<MBBankSyncBackgroundService>();
 
 var app = builder.Build();
 

@@ -21,6 +21,9 @@ namespace MoneyMind_DAL.Entities
         public DateTime CreatedAt { get; set; }
         public DateTime UpdatedAt { get; set; }
 
+        /// <summary>
+        /// Properties related 
+        /// </summary>
         public virtual ICollection<Message> Messages { get; set; } = new List<Message>();
     }
 }

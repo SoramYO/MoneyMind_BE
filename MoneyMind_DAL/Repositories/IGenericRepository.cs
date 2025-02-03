@@ -9,7 +9,7 @@ namespace MoneyMind_DAL.Repositories
 {
     public interface IGenericRepository<TEntity> where TEntity : class
     {
-        Task<(IEnumerable<TEntity>, int TotalPages)> GetAsync(
+        Task<(IEnumerable<TEntity>, int TotalPages, int TotalRecords)> GetAsync(
             Expression<Func<TEntity, bool>> filter = null,
             Func<IQueryable<TEntity>, IOrderedQueryable<TEntity>> orderBy = null,
             string includeProperties = "",

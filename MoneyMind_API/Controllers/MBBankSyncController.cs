@@ -14,10 +14,10 @@ namespace MoneyMind_API.Controllers
     [Authorize]
     public class MBBankSyncController : ControllerBase
     {
-        private readonly IMBBankSyncService _mbBankSyncService;
-        private readonly IAccountBankService _accountBankService;
-        private readonly UserManager<IdentityUser> _userManager;
-        private readonly ILogger<MBBankSyncController> _logger;
+        private readonly IMBBankSyncService mbBankSyncService;
+        private readonly IAccountBankService accountBankService;
+        private readonly UserManager<IdentityUser> userManager;
+        private readonly ILogger<MBBankSyncController> logger;
 
         public MBBankSyncController(
             IMBBankSyncService mbBankSyncService,
@@ -25,10 +25,10 @@ namespace MoneyMind_API.Controllers
             UserManager<IdentityUser> userManager,
             ILogger<MBBankSyncController> logger)
         {
-            _mbBankSyncService = mbBankSyncService;
-            _accountBankService = accountBankService;
-            _userManager = userManager;
-            _logger = logger;
+            this.mbBankSyncService = mbBankSyncService;
+            this.accountBankService = accountBankService;
+            this.userManager = userManager;
+            this.logger = logger;
         }
 
         [HttpGet]
@@ -37,7 +37,7 @@ namespace MoneyMind_API.Controllers
         {
             try
             {
-                var users = _userManager.Users.ToList();
+                var users = userManager.Users.ToList();
                 var syncResults = new List<object>();
 
                 foreach (var user in users)
@@ -45,11 +45,11 @@ namespace MoneyMind_API.Controllers
                     try
                     {
                         // Kiem tra xem nguoi dùng có tài khoan ngân hàng không
-                        var accountBank = await _accountBankService.GetAccoutBankByUserIdAsync(Guid.Parse(user.Id));
+                        var accountBank = await accountBankService.GetAccoutBankByUserIdAsync(Guid.Parse(user.Id));
                         if (accountBank != null && accountBank.Any())
                         {
                             // dong bo giao dich
-                            await _mbBankSyncService.SyncTransactions(Guid.Parse(user.Id));
+                            await mbBankSyncService.SyncTransactions(Guid.Parse(user.Id));
                             syncResults.Add(new
                             {
                                 UserId = user.Id,
@@ -70,7 +70,7 @@ namespace MoneyMind_API.Controllers
                     }
                     catch (Exception ex)
                     {
-                        _logger.LogError(ex, "Error syncing transactions for user {UserId}", user.Id);
+                        logger.LogError(ex, "Error syncing transactions for user {UserId}", user.Id);
                         syncResults.Add(new
                         {
                             UserId = user.Id,
@@ -89,7 +89,7 @@ namespace MoneyMind_API.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error in manual sync process");
+                logger.LogError(ex, "Error in manual sync process");
                 return StatusCode(500, new { Message = "Internal server error during sync process", Error = ex.Message });
             }
         }
@@ -100,22 +100,22 @@ namespace MoneyMind_API.Controllers
         {
             try
             {
-                var accountBanks = await _accountBankService.GetAccoutBankByUserIdAsync(Guid.Parse(userId));
+                var accountBanks = await accountBankService.GetAccoutBankByUserIdAsync(Guid.Parse(userId));
 
                 if (accountBanks == null || !accountBanks.Any())
                 {
-                    _logger.LogWarning("No bank accounts found for user {UserId}", userId);
+                    logger.LogWarning("No bank accounts found for user {UserId}", userId);
                     return NotFound(new { Message = $"No bank accounts found for user {userId}" });
                 }
 
-                await _mbBankSyncService.SyncTransactions(Guid.Parse(userId));
-                _logger.LogInformation("Successfully synced transactions for user {UserId} at {Time}", userId, DateTimeOffset.Now);
+                await mbBankSyncService.SyncTransactions(Guid.Parse(userId));
+                logger.LogInformation("Successfully synced transactions for user {UserId} at {Time}", userId, DateTimeOffset.Now);
 
                 return Ok(new { Message = $"Successfully synced transactions for user {userId}" });
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error syncing transactions for user {UserId} at {Time}", userId, DateTimeOffset.Now);
+                logger.LogError(ex, "Error syncing transactions for user {UserId} at {Time}", userId, DateTimeOffset.Now);
                 return StatusCode(500, new
                 {
                     Message = $"Error syncing transactions for user {userId}",

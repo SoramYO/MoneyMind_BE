@@ -89,29 +89,29 @@ namespace MoneyMind_BLL.Services.Implementations
                                     (double)debitAmount
                                 );
 
-                                if (existingTransaction == null)
-                                {
-                                    var category = await _mlService.ClassificationCategory(
-                                        transaction.Description,
-                                        (float)debitAmount
-                                    );
+                                //if (existingTransaction == null)
+                                //{
+                                //    var category = await _mlService.ClassificationCategory(
+                                //        transaction.Description,
+                                //        (float)debitAmount
+                                //    );
 
-                                    if (category != null)
-                                    {
-                                        var newTransaction = new Transaction
-                                        {
-                                            Amount = (double)debitAmount,
-                                            Description = transaction.Description,
-                                            CategoryId = category.Id,
-                                            TransactionDate = DateTime.ParseExact(transaction.TransactionDate, "dd/MM/yyyy HH:mm:ss", CultureInfo.InvariantCulture),
-                                            RecipientName = transaction.BenAccountName,
-                                            Category = category,
-                                            UserId = userId
-                                        };
+                                //    if (category != null)
+                                //    {
+                                        //var newTransaction = new Transaction
+                                        //{
+                                        //    Amount = (double)debitAmount,
+                                        //    Description = transaction.Description,
+                                        //    CategoryId = category.Id,
+                                        //    TransactionDate = DateTime.ParseExact(transaction.TransactionDate, "dd/MM/yyyy HH:mm:ss", CultureInfo.InvariantCulture),
+                                        //    RecipientName = transaction.BenAccountName,
+                                        //    Category = category,
+                                        //    UserId = userId
+                                        //};
 
-                                        await _transactionRepository.InsertAsync(newTransaction);
-                                    }
-                                }
+                                //        await _transactionRepository.InsertAsync(newTransaction);
+                                //    }
+                                //}
                             }
                         }
                     }
