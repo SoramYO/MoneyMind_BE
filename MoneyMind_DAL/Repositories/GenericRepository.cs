@@ -60,10 +60,21 @@ namespace MoneyMind_DAL.Repositories
             return (await query.ToListAsync(), totalPages, totalRecords);
         }
 
-        public virtual async Task<TEntity?> GetByIdAsync(object id)
+        public virtual async Task<TEntity?> GetByIdAsync(object id, params Expression<Func<TEntity, object>>[] includeProperties)
         {
-            return await _dbSet.FindAsync(id);
+            IQueryable<TEntity> query = _dbSet;
+
+            if (includeProperties != null)
+            {
+                foreach (var includeProperty in includeProperties)
+                {
+                    query = query.Include(includeProperty);
+                }
+            }
+
+            return await query.FirstOrDefaultAsync(e => EF.Property<object>(e, "Id").Equals(id));
         }
+
 
         public virtual async Task<TEntity> InsertAsync(TEntity entity)
         {

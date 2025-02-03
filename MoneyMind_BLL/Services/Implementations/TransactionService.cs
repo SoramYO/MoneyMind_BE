@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using MoneyMind_BLL.DTOs;
+using MoneyMind_BLL.DTOs.MonthlyGoals;
 using MoneyMind_BLL.DTOs.SubWalletTypes;
 using MoneyMind_BLL.DTOs.Transactions;
 using MoneyMind_BLL.Services.Interfaces;
@@ -91,6 +92,18 @@ namespace MoneyMind_BLL.Services.Implementations
             };
 
             return listResponse;
+        }
+
+        public async Task<TransactionResponse> GetTransactionByIdAsync(Guid transactionId)
+        {
+            var transaction = await transactionRepository.GetByIdAsync(transactionId, t => t.TransactionTags);
+
+            if (transaction == null)
+            {
+                return null;
+            }
+
+            return mapper.Map<TransactionResponse>(transaction);
         }
 
         public async Task<TransactionResponse> UpdateTransactionAsync(Guid transactionId, Guid userId, TransactionRequest transactionRequest)

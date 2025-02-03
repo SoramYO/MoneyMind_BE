@@ -98,20 +98,17 @@ namespace MoneyMind_DAL.Migrations
                     b.Property<bool>("IsAchieved")
                         .HasColumnType("bit");
 
-                    b.Property<double>("MaxAmount")
+                    b.Property<double?>("MaxAmount")
                         .HasColumnType("float");
 
-                    b.Property<double>("MaxTagetpercentage")
+                    b.Property<double?>("MaxTargetPercentage")
                         .HasColumnType("float");
 
-                    b.Property<double>("MinAmount")
+                    b.Property<double?>("MinAmount")
                         .HasColumnType("float");
 
-                    b.Property<double>("MinTagetpercentage")
+                    b.Property<double?>("MinTargetPercentage")
                         .HasColumnType("float");
-
-                    b.Property<Guid>("MonthGoalId")
-                        .HasColumnType("uniqueidentifier");
 
                     b.Property<Guid>("MonthlyGoalId")
                         .HasColumnType("uniqueidentifier");
@@ -119,10 +116,10 @@ namespace MoneyMind_DAL.Migrations
                     b.Property<int>("TargetMode")
                         .HasColumnType("int");
 
-                    b.Property<double>("UsingAmount")
+                    b.Property<double>("UsedAmount")
                         .HasColumnType("float");
 
-                    b.Property<double>("UsingPercentage")
+                    b.Property<double>("UsedPercentage")
                         .HasColumnType("float");
 
                     b.Property<Guid>("WalletTypeId")

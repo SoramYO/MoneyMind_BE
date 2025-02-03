@@ -29,7 +29,6 @@ namespace MoneyMind_API.Controllers
         [Authorize]
         public async Task<IActionResult> GetAsync(
             [FromRoute] Guid userId,
-            [FromQuery] Guid? subWalletTypeId = null,
             [FromQuery] Guid? walletTypeId = null,
             [FromQuery] int pageIndex = 1,
             [FromQuery] int pageSize = 12)
@@ -43,11 +42,7 @@ namespace MoneyMind_API.Controllers
             filterExpression = filterExpression.AndAlso(s => s.UserId == userId);
 
             //Combine filters using AndAlso method
-            if (walletTypeId != null)
-            {
-                filterExpression = filterExpression.AndAlso(s => s.Id == subWalletTypeId);
-            }
-            if (walletTypeId != null)
+            if (walletTypeId.HasValue)
             {
                 filterExpression = filterExpression.AndAlso(s => s.WalletTypeId == walletTypeId);
             }
@@ -71,6 +66,29 @@ namespace MoneyMind_API.Controllers
             };
 
             return Ok(response);
+        }
+
+        [HttpGet]
+        [Route("detail/{subWalletTypeId:Guid}")]
+        public async Task<IActionResult> GetMonthlyGoalByIdAsync([FromRoute] Guid subWalletTypeId)
+        {
+            var subWalletType = await subWalletTypeService.GetSubWalletTypeByIdAsync(subWalletTypeId);
+            if (subWalletType == null)
+            {
+                return NotFound(new ResponseObject
+                {
+                    Status = System.Net.HttpStatusCode.NotFound,
+                    Message = "Sub wallet type not found!",
+                    Data = null
+                });
+            }
+
+            return Ok(new ResponseObject
+            {
+                Status = System.Net.HttpStatusCode.OK,
+                Message = "Get Sub wallet type successfully!",
+                Data = subWalletType
+            });
         }
 
         [HttpPost]

@@ -28,7 +28,6 @@ namespace MoneyMind_API.Controllers
         [Authorize]
         public async Task<IActionResult> GetAsync(
              [FromRoute] Guid userId,
-             [FromQuery] Guid? transactionId = null,
              [FromQuery] Guid? walletId = null,
              [FromQuery] bool? isCategorized = null, 
              [FromQuery] DateTime? fromDate = null,
@@ -45,10 +44,6 @@ namespace MoneyMind_API.Controllers
             // Tạo bộ lọc
             Expression<Func<Transaction, bool>> filterExpression = s => s.IsActive && s.UserId == userId;
 
-            if (transactionId.HasValue)
-            {
-                filterExpression = filterExpression.AndAlso(s => s.Id == transactionId.Value);
-            }
             if (walletId.HasValue)
             {
                 filterExpression = filterExpression.AndAlso(s => s.WalletId == walletId.Value);
@@ -110,6 +105,28 @@ namespace MoneyMind_API.Controllers
             };
         }
 
+        [HttpGet]
+        [Route("detail/{trasactionId:Guid}")]
+        public async Task<IActionResult> GetMonthlyGoalByIdAsync([FromRoute] Guid trasactionId)
+        {
+            var transaction = await transactionService.GetTransactionByIdAsync(trasactionId);
+            if (transaction == null)
+            {
+                return NotFound(new ResponseObject
+                {
+                    Status = System.Net.HttpStatusCode.NotFound,
+                    Message = "Transaction not found!",
+                    Data = null
+                });
+            }
+
+            return Ok(new ResponseObject
+            {
+                Status = System.Net.HttpStatusCode.OK,
+                Message = "Get monthly goal successfully!",
+                Data = transaction
+            });
+        }
 
         [HttpPost]
         [Authorize(Roles = "User")]

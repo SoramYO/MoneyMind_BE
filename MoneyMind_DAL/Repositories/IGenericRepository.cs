@@ -15,7 +15,7 @@ namespace MoneyMind_DAL.Repositories
             string includeProperties = "",
             int? pageIndex = null,
             int? pageSize = null);
-        Task<TEntity?> GetByIdAsync(object id);
+        Task<TEntity?> GetByIdAsync(object id, params Expression<Func<TEntity, object>>[] includeProperties);
         Task<TEntity> InsertAsync(TEntity entity);
         Task<TEntity> UpdateAsync(TEntity entity);
         Task<TEntity> DeleteAsync(object id);

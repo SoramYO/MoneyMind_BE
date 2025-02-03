@@ -22,5 +22,6 @@ namespace MoneyMind_BLL.Services.Interfaces
         Task<SubWalletTypeResponse> AddSubWalletTypeAsync(Guid userId, SubWalletTypeRequest subWalletTypeRequest);
         Task<SubWalletTypeResponse> UpdateSubWalletTypeAsync(Guid subWalletTypeId, Guid userId, SubWalletTypeRequest subWalletTypeRequest);
         Task<SubWalletTypeResponse> DeleteSubWalletTypeAsync(Guid subWalletTypeId, Guid userId);
+        Task<SubWalletTypeResponse> GetSubWalletTypeByIdAsync(Guid subWalletTypeId);
     }
 }

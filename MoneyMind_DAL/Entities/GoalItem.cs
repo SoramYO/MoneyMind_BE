@@ -24,19 +24,19 @@ namespace MoneyMind_DAL.Entities
         }
         public Guid Id { get; set; }
         public string Description { get; set; } 
-        public double UsingAmount { get; set; }
-        public double UsingPercentage { get; set; }
-        public double MinTagetpercentage { get; set; }
-        public double MaxTagetpercentage { get; set; }
-        public double MinAmount { get; set; }
-        public double MaxAmount { get; set; }
+        public double UsedAmount { get; set; }
+        public double UsedPercentage { get; set; }
+        public double? MinTargetPercentage { get; set; }
+        public double? MaxTargetPercentage { get; set; }
+        public double? MinAmount { get; set; }
+        public double? MaxAmount { get; set; }
         public TargetMode TargetMode { get; set; }
         public bool IsAchieved { get; set; } 
 
         /// <summary>
         /// Properties related 
         /// </summary>
-        public Guid MonthGoalId { get; set; }
+        public Guid MonthlyGoalId { get; set; }
         public Guid WalletTypeId { get; set; }
         public virtual MonthlyGoal MonthlyGoal { get; set; }
         public virtual WalletType WalletType { get; set; }

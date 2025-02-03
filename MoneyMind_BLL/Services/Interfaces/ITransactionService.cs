@@ -9,6 +9,7 @@ using System.Text;
 using System.Threading.Tasks;
 using MoneyMind_BLL.DTOs.Transactions;
 using MoneyMind_BLL.DTOs.SubWalletTypes;
+using MoneyMind_BLL.DTOs.MonthlyGoals;
 
 namespace MoneyMind_BLL.Services.Interfaces
 {
@@ -23,5 +24,6 @@ namespace MoneyMind_BLL.Services.Interfaces
         Task<TransactionResponse> AddTransactionAsync(Guid userId, TransactionRequest transactionRequest);
         Task<TransactionResponse> UpdateTransactionAsync(Guid transactionId, Guid userId, TransactionRequest transactionRequest);
         Task<TransactionResponse> DeleteTransactionAsync(Guid transactionId, Guid userId);
+        Task<TransactionResponse> GetTransactionByIdAsync(Guid transactionId);
     }
 }

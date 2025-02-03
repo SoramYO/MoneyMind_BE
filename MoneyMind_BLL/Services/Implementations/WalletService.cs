@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using MoneyMind_BLL.DTOs;
+using MoneyMind_BLL.DTOs.MonthlyGoals;
 using MoneyMind_BLL.DTOs.SubWalletTypes;
 using MoneyMind_BLL.DTOs.Wallets;
 using MoneyMind_BLL.Services.Interfaces;
@@ -49,6 +50,18 @@ namespace MoneyMind_BLL.Services.Implementations
             existingWallet = await walletRepository.UpdateAsync(existingWallet);
 
             return mapper.Map<WalletResponse>(existingWallet);
+        }
+
+        public async Task<WalletResponse> GetWalletByIdAsync(Guid walletId)
+        {
+            var wallet = await walletRepository.GetByIdAsync(walletId);
+
+            if (wallet == null)
+            {
+                return null;
+            }
+
+            return mapper.Map<WalletResponse>(wallet);
         }
 
         public async Task<ListDataResponse> GetWalletsAsync(Expression<Func<Wallet, bool>>? filter, Func<IQueryable<Wallet>, IOrderedQueryable<Wallet>> orderBy, string includeProperties, int pageIndex, int pageSize)

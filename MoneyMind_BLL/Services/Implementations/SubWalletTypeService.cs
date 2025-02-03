@@ -6,6 +6,8 @@ using MoneyMind_DAL.Entities;
 using MoneyMind_DAL.Repositories.Interfaces;
 using System.Linq.Expressions;
 using Microsoft.AspNetCore.Http;
+using MoneyMind_BLL.DTOs.MonthlyGoals;
+using MoneyMind_DAL.Repositories.Implementations;
 
 namespace MoneyMind_BLL.Services.Implementations
 {
@@ -98,6 +100,18 @@ namespace MoneyMind_BLL.Services.Implementations
             return mapper.Map<SubWalletTypeResponse>(existingSubWalletType);
         }
 
+        public async Task<SubWalletTypeResponse> GetSubWalletTypeByIdAsync(Guid subWalletTypeId)
+        {
+            var subWallet = await subWalletTypeRepository.GetByIdAsync(subWalletTypeId, s => s.WalletType);
+
+            if (subWallet == null)
+            {
+                return null;
+            }
+
+            return mapper.Map<SubWalletTypeResponse>(subWallet);
+        }
+
         public async Task<ListDataResponse> GetSubWalletTypesAsync(
             Expression<Func<SubWalletType, bool>>? filter,
             Func<IQueryable<SubWalletType>, IOrderedQueryable<SubWalletType>> orderBy,
@@ -117,14 +131,14 @@ namespace MoneyMind_BLL.Services.Implementations
             var totalRecords = response.Item3;
 
             // Giả sử authorDomains là danh sách các đối tượng AuthorDomain
-            var walletTypeResponse = mapper.Map<List<SubWalletTypeResponse>>(subWalletTypes);
+            var subWalletTypeResponse = mapper.Map<List<SubWalletTypeResponse>>(subWalletTypes);
 
             var listResponse = new ListDataResponse
             {
                 TotalRecord = totalRecords,
                 TotalPage = totalPages,
                 PageIndex = pageIndex,
-                Data = walletTypeResponse
+                Data = subWalletTypeResponse
             };
 
             return listResponse;
