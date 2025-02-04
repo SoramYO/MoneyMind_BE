@@ -61,12 +61,11 @@ namespace MoneyMind_BLL.Services.Implementations
                 filter: t => t.UserId == userId && t.IsActive &&
                             (!fromDate.HasValue || t.TransactionDate >= fromDate) &&
                             (!toDate.HasValue || t.TransactionDate <= toDate),
-                includeProperties: "TransactionTags.Tag");
+                includeProperties: "Tag");
 
             return transactions.Item1
-                .SelectMany(t => t.TransactionTags.Select(tt => new { tt.Tag.Name, t.Amount }))
-                .GroupBy(x => x.Name)
-                .ToDictionary(g => g.Key, g => g.Sum(x => x.Amount));
+                .GroupBy(t => t.Tag.Name)
+                .ToDictionary(g => g.Key, g => g.Sum(t => t.Amount));
         }
     }
 } 

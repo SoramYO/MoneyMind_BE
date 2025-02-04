@@ -10,5 +10,6 @@ namespace MoneyMind_DAL.Repositories.Interfaces
 {
     public interface IGoalItemRepository : IGenericRepository<GoalItem>
     {
+        Task<GoalItem> GetByWalletTypeAsync(Guid userId, Guid walletTypeId, Guid monthlyGoalId);
     }
 }

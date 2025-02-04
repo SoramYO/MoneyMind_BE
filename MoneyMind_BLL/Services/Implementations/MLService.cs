@@ -14,13 +14,11 @@ namespace MoneyMind_BLL.Services.Implementations
     public class MLService : IMLService
     {
         private readonly PredictionEngine<TransactionData, TransactionPrediction> _predictionEngine;
-        private readonly ITransactionTagService transactionTagService;
         private readonly ITagRepository tagRepository;
 
-        public MLService(MLContext mlContext, ITransformer loadedModel, ITransactionTagService transactionTagService, ITagRepository tagRepository)
+        public MLService(MLContext mlContext, ITransformer loadedModel, ITagRepository tagRepository)
         {
             _predictionEngine = mlContext.Model.CreatePredictionEngine<TransactionData, TransactionPrediction>(loadedModel);
-            this.transactionTagService = transactionTagService;
             this.tagRepository = tagRepository;
         }
 

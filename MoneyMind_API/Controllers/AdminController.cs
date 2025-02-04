@@ -111,7 +111,7 @@ namespace MoneyMind_API.Controllers
                 if (!string.IsNullOrEmpty(category) || fromDate.HasValue || toDate.HasValue)
                 {
                     filter = t => 
-                        (string.IsNullOrEmpty(category) || t.TransactionTags.Any(tt => tt.Tag.Name == category)) &&
+                        (string.IsNullOrEmpty(category) || t.Tag.Name == category) &&
                         (!fromDate.HasValue || t.TransactionDate >= fromDate) &&
                         (!toDate.HasValue || t.TransactionDate <= toDate);
                 }

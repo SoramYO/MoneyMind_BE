@@ -151,13 +151,7 @@ namespace MoneyMind_BLL.Services.Implementations
                                                             DateTimeStyles.None),
                                                         RecipientName = sheetRow.CounterAccountName,
                                                         UserId = request.UserId,
-                                                        TransactionTags = new List<TransactionTag>
-                                                        {
-                                                            new TransactionTag
-                                                            {
-                                                                TagId = tag.Id
-                                                            }
-                                                        }
+                                                        TagId = tag.Id
                                                     };
 
                                                     await _transactionRepository.InsertAsync(transaction);
