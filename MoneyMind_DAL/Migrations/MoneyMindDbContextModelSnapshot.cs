@@ -523,6 +523,9 @@ namespace MoneyMind_DAL.Migrations
                     b.Property<string>("RecipientName")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<Guid>("TagId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<DateTime>("TransactionDate")
                         .HasColumnType("datetime2");
 
@@ -536,6 +539,8 @@ namespace MoneyMind_DAL.Migrations
                         .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("TagId");
 
                     b.HasIndex("WalletId");
 
@@ -565,27 +570,6 @@ namespace MoneyMind_DAL.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("TransactionSyncLogs");
-                });
-
-            modelBuilder.Entity("MoneyMind_DAL.Entities.TransactionTag", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("TagId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("TransactionId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("TagId");
-
-                    b.HasIndex("TransactionId");
-
-                    b.ToTable("TransactionTags");
                 });
 
             modelBuilder.Entity("MoneyMind_DAL.Entities.Wallet", b =>
@@ -726,30 +710,19 @@ namespace MoneyMind_DAL.Migrations
 
             modelBuilder.Entity("MoneyMind_DAL.Entities.Transaction", b =>
                 {
-                    b.HasOne("MoneyMind_DAL.Entities.Wallet", "Wallet")
-                        .WithMany("Transactions")
-                        .HasForeignKey("WalletId");
-
-                    b.Navigation("Wallet");
-                });
-
-            modelBuilder.Entity("MoneyMind_DAL.Entities.TransactionTag", b =>
-                {
                     b.HasOne("MoneyMind_DAL.Entities.Tag", "Tag")
-                        .WithMany("TransactionTags")
+                        .WithMany("Transaction")
                         .HasForeignKey("TagId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("MoneyMind_DAL.Entities.Transaction", "Transaction")
-                        .WithMany("TransactionTags")
-                        .HasForeignKey("TransactionId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                    b.HasOne("MoneyMind_DAL.Entities.Wallet", "Wallet")
+                        .WithMany("Transactions")
+                        .HasForeignKey("WalletId");
 
                     b.Navigation("Tag");
 
-                    b.Navigation("Transaction");
+                    b.Navigation("Wallet");
                 });
 
             modelBuilder.Entity("MoneyMind_DAL.Entities.Wallet", b =>
@@ -780,12 +753,7 @@ namespace MoneyMind_DAL.Migrations
 
             modelBuilder.Entity("MoneyMind_DAL.Entities.Tag", b =>
                 {
-                    b.Navigation("TransactionTags");
-                });
-
-            modelBuilder.Entity("MoneyMind_DAL.Entities.Transaction", b =>
-                {
-                    b.Navigation("TransactionTags");
+                    b.Navigation("Transaction");
                 });
 
             modelBuilder.Entity("MoneyMind_DAL.Entities.Wallet", b =>

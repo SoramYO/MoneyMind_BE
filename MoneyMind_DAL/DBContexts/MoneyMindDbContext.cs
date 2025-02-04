@@ -26,7 +26,6 @@ namespace MoneyMind_DAL.DBContexts
         public virtual DbSet<Tag> Tags { get; set; }
         public virtual DbSet<Transaction> Transactions { get; set; }
         public virtual DbSet<TransactionSyncLog> TransactionSyncLogs { get; set; }
-        public virtual DbSet<TransactionTag> TransactionTags { get; set; }
         public virtual DbSet<Wallet> Wallets { get; set; }
         public virtual DbSet<WalletType> WalletTypes { get; set; }
 

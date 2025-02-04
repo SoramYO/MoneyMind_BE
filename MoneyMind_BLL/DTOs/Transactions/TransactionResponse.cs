@@ -1,5 +1,4 @@
 ﻿using MoneyMind_BLL.DTOs.Tags;
-using MoneyMind_BLL.DTOs.TransactionTags;
 using MoneyMind_DAL.Entities;
 using System;
 using System.Collections.Generic;
@@ -20,6 +19,6 @@ namespace MoneyMind_BLL.DTOs.Transactions
         public DateTime LastUpdateAt { get; set; }
         public Guid UserId { get; set; }
         public Guid? WalletId { get; set; }
-        public virtual ICollection<Attachment_TransactionsTagResponse> TransactionTags { get; set; } = new List<Attachment_TransactionsTagResponse>();
+        public TagResponse Tag { get; set; }
     }
 }
