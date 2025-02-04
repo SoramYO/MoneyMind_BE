@@ -89,6 +89,7 @@ builder.Services.AddScoped<IChatService, ChatService>();
 builder.Services.AddScoped<IGoogleSheetSyncService, GoogleSheetSyncService>();
 builder.Services.AddScoped<IMLService, MLService>();
 builder.Services.AddScoped<ISheetService, SheetService>();
+builder.Services.AddScoped<IAdminService, AdminService>();
 
 // Repositories
 builder.Services.AddScoped<ITransactionRepository, TransactionRepository>();
