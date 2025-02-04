@@ -71,29 +71,12 @@ builder.Services.AddSingleton(mlContext);
 builder.Services.AddSingleton(loadedModel);
 
 //Background Service
-builder.Services.AddHostedService<MBBankSyncBackgroundService>();
+
 builder.Services.AddHostedService<SheetSyncService>();
 
 //Service
 
-builder.Services.Scan(scan => scan
-    .FromAssemblyOf<IAccountBankService>() 
-    .AddClasses(classes => classes.InNamespaces(
-        "MoneyMind_BLL.Services.Implementations"
-    ))
-    .AsImplementedInterfaces() 
-    .WithScopedLifetime()     
-);
 
-//Repository
-builder.Services.Scan(scan => scan
-    .FromAssemblyOf<IAccountBankRepository>()
-    .AddClasses(classes => classes.InNamespaces(
-        "MoneyMind_DAL.Repositories.Implementations"
-    ))
-    .AsImplementedInterfaces()
-    .WithScopedLifetime()
-);
 
 // AutoMapper configuration
 builder.Services.AddAutoMapper(typeof(AutoMapperProfiles));
@@ -146,8 +129,7 @@ builder.Services.AddCors(options =>
 
 // Add MB Bank sync services
 builder.Services.AddHttpClient();
-builder.Services.AddScoped<IMBBankSyncService, MBBankSyncService>();
-builder.Services.AddHostedService<MBBankSyncBackgroundService>();
+
 
 var app = builder.Build();
 

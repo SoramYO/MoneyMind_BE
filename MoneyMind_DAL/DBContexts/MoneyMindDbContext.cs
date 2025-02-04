@@ -17,7 +17,6 @@ namespace MoneyMind_DAL.DBContexts
         public MoneyMindDbContext(DbContextOptions<MoneyMindDbContext> options) : base(options)
         {
         }
-        public virtual DbSet<AccountBank> AccountBanks { get; set; }
         public virtual DbSet<Chat> Chats { get; set; }
         public virtual DbSet<GoalItem> GoalItems { get; set; }
         public virtual DbSet<Message> Messages { get; set; }
