@@ -1,10 +1,12 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Identity;
 using MoneyMind_BLL.DTOs.GoalItems;
 using MoneyMind_BLL.DTOs.MonthlyGoals;
 using MoneyMind_BLL.DTOs.SubWalletTypes;
 using MoneyMind_BLL.DTOs.Tags;
 using MoneyMind_BLL.DTOs.Transactions;
 using MoneyMind_BLL.DTOs.TransactionTags;
+using MoneyMind_BLL.DTOs.Users;
 using MoneyMind_BLL.DTOs.Wallets;
 using MoneyMind_BLL.DTOs.WalletTypes;
 using MoneyMind_DAL.Entities;
@@ -37,11 +39,14 @@ namespace MoneyMind_BLL.Mapping
 
             CreateMap<Tag, TagResponse>().ReverseMap();
 
-            CreateMap<GoalItemRequest, GoalItem>().ReverseMap();
-            CreateMap<GoalItem, GoalItemResponse>().ReverseMap();
+            CreateMap<MonthlyGoalRequest, MonthlyGoal>();
+            CreateMap<MonthlyGoal, MonthlyGoalResponse>();
 
-            CreateMap<MonthlyGoalRequest, MonthlyGoal>().ReverseMap();
-            CreateMap<MonthlyGoal, MonthlyGoalResponse>().ReverseMap();
-        }
+            CreateMap<GoalItemRequest, GoalItem>();
+            CreateMap<GoalItem, GoalItemResponse>();
+
+			CreateMap<IdentityUser, UserProfileResponse>();
+			CreateMap<UserProfileRequest, IdentityUser>();
+		}
     }
 }

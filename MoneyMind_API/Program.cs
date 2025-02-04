@@ -90,6 +90,9 @@ builder.Services.AddScoped<IGoogleSheetSyncService, GoogleSheetSyncService>();
 builder.Services.AddScoped<IMLService, MLService>();
 builder.Services.AddScoped<ISheetService, SheetService>();
 builder.Services.AddScoped<IAdminService, AdminService>();
+builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IMonthlyGoalService, MonthlyGoalService>();
+
 
 // Repositories
 builder.Services.AddScoped<ITransactionRepository, TransactionRepository>();
@@ -103,7 +106,7 @@ builder.Services.AddScoped<ITransactionSyncLogRepository, TransactionSyncLogRepo
 builder.Services.AddScoped<IMessageRepository, MessageRepository>();
 builder.Services.AddScoped<IChatRepository, ChatRepository>();
 builder.Services.AddScoped<ISheetTransactionRepository, SheetTransactionRepository>();
-
+builder.Services.AddScoped<IMonthlyGoalRepository, MonthlyGoalRepository>();
 // AutoMapper configuration
 builder.Services.AddAutoMapper(typeof(AutoMapperProfiles));
 

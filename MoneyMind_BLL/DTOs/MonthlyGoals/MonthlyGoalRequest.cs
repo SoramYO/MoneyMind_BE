@@ -15,6 +15,6 @@ namespace MoneyMind_BLL.DTOs.MonthlyGoals
         public int Year { get; set; }          
         public GoalStatus Status { get; set; }  
         public bool IsCompleted { get; set; }    
-        public List<GoalItemRequest> GoalItems { get; set; } = new();
+        public List<GoalItemRequest> GoalItems { get; set; } = new List<GoalItemRequest>();
     }
 }
