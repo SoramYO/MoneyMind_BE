@@ -14,9 +14,7 @@ namespace MoneyMind_BLL.DTOs.GoalItems
         public double? MaxTargetPercentage { get; set; }
         public double? MinAmount { get; set; }
         public double? MaxAmount { get; set; }
-
         public TargetMode TargetMode { get; set; }
-        public bool IsAchieved { get; set; }
 
         /// <summary>
         /// ID của MonthlyGoal mà GoalItem thuộc về

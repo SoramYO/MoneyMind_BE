@@ -52,7 +52,7 @@ namespace MoneyMind_API.Controllers
             var listDataResponse = await walletService.GetWalletsAsync(
                 filter: filterExpression,
                 orderBy: orderByFunc,
-                includeProperties: "",
+                includeProperties: "SubWalletType.WalletType",
                 pageIndex: pageIndex,
                 pageSize: pageSize
             );

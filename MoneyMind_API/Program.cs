@@ -66,6 +66,8 @@ builder.Services.AddDbContext<MoneyMindAuthDbContext>(options =>
         builder.Configuration.GetConnectionString("MoneyMindAuthConnectionString"),
         b => b.MigrationsAssembly("MoneyMind_DAL")));
 
+builder.Services.AddHttpContextAccessor();
+
 //Initial Model AI
 builder.Services.AddSingleton(mlContext);
 builder.Services.AddSingleton(loadedModel);
@@ -145,7 +147,6 @@ builder.Services.AddCors(options =>
 
 // Add MB Bank sync services
 builder.Services.AddHttpClient();
-
 
 var app = builder.Build();
 

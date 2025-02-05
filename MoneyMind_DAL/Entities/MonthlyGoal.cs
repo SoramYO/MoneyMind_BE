@@ -9,9 +9,8 @@ namespace MoneyMind_DAL.Entities
 {
     public enum GoalStatus
     {
-        InProgress = 0,     // Đang thực hiện
-        Completed = 1,      // Hoàn thành
-        Failed = 2          // Không đạt được
+        InProgress = 1,     // Đang thực hiện
+        Completed = 2,      // Hoàn thành
     }
     public class MonthlyGoal
     {

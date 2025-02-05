@@ -22,8 +22,8 @@ namespace MoneyMind_BLL.Services.Interfaces
         Task<GoalItemResponse> AddGoalItemAsync(Guid userId, GoalItemRequest goalItemRequest);
         Task<GoalItemResponse> UpdateGoalItemAsync(Guid goalItemId, Guid userId, GoalItemRequest goalItemRequest);
         Task<GoalItemResponse> GetGoalItemByIdAsync(Guid goalItemId);
-        Task UpdateUsedAmountOnNewTransactionAsync(Transaction transaction);
         Task<double> CalculateUsedAmountForNewGoalItemAsync(Guid userId, Guid walletTypeId, int month, int year);
-        Task RecalculateUsedAmountAsync(Guid userId, Guid walletTypeId, int month, int year);
+        Task UpdateGoalItemAsync(Guid userId, Guid walletTypeId, Guid monthlyGoalId, double amountDifference, double totalAmount);
+        void UpdateIsAchieved(GoalItem goalItem);
     }
 }

@@ -11,20 +11,17 @@ namespace MoneyMind_BLL.Services.Implementations
     public class GoalItemService : IGoalItemService
     {
         private readonly IGoalItemRepository goalItemRepository;
-        private readonly IWalletRepository walletRepository;
         private readonly ITransactionRepository transactionRepository;
         private readonly IMonthlyGoalRepository monthlyGoalRepository;
         private readonly IMapper mapper;
 
         public GoalItemService(
             IGoalItemRepository goalItemRepository,
-            IWalletRepository walletRepository,
             ITransactionRepository transactionRepository,
             IMonthlyGoalRepository monthlyGoalRepository,
             IMapper mapper)
         {
             this.goalItemRepository = goalItemRepository;
-            this.walletRepository = walletRepository;
             this.transactionRepository = transactionRepository;
             this.monthlyGoalRepository = monthlyGoalRepository;
             this.mapper = mapper;
@@ -100,125 +97,96 @@ namespace MoneyMind_BLL.Services.Implementations
 
         public async Task<GoalItemResponse> UpdateGoalItemAsync(Guid goalItemId, Guid userId, GoalItemRequest goalItemRequest)
         {
-            var existGoalItem = goalItemRepository.GetByWalletTypeAsync(userId, goalItemRequest.WalletTypeId, goalItemRequest.MonthlyGoalId);
+            // Lấy GoalItem hiện tại
+            var existingGoalItem = await goalItemRepository.GetByIdAsync(goalItemId, g => g.MonthlyGoal);
+            if (existingGoalItem == null) return null;
 
-            var existingGoalItem = await goalItemRepository.GetByIdAsync(goalItemId);
-            if (existingGoalItem == null || existGoalItem != null) return null;
+            // Không cho phép thay đổi WalletTypeId và MonthlyGoalId
+            if (existingGoalItem.WalletTypeId != goalItemRequest.WalletTypeId || existingGoalItem.MonthlyGoalId != goalItemRequest.MonthlyGoalId)
+            {
+                return null;
+            }
 
-            var oldWalletTypeId = existingGoalItem.WalletTypeId;
-            var oldMonthlyGoalId = existingGoalItem.MonthlyGoalId;
-
+            // Chỉ cập nhật các trường được phép thay đổi
             existingGoalItem.Description = goalItemRequest.Description;
             existingGoalItem.MinTargetPercentage = goalItemRequest.MinTargetPercentage;
             existingGoalItem.MaxTargetPercentage = goalItemRequest.MaxTargetPercentage;
             existingGoalItem.MinAmount = goalItemRequest.MinAmount;
             existingGoalItem.MaxAmount = goalItemRequest.MaxAmount;
             existingGoalItem.TargetMode = goalItemRequest.TargetMode;
-            existingGoalItem.IsAchieved = goalItemRequest.IsAchieved;
-            existingGoalItem.MonthlyGoalId = goalItemRequest.MonthlyGoalId;
-            existingGoalItem.WalletTypeId = goalItemRequest.WalletTypeId;
 
-            if (oldWalletTypeId != goalItemRequest.WalletTypeId)
-            {
-                // Tính lại UsedAmount dựa trên các giao dịch mới
-                double newUsedAmount = await transactionRepository.GetSumAsync(
-                    t => t.UserId == userId
-                      && t.Wallet != null
-                      && t.Wallet.SubWalletType != null
-                      && t.Wallet.SubWalletType.WalletTypeId == goalItemRequest.WalletTypeId
-                      && t.TransactionDate.Month == existingGoalItem.MonthlyGoal.Month
-                      && t.TransactionDate.Year == existingGoalItem.MonthlyGoal.Year,
-                    t => t.Amount
-                );
+            // Cập nhật trạng thái IsAchieved
+            UpdateIsAchieved(existingGoalItem);
 
-                existingGoalItem.UsedAmount = newUsedAmount;
-            }
-
-            if (oldMonthlyGoalId != goalItemRequest.MonthlyGoalId)
-            {
-                // Cập nhật UsedAmount trong MonthlyGoal cũ
-                var oldMonthlyGoal = await monthlyGoalRepository.GetByIdAsync(oldMonthlyGoalId);
-                if (oldMonthlyGoal != null)
-                {
-                    oldMonthlyGoal.TotalAmount -= existingGoalItem.UsedAmount;
-                    await monthlyGoalRepository.UpdateAsync(oldMonthlyGoal);
-                }
-
-                // Cập nhật UsedAmount trong MonthlyGoal mới
-                var newMonthlyGoal = await monthlyGoalRepository.GetByIdAsync(goalItemRequest.MonthlyGoalId);
-                if (newMonthlyGoal != null)
-                {
-                    newMonthlyGoal.TotalAmount += existingGoalItem.UsedAmount;
-                    await monthlyGoalRepository.UpdateAsync(newMonthlyGoal);
-                }
-            }
-
+            // Cập nhật GoalItem trong cơ sở dữ liệu
             existingGoalItem = await goalItemRepository.UpdateAsync(existingGoalItem);
+
+            // Cập nhạt Trạng thái của MonthlyGoal
+            await UpdateGoalStatusAsync(existingGoalItem.MonthlyGoalId);
+
             return mapper.Map<GoalItemResponse>(existingGoalItem);
         }
 
-        public async Task UpdateUsedAmountOnNewTransactionAsync(Transaction transaction)
+        public async Task UpdateGoalItemAsync(Guid userId, Guid walletTypeId, Guid monthlyGoalId, double amountDifference, double totalAmount)
         {
-            if (transaction.WalletId == null)
+            var goalItem = await goalItemRepository.GetByWalletTypeAsync(userId, walletTypeId, monthlyGoalId);
+            if (goalItem != null)
             {
-                throw new ArgumentNullException(nameof(transaction.WalletId), "WalletId cannot be null");
-            }
+                goalItem.UsedAmount += amountDifference;
+                goalItem.UsedPercentage = (goalItem.UsedAmount / totalAmount) * 100;
 
-            var wallet = await walletRepository.GetByIdAsync(transaction.WalletId);
-            if (wallet == null) return;
-
-            Guid walletTypeId = wallet.SubWalletType.WalletTypeId;
-            Guid userId = transaction.UserId;
-            int month = transaction.TransactionDate.Month;
-            int year = transaction.TransactionDate.Year;
-
-            var goalItems = await goalItemRepository.GetAsync(
-                filter: g => g.MonthlyGoal.UserId == userId
-                          && g.WalletTypeId == walletTypeId
-                          && g.MonthlyGoal.Month == month
-                          && g.MonthlyGoal.Year == year,
-                includeProperties: "MonthlyGoal"
-            );
-
-            foreach (var goalItem in goalItems.Item1)
-            {
-                goalItem.UsedAmount += transaction.Amount;
-                goalItem.UsedPercentage = goalItem.MonthlyGoal.TotalAmount > 0
-                    ? (goalItem.UsedAmount / goalItem.MonthlyGoal.TotalAmount) * 100
-                    : 0;
+                // Cập nhật trạng thái đạt mục tiêu
+                UpdateIsAchieved(goalItem);
 
                 await goalItemRepository.UpdateAsync(goalItem);
             }
+            await UpdateGoalStatusAsync(monthlyGoalId);
         }
-
-        public async Task RecalculateUsedAmountAsync(Guid userId, Guid walletTypeId, int month, int year)
+        public async Task UpdateGoalStatusAsync(Guid monthlyGoalId)
         {
-            var goalItems = await goalItemRepository.GetAsync(
-                filter: g => g.MonthlyGoal.UserId == userId
-                          && g.WalletTypeId == walletTypeId
-                          && g.MonthlyGoal.Month == month
-                          && g.MonthlyGoal.Year == year,
-                includeProperties: "MonthlyGoal"
-            );
+            var monthlyGoal = await monthlyGoalRepository.GetByIdAsync(monthlyGoalId);
+            if (monthlyGoal == null) return;
 
-            double totalUsedAmount = await transactionRepository.GetSumAsync(
-                t => t.UserId == userId
-                  && t.Wallet != null
-                  && t.Wallet.SubWalletType != null
-                  && t.Wallet.SubWalletType.WalletTypeId == walletTypeId
-                  && t.TransactionDate.Month == month
-                  && t.TransactionDate.Year == year,
-                t => t.Amount
-            );
+            bool allAchieved = true;
 
-            foreach (var goalItem in goalItems.Item1)
+            foreach (var goalItem in monthlyGoal.GoalItems)
             {
-                goalItem.UsedAmount = totalUsedAmount;
-                goalItem.UsedPercentage = goalItem.MonthlyGoal.TotalAmount > 0
-                    ? (totalUsedAmount / goalItem.MonthlyGoal.TotalAmount) * 100
-                    : 0;
+                if (!goalItem.IsAchieved)
+                {
+                    allAchieved = false;
+                    break;
+                }
+            }
 
-                await goalItemRepository.UpdateAsync(goalItem);
+            monthlyGoal.IsCompleted = allAchieved;
+            monthlyGoal.Status = allAchieved ? GoalStatus.Completed : GoalStatus.InProgress;
+
+            await monthlyGoalRepository.UpdateAsync(monthlyGoal);
+        }
+        public void UpdateIsAchieved(GoalItem goalItem)
+        {
+            switch (goalItem.TargetMode)
+            {
+                case TargetMode.MaxOnly:
+                    goalItem.IsAchieved = goalItem.UsedAmount >= goalItem.MaxAmount;
+                    break;
+                case TargetMode.MinOnly:
+                    goalItem.IsAchieved = goalItem.UsedAmount >= goalItem.MinAmount;
+                    break;
+                case TargetMode.Range:
+                    goalItem.IsAchieved = goalItem.UsedAmount >= goalItem.MinAmount &&
+                                          goalItem.UsedAmount <= goalItem.MaxAmount;
+                    break;
+                case TargetMode.PercentageOnly:
+                    goalItem.IsAchieved = goalItem.UsedPercentage >= goalItem.MinTargetPercentage &&
+                                          goalItem.UsedPercentage <= goalItem.MaxTargetPercentage;
+                    break;
+                case TargetMode.FixedAmount:
+                    goalItem.IsAchieved = goalItem.UsedAmount == goalItem.MinAmount;
+                    break;
+                case TargetMode.NoTarget:
+                    goalItem.IsAchieved = false;
+                    break;
             }
         }
     }

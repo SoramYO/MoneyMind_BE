@@ -20,23 +20,29 @@ namespace MoneyMind_BLL.Services.Implementations
     {
         private readonly ITransactionRepository transactionRepository;
         private readonly IMonthlyGoalRepository monthlyGoalRepository;
+        private readonly IGoalItemService goalItemService;
         private readonly IGoalItemRepository goalItemRepository;
         private readonly IWalletRepository walletRepository;
+        private readonly IWalletService walletService;
         private readonly ISubWalletTypeRepository subWalletTypeRepository;
         private readonly IMapper mapper;
         private readonly IMLService mlService;
 
         public TransactionService(ITransactionRepository transactionRepository,
             IMonthlyGoalRepository monthlyGoalRepository,
+            IGoalItemService goalItemService,
             IGoalItemRepository goalItemRepository,
             IWalletRepository walletRepository,
+            IWalletService walletService,
             ISubWalletTypeRepository subWalletTypeRepository,
             IMapper mapper, IMLService mlService)
         {
             this.transactionRepository = transactionRepository;
             this.monthlyGoalRepository = monthlyGoalRepository;
+            this.goalItemService = goalItemService;
             this.goalItemRepository = goalItemRepository;
             this.walletRepository = walletRepository;
+            this.walletService = walletService;
             this.subWalletTypeRepository = subWalletTypeRepository;
             this.mapper = mapper;
             this.mlService = mlService;
@@ -46,6 +52,7 @@ namespace MoneyMind_BLL.Services.Implementations
             // Map or Convert DTO to Domain Model
             var transactionDomain = mapper.Map<Transaction>(transactionRequest);
             transactionDomain.UserId = userId;
+
             var tag = await mlService.ClassificationTag(
                 transactionDomain.Description
             );
@@ -56,22 +63,26 @@ namespace MoneyMind_BLL.Services.Implementations
             {
                 if (transactionRequest.WalletId.HasValue)
                 {
-                    var wallet = await walletRepository.GetByIdAsync(transactionRequest.WalletId);
+                    // Trừ tiền trong ví
+                    await walletService.UpdateBalanceAsync(
+                        transactionRequest.WalletId.Value,
+                        -(double)transactionDomain.Amount  // amountDifference âm
+                    );
+
+                    // Lấy SubWalletTypeId để xác định loại ví
+                    var wallet = await walletRepository.GetByIdAsync(transactionRequest.WalletId.Value);
                     var subWalletType = await subWalletTypeRepository.GetByIdAsync(wallet.SubWalletTypeId);
-                    var goalItem = await goalItemRepository.GetByWalletTypeAsync(userId, wallet.SubWalletType.WalletTypeId, monthlyGoal.Id);
-                    if (goalItem != null)
-                    {
-                        goalItem.UsedAmount += transactionDomain.Amount;
-                        goalItem.UsedPercentage = (goalItem.UsedAmount / monthlyGoal.TotalAmount) * 100;
 
-                        goalItem.IsAchieved = goalItem.UsedPercentage >= goalItem.MinTargetPercentage;
-
-                        await goalItemRepository.UpdateAsync(goalItem);
-                    }
+                    // Tăng UsedAmount và tính lại UsedPercentage trong GoalItem
+                    await goalItemService.UpdateGoalItemAsync(
+                        userId,
+                        subWalletType.WalletTypeId,
+                        monthlyGoal.Id,
+                        (double)transactionDomain.Amount,       // amountDifference dương
+                        (double)monthlyGoal.TotalAmount         // ép kiểu decimal -> double
+                    );
                 }
             }
-
-
             // Use Domain Model to create
             transactionDomain = await transactionRepository.InsertAsync(transactionDomain);
 
@@ -86,12 +97,38 @@ namespace MoneyMind_BLL.Services.Implementations
                 return null;
             }
 
-            existingTransaction.IsActive = false;
+            var monthlyGoal = await monthlyGoalRepository.GetCurrentGoalForUserAsync(userId, existingTransaction.TransactionDate);
 
+            if (monthlyGoal != null && existingTransaction.WalletId.HasValue)
+            {
+                // Cộng lại số tiền cũ vào ví
+                await walletService.UpdateBalanceAsync(
+                    existingTransaction.WalletId.Value,
+                    (double)existingTransaction.Amount
+                );
+
+                // Trừ (revert) usedAmount trong goalItem
+                var wallet = await walletRepository.GetByIdAsync(existingTransaction.WalletId.Value);
+                var subWalletType = await subWalletTypeRepository.GetByIdAsync(wallet.SubWalletTypeId);
+
+                await goalItemService.UpdateGoalItemAsync(
+                    userId,
+                    subWalletType.WalletTypeId,
+                    monthlyGoal.Id,
+                    -(double)existingTransaction.Amount,
+                    (double)monthlyGoal.TotalAmount
+                );
+
+                // Cập nhật trạng thái tổng thể của MonthlyGoal
+            }
+
+            // Xóa mềm giao dịch
+            existingTransaction.IsActive = false;
             existingTransaction = await transactionRepository.UpdateAsync(existingTransaction);
 
             return mapper.Map<TransactionResponse>(existingTransaction);
         }
+
 
         public async Task<ListDataResponse> GetTransactionAsync(Expression<Func<Transaction, bool>>? filter, Func<IQueryable<Transaction>, IOrderedQueryable<Transaction>> orderBy, string includeProperties, int pageIndex, int pageSize)
         {
@@ -151,51 +188,69 @@ namespace MoneyMind_BLL.Services.Implementations
             {
                 if (isNewWalletAdded || isWalletChanged)
                 {
-                    // Nếu có Wallet cũ, trừ số tiền đã sử dụng từ Wallet cũ
+                    // Nếu có Wallet cũ, trừ số tiền đã sử dụng và cập nhật số dư
                     if (existingTransaction.WalletId.HasValue)
                     {
+                        // B1: Cộng lại tiền cũ vào ví
+                        await walletService.UpdateBalanceAsync(
+                            existingTransaction.WalletId.Value,
+                            (double)existingTransaction.Amount // revert lại số tiền cũ
+                        );
+
+                        // B2: Giảm UsedAmount trong GoalItem cũ
                         var oldWallet = await walletRepository.GetByIdAsync(existingTransaction.WalletId.Value);
                         var oldSubWalletType = await subWalletTypeRepository.GetByIdAsync(oldWallet.SubWalletTypeId);
-                        var oldGoalItem = await goalItemRepository.GetByWalletTypeAsync(userId, oldSubWalletType.WalletTypeId, monthlyGoal.Id);
 
-                        if (oldGoalItem != null)
-                        {
-                            oldGoalItem.UsedAmount -= existingTransaction.Amount;
-                            oldGoalItem.UsedPercentage = (oldGoalItem.UsedAmount / monthlyGoal.TotalAmount) * 100;
-                            oldGoalItem.IsAchieved = oldGoalItem.UsedPercentage >= oldGoalItem.MinTargetPercentage;
-                            await goalItemRepository.UpdateAsync(oldGoalItem);
-                        }
+                        await goalItemService.UpdateGoalItemAsync(
+                            userId,
+                            oldSubWalletType.WalletTypeId,
+                            monthlyGoal.Id,
+                            -(double)existingTransaction.Amount,
+                            (double)monthlyGoal.TotalAmount
+                        );
                     }
 
-                    // Nếu có Wallet mới, cộng số tiền vào Wallet mới
+                    // Nếu có Wallet mới, trừ số tiền khỏi Wallet mới
                     if (transactionRequest.WalletId.HasValue)
                     {
+                        // B1: Trừ tiền khỏi ví mới
+                        await walletService.UpdateBalanceAsync(
+                            transactionRequest.WalletId.Value,
+                            -(double)transactionRequest.Amount
+                        );
+
+                        // B2: Tăng UsedAmount trong GoalItem mới
                         var newWallet = await walletRepository.GetByIdAsync(transactionRequest.WalletId.Value);
                         var newSubWalletType = await subWalletTypeRepository.GetByIdAsync(newWallet.SubWalletTypeId);
-                        var newGoalItem = await goalItemRepository.GetByWalletTypeAsync(userId, newSubWalletType.WalletTypeId, monthlyGoal.Id);
 
-                        if (newGoalItem != null)
-                        {
-                            newGoalItem.UsedAmount += transactionRequest.Amount;
-                            newGoalItem.UsedPercentage = (newGoalItem.UsedAmount / monthlyGoal.TotalAmount) * 100;
-                            newGoalItem.IsAchieved = newGoalItem.UsedPercentage >= newGoalItem.MinTargetPercentage;
-                            await goalItemRepository.UpdateAsync(newGoalItem);
-                        }
+                        await goalItemService.UpdateGoalItemAsync(
+                            userId,
+                            newSubWalletType.WalletTypeId,
+                            monthlyGoal.Id,
+                            (double)transactionRequest.Amount,
+                            (double)monthlyGoal.TotalAmount
+                        );
                     }
                 }
                 else if (transactionRequest.WalletId.HasValue) // Nếu không đổi Wallet nhưng cập nhật số tiền
                 {
+                    // B1: Cập nhật lại ví theo chênh lệch
+                    await walletService.UpdateBalanceAsync(
+                        transactionRequest.WalletId.Value,
+                        -(double)amountDifference
+                    );
+
+                    // B2: Cập nhật GoalItem
                     var wallet = await walletRepository.GetByIdAsync(transactionRequest.WalletId.Value);
                     var subWalletType = await subWalletTypeRepository.GetByIdAsync(wallet.SubWalletTypeId);
-                    var goalItem = await goalItemRepository.GetByWalletTypeAsync(userId, subWalletType.WalletTypeId, monthlyGoal.Id);
 
-                    if (goalItem != null)
-                    {
-                        goalItem.UsedAmount += amountDifference;
-                        goalItem.UsedPercentage = (goalItem.UsedAmount / monthlyGoal.TotalAmount) * 100;
-                        goalItem.IsAchieved = goalItem.UsedPercentage >= goalItem.MinTargetPercentage;
-                        await goalItemRepository.UpdateAsync(goalItem);
-                    }
+                    await goalItemService.UpdateGoalItemAsync(
+                        userId,
+                        subWalletType.WalletTypeId,
+                        monthlyGoal.Id,
+                        (double)amountDifference,
+                        (double)monthlyGoal.TotalAmount
+                    );
                 }
             }
 
