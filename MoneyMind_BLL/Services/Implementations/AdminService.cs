@@ -35,9 +35,23 @@ namespace MoneyMind_BLL.Services.Implementations
             var totalUsers = _userManager.Users.Count();
             var totalPages = (int)Math.Ceiling(totalUsers / (double)pageSize);
 
-            return new ListDataResponse
+			var userDtos = new List<object>();
+			foreach (var user in users)
+			{
+				var roles = await _userManager.GetRolesAsync(user);
+				userDtos.Add(new
+				{
+					user.Id,
+					user.UserName,
+					user.Email,
+                    user.EmailConfirmed,
+					Roles = roles
+				});
+			}
+
+			return new ListDataResponse
             {
-                Data = users,
+                Data = userDtos,
                 PageIndex = pageIndex,
                 TotalPage = totalPages,
                 TotalRecord = totalUsers
@@ -46,9 +60,15 @@ namespace MoneyMind_BLL.Services.Implementations
 
         public async Task<IdentityUser> CreateUserAsync(AdminCreateUserRequest request)
         {
+			var existingUser = await _userManager.FindByEmailAsync(request.Email);
+			if (existingUser != null)
+			{
+				throw new Exception("User with this email already exists");
+			}
+			
             var user = new IdentityUser
             {
-                UserName = request.Email,
+                UserName = request.UserName,
                 Email = request.Email
             };
 
@@ -58,8 +78,14 @@ namespace MoneyMind_BLL.Services.Implementations
                 throw new Exception($"Failed to create user: {string.Join(", ", result.Errors.Select(e => e.Description))}");
             }
 
-            await _userManager.AddToRoleAsync(user, request.Role);
-            return user;
+            var roleResult = await _userManager.AddToRoleAsync(user, request.Role);
+			if (!roleResult.Succeeded)
+			{
+				// If role assignment fails, delete the created user
+				await _userManager.DeleteAsync(user);
+				throw new Exception($"Failed to assign role: {string.Join(", ", roleResult.Errors.Select(e => e.Description))}");
+			}
+			return user;
         }
 
         public async Task<IdentityUser> UpdateUserAsync(string userId, AdminUpdateUserRequest request)
@@ -72,8 +98,8 @@ namespace MoneyMind_BLL.Services.Implementations
 
             if (!string.IsNullOrEmpty(request.Email))
             {
+                user.UserName = request.UserName;
                 user.Email = request.Email;
-                user.UserName = request.Email;
             }
 
             if (!string.IsNullOrEmpty(request.Password))
@@ -110,8 +136,14 @@ namespace MoneyMind_BLL.Services.Implementations
                 throw new Exception("User not found");
             }
 
-            var result = await _userManager.DeleteAsync(user);
-            return result.Succeeded;
+			user.EmailConfirmed = false;
+
+			var result = await _userManager.UpdateAsync(user);
+			if (!result.Succeeded)
+			{
+				throw new Exception($"Failed to disable user: {string.Join(", ", result.Errors.Select(e => e.Description))}");
+			}
+			return result.Succeeded;
         }
 
         public async Task<AdminReportResponse> GetReportsAsync()

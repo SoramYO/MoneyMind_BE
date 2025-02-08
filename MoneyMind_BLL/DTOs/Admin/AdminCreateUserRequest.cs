@@ -4,7 +4,8 @@ namespace MoneyMind_BLL.DTOs.Admin
 {
     public class AdminCreateUserRequest
     {
-        [Required]
+        public string UserName { get; set; }   
+		[Required]
         [EmailAddress]
         public string Email { get; set; }
 
