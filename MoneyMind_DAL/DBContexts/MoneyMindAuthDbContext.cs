@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using MoneyMind_DAL.Entities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace MoneyMind_DAL.DBContexts
 {
-    public class MoneyMindAuthDbContext : IdentityDbContext
+    public class MoneyMindAuthDbContext : IdentityDbContext<ApplicationUser>
     {
         public MoneyMindAuthDbContext(DbContextOptions<MoneyMindAuthDbContext> options) : base(options)
         { }

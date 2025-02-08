@@ -26,7 +26,7 @@ namespace MoneyMind_DAL.Entities
         public virtual SubWalletType SubWalletType { get; set; } = null!;
 
         // Quan hệ Nhiều-Nhiều với Transaction
-        public virtual ICollection<Transaction> Transactions { get; set; } = new List<Transaction>();
+        public virtual ICollection<TransactionActivity> TransactionActivities { get; set; } = new List<TransactionActivity>();
     }
 
 }
