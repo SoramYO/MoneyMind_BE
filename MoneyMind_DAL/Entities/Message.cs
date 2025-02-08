@@ -11,6 +11,7 @@ namespace MoneyMind_DAL.Entities
         public Message()
         {
             Id = Guid.NewGuid();
+            SentTime = DateTime.UtcNow;
         }
         public Guid Id { get; set; }
         public Guid SenderId { get; set; }

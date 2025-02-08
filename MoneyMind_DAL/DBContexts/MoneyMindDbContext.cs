@@ -17,17 +17,20 @@ namespace MoneyMind_DAL.DBContexts
         public MoneyMindDbContext(DbContextOptions<MoneyMindDbContext> options) : base(options)
         {
         }
-        public virtual DbSet<Chat> Chats { get; set; }
-        public virtual DbSet<GoalItem> GoalItems { get; set; }
-        public virtual DbSet<Message> Messages { get; set; }
-        public virtual DbSet<MonthlyGoal> MonthlyGoals { get; set; }
-        public virtual DbSet<SheetTransction> SheetTransctions { get; set; }
-        public virtual DbSet<SubWalletType> SubWalletTypes { get; set; }
-        public virtual DbSet<Tag> Tags { get; set; }
-        public virtual DbSet<Transaction> Transactions { get; set; }
-        public virtual DbSet<TransactionSyncLog> TransactionSyncLogs { get; set; }
-        public virtual DbSet<Wallet> Wallets { get; set; }
-        public virtual DbSet<WalletType> WalletTypes { get; set; }
+        public virtual DbSet<Activity> Activity { get; set; }
+        public virtual DbSet<Chat> Chat { get; set; }
+        public virtual DbSet<GoalItem> GoalItem { get; set; }
+        public virtual DbSet<Message> Message { get; set; }
+        public virtual DbSet<MonthlyGoal> MonthlyGoal { get; set; }
+        public virtual DbSet<SheetTransction> SheetTransction { get; set; }
+        public virtual DbSet<SubWalletType> SubWalletType { get; set; }
+        public virtual DbSet<Tag> Tag { get; set; }
+        public virtual DbSet<Transaction> Transaction { get; set; }
+        public virtual DbSet<TransactionActivity> TransactionActivity { get; set; }
+        public virtual DbSet<TransactionSyncLog> TransactionSyncLog { get; set; }
+        public virtual DbSet<TransactionTag> TransactionTag { get; set; }
+        public virtual DbSet<Wallet> Wallet { get; set; }
+        public virtual DbSet<WalletType> WalletType { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             => optionsBuilder.UseSqlServer("Name=MoneyMindConnectionString");
@@ -35,6 +38,11 @@ namespace MoneyMind_DAL.DBContexts
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+
+            modelBuilder.Entity<TransactionActivity>()
+                .HasKey(ta => new { ta.TransactionId, ta.ActivityId });
+            modelBuilder.Entity<TransactionTag>()
+                .HasKey(tt => new { tt.TransactionId, tt.TagId });
 
             modelBuilder.Entity<WalletType>(entity =>
             {

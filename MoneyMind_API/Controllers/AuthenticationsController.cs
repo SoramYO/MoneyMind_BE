@@ -74,7 +74,7 @@ namespace MoneyMind_API.Controllers
                 }
             }
 
-            return BadRequest(identityResult.Errors);
+            return BadRequest(string.Join("; ", identityResult.Errors.Select(e => e.Description)));
         }
 
         [HttpPost]

@@ -110,8 +110,8 @@ namespace MoneyMind_API.Controllers
                 Expression<Func<Transaction, bool>>? filter = null;
                 if (!string.IsNullOrEmpty(category) || fromDate.HasValue || toDate.HasValue)
                 {
-                    filter = t => 
-                        (string.IsNullOrEmpty(category) || t.Tag.Name == category) &&
+                    filter = t =>
+                        (string.IsNullOrEmpty(category) || t.TransactionTags.Any(tt => tt.Tag.Name == category)) &&
                         (!fromDate.HasValue || t.TransactionDate >= fromDate) &&
                         (!toDate.HasValue || t.TransactionDate <= toDate);
                 }

@@ -11,6 +11,7 @@ using Microsoft.Extensions.Hosting;
 using MoneyMind_BLL.DTOs.GoogleSheet;
 using MoneyMind_BLL.Services.Interfaces;
 using MoneyMind_DAL.Entities;
+using MoneyMind_DAL.Repositories.Implementations;
 using MoneyMind_DAL.Repositories.Interfaces;
 
 namespace MoneyMind_BLL.Services.Implementations
@@ -18,17 +19,20 @@ namespace MoneyMind_BLL.Services.Implementations
     public class GoogleSheetSyncService : IGoogleSheetSyncService
     {
         private readonly ITransactionRepository _transactionRepository;
+        private readonly ITransactionTagRepository _transactionTagRepository;
         private readonly IMLService _mlService;
         private readonly ITransactionSyncLogRepository _syncLogRepository;
         private readonly string _contentRootPath;
 
         public GoogleSheetSyncService(
             ITransactionRepository transactionRepository,
+            ITransactionTagRepository transactionTagRepository,
             IMLService mlService,
             ITransactionSyncLogRepository syncLogRepository,
             IHostEnvironment hostEnvironment)
         {
             _transactionRepository = transactionRepository;
+            _transactionTagRepository = transactionTagRepository;
             _mlService = mlService;
             _syncLogRepository = syncLogRepository;
             _contentRootPath = hostEnvironment.ContentRootPath;
@@ -151,10 +155,17 @@ namespace MoneyMind_BLL.Services.Implementations
                                                             DateTimeStyles.None),
                                                         RecipientName = sheetRow.CounterAccountName,
                                                         UserId = request.UserId,
-                                                        TagId = tag.Id
                                                     };
 
                                                     await _transactionRepository.InsertAsync(transaction);
+
+                                                    var transactionTag = new TransactionTag
+                                                    {
+                                                        TransactionId = transaction.Id,
+                                                        TagId = tag.Id
+                                                    };
+
+                                                    await _transactionTagRepository.InsertAsync(transactionTag);
                                                     newTransactions++;
                                                     Console.WriteLine("New transaction added successfully");
                                                 }

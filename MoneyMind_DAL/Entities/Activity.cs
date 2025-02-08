@@ -6,29 +6,26 @@ using System.Threading.Tasks;
 
 namespace MoneyMind_DAL.Entities
 {
-    public class Wallet
+    public class Activity
     {
-        public Wallet()
+        public Activity()
         {
             Id = Guid.NewGuid();
-            CreatedTime = DateTime.UtcNow;
-            LastUpdatedTime = DateTime.UtcNow;
-            Currency = "VND";
-            IsActive = true;
+            CreatedAt = DateTime.UtcNow;
         }
+
         public Guid Id { get; set; }
-        public double Balance { get; set; }
-        public string Currency { get; set; }
-        public DateTime CreatedTime { get; set; }
-        public DateTime LastUpdatedTime { get; set; }
-        public bool IsActive { get; set; }
+        public string Name { get; set; } = string.Empty;
+        public string Description { get; set; } = string.Empty;
+        public DateTime CreatedAt { get; set; }
 
         /// <summary>
         /// Properties related 
         /// </summary>
-        public Guid UserId { get; set; }
         public Guid SubWalletTypeId { get; set; }
         public virtual SubWalletType SubWalletType { get; set; } = null!;
+
+        // Quan hệ Nhiều-Nhiều với Transaction
         public virtual ICollection<Transaction> Transactions { get; set; } = new List<Transaction>();
     }
 

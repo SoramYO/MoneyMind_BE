@@ -50,7 +50,7 @@ namespace MoneyMind_DAL.Repositories.Implementations
 
                 foreach (var walletTypeId in defaultWalletTypeIds)
                 {
-                    var usedAmount = await _context.Transactions
+                    var usedAmount = await _context.Transaction
                         .Where(t => t.UserId == userId
                                     && t.Wallet.SubWalletType.WalletTypeId == walletTypeId
                                     && t.TransactionDate.Year == transactionDate.Year

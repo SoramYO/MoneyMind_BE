@@ -1,4 +1,7 @@
-﻿using MoneyMind_BLL.DTOs.Tags;
+﻿using MoneyMind_BLL.DTOs.Activities;
+using MoneyMind_BLL.DTOs.GoalItems;
+using MoneyMind_BLL.DTOs.Tags;
+using MoneyMind_BLL.DTOs.TransactionTags;
 using MoneyMind_DAL.Entities;
 using System;
 using System.Collections.Generic;
@@ -19,6 +22,7 @@ namespace MoneyMind_BLL.DTOs.Transactions
         public DateTime LastUpdateAt { get; set; }
         public Guid UserId { get; set; }
         public Guid? WalletId { get; set; }
-        public TagResponse Tag { get; set; }
+        public List<TagResponse> Tags { get; set; } = new();
+        public List<ActivityResponse> Activities { get; set; } = new();
     }
 }

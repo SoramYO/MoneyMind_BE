@@ -138,7 +138,7 @@ namespace MoneyMind_API.Controllers
             var savingsId = "ebebc667-520d-4eac-88ed-ef9eb8e26aab";
 
             // Gọi Service để tạo SubWalletTypes
-            await subWalletTypeService.CreateDefaultSubWalletTypesAsync(
+            await subWalletTypeService.CreateDefaultSubWalletTypesAndActivitiesAsync(
                 Guid.Parse(necessitiesId),
                 Guid.Parse(financialFreedomId),
                 Guid.Parse(educationId),

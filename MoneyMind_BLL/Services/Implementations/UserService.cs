@@ -1,4 +1,4 @@
-using AutoMapper;
+﻿using AutoMapper;
 using MoneyMind_BLL.DTOs.Users;
 using MoneyMind_BLL.Services.Interfaces;
 using MoneyMind_DAL.Repositories.Interfaces;
@@ -61,11 +61,12 @@ namespace MoneyMind_BLL.Services.Implementations
                 filter: t => t.UserId == userId && t.IsActive &&
                             (!fromDate.HasValue || t.TransactionDate >= fromDate) &&
                             (!toDate.HasValue || t.TransactionDate <= toDate),
-                includeProperties: "Tag");
+                includeProperties: "TransactionTags.Tag"); // Load TransactionTags + Tag
 
             return transactions.Item1
-                .GroupBy(t => t.Tag.Name)
-                .ToDictionary(g => g.Key, g => g.Sum(t => t.Amount));
+                .SelectMany(t => t.TransactionTags) // Lấy tất cả các TransactionTags của từng Transaction
+                .GroupBy(tt => tt.Tag.Name) // Nhóm theo Tag.Name
+                .ToDictionary(g => g.Key, g => g.Sum(tt => tt.Transaction.Amount)); // Cộng tổng số tiền từ Transaction
         }
     }
 } 
