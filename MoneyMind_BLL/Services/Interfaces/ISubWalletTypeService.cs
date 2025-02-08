@@ -12,7 +12,7 @@ namespace MoneyMind_BLL.Services.Interfaces
 {
     public interface ISubWalletTypeService
     {
-        Task CreateDefaultSubWalletTypesAsync(Guid necessitiesId, Guid financialFreedomId, Guid educationId, Guid leisureId, Guid charityId, Guid savingsId, Guid userId);
+        Task CreateDefaultSubWalletTypesAndActivitiesAsync(Guid necessitiesId, Guid financialFreedomId, Guid educationId, Guid leisureId, Guid charityId, Guid savingsId, Guid userId);
         Task<ListDataResponse> GetSubWalletTypesAsync(
             Expression<Func<SubWalletType, bool>>? filter,
             Func<IQueryable<SubWalletType>, IOrderedQueryable<SubWalletType>> orderBy,

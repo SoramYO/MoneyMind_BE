@@ -17,7 +17,7 @@ namespace MoneyMind_DAL.Entities
         public MonthlyGoal()
         {
             Id = Guid.NewGuid();
-            CreateAt = DateTime.Now;
+            CreateAt = DateTime.UtcNow;
         }
         public Guid Id { get; set; }
         public GoalStatus Status { get; set; }

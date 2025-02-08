@@ -25,5 +25,6 @@ namespace MoneyMind_BLL.DTOs.SubWalletTypes
 
         [Required(ErrorMessage = "WalletTypeId is required.")]
         public Guid WalletTypeId { get; set; }
+
     }
 }

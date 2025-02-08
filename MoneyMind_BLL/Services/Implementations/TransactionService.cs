@@ -2,7 +2,9 @@
 using MoneyMind_BLL.DTOs;
 using MoneyMind_BLL.DTOs.MonthlyGoals;
 using MoneyMind_BLL.DTOs.SubWalletTypes;
+using MoneyMind_BLL.DTOs.Tags;
 using MoneyMind_BLL.DTOs.Transactions;
+using MoneyMind_BLL.DTOs.TransactionTags;
 using MoneyMind_BLL.Services.Interfaces;
 using MoneyMind_DAL.Entities;
 using MoneyMind_DAL.Repositories.Implementations;
@@ -19,6 +21,8 @@ namespace MoneyMind_BLL.Services.Implementations
     public class TransactionService : ITransactionService
     {
         private readonly ITransactionRepository transactionRepository;
+        private readonly ITransactionTagRepository transactionTagRepository;
+        private readonly ITransactionActivityRepository transactionActivityRepository;
         private readonly IMonthlyGoalRepository monthlyGoalRepository;
         private readonly IGoalItemService goalItemService;
         private readonly IGoalItemRepository goalItemRepository;
@@ -29,6 +33,8 @@ namespace MoneyMind_BLL.Services.Implementations
         private readonly IMLService mlService;
 
         public TransactionService(ITransactionRepository transactionRepository,
+            ITransactionTagRepository transactionTagRepository,
+            ITransactionActivityRepository transactionActivityRepository,
             IMonthlyGoalRepository monthlyGoalRepository,
             IGoalItemService goalItemService,
             IGoalItemRepository goalItemRepository,
@@ -38,6 +44,8 @@ namespace MoneyMind_BLL.Services.Implementations
             IMapper mapper, IMLService mlService)
         {
             this.transactionRepository = transactionRepository;
+            this.transactionTagRepository = transactionTagRepository;
+            this.transactionActivityRepository = transactionActivityRepository;
             this.monthlyGoalRepository = monthlyGoalRepository;
             this.goalItemService = goalItemService;
             this.goalItemRepository = goalItemRepository;
@@ -49,45 +57,44 @@ namespace MoneyMind_BLL.Services.Implementations
         }
         public async Task<TransactionResponse> AddTransactionAsync(Guid userId, TransactionRequest transactionRequest)
         {
-            // Map or Convert DTO to Domain Model
+            // Tạo giao dịch mới
             var transactionDomain = mapper.Map<Transaction>(transactionRequest);
             transactionDomain.UserId = userId;
-
-            var tag = await mlService.ClassificationTag(
-                transactionDomain.Description
-            );
-            transactionDomain.TagId = tag.Id;
-
-            var monthlyGoal = await monthlyGoalRepository.GetCurrentGoalForUserAsync(userId, transactionDomain.TransactionDate);
-            if (monthlyGoal != null)
-            {
-                if (transactionRequest.WalletId.HasValue)
-                {
-                    // Trừ tiền trong ví
-                    await walletService.UpdateBalanceAsync(
-                        transactionRequest.WalletId.Value,
-                        -(double)transactionDomain.Amount  // amountDifference âm
-                    );
-
-                    // Lấy SubWalletTypeId để xác định loại ví
-                    var wallet = await walletRepository.GetByIdAsync(transactionRequest.WalletId.Value);
-                    var subWalletType = await subWalletTypeRepository.GetByIdAsync(wallet.SubWalletTypeId);
-
-                    // Tăng UsedAmount và tính lại UsedPercentage trong GoalItem
-                    await goalItemService.UpdateGoalItemAsync(
-                        userId,
-                        subWalletType.WalletTypeId,
-                        monthlyGoal.Id,
-                        (double)transactionDomain.Amount,       // amountDifference dương
-                        (double)monthlyGoal.TotalAmount         // ép kiểu decimal -> double
-                    );
-                }
-            }
-            // Use Domain Model to create
             transactionDomain = await transactionRepository.InsertAsync(transactionDomain);
+
+            // Gán tag cho giao dịch
+            var tag = await mlService.ClassificationTag(transactionDomain.Description);
+            await transactionTagRepository.InsertAsync(new TransactionTag { TransactionId = transactionDomain.Id, TagId = tag.Id });
+
+            // Gán activities vào giao dịch
+            if (transactionRequest.Activities.Any())
+            {
+                var transactionActivities = transactionRequest.Activities
+                    .Select(activityId => new TransactionActivity
+                    {
+                        TransactionId = transactionDomain.Id,
+                        ActivityId = activityId
+                    }).ToList();
+
+                await transactionActivityRepository.InsertRangeAsync(transactionActivities);
+            }
+
+            // Cập nhật mục tiêu hàng tháng nếu có
+            var monthlyGoal = await monthlyGoalRepository.GetCurrentGoalForUserAsync(userId, transactionDomain.TransactionDate);
+            if (monthlyGoal != null && transactionRequest.WalletId.HasValue)
+            {
+                // Trừ tiền trong ví
+                await walletService.UpdateBalanceAsync(transactionRequest.WalletId.Value, -(double)transactionDomain.Amount);
+
+                // Cập nhật GoalItem
+                var wallet = await walletRepository.GetByIdAsync(transactionRequest.WalletId.Value);
+                await goalItemService.UpdateGoalItemAsync(userId, wallet.SubWalletType.WalletTypeId, monthlyGoal.Id,
+                                                          (double)transactionDomain.Amount, (double)monthlyGoal.TotalAmount);
+            }
 
             return mapper.Map<TransactionResponse>(transactionDomain);
         }
+
 
         public async Task<TransactionResponse> DeleteTransactionAsync(Guid transactionId, Guid userId)
         {
@@ -159,15 +166,30 @@ namespace MoneyMind_BLL.Services.Implementations
 
         public async Task<TransactionResponse> GetTransactionByIdAsync(Guid transactionId)
         {
-            var transaction = await transactionRepository.GetByIdAsync(transactionId, t => t.Tag);
+            var transaction = await transactionRepository.GetByIdAsync(
+                transactionId,
+                t => t.TransactionTags // Bao gồm bảng trung gian TransactionTag
+            );
 
             if (transaction == null)
             {
                 return null;
             }
 
-            return mapper.Map<TransactionResponse>(transaction);
+            // Lấy danh sách Tags từ bảng TransactionTags
+            var transactionResponse = mapper.Map<TransactionResponse>(transaction);
+            transactionResponse.Tags = transaction.TransactionTags
+              .Select(tt => new TagResponse
+              {
+                  Id = tt.Tag.Id,
+                  Name = tt.Tag.Name,
+                  Color = tt.Tag.Color,
+                  Description = tt.Tag.Description
+              }).ToList();
+
+            return transactionResponse;
         }
+
 
         public async Task<TransactionResponse> UpdateTransactionAsync(Guid transactionId, Guid userId, TransactionRequest transactionRequest)
         {
@@ -260,11 +282,33 @@ namespace MoneyMind_BLL.Services.Implementations
             existingTransaction.Description = transactionRequest.Description;
             existingTransaction.TransactionDate = transactionRequest.TransactionDate;
             existingTransaction.WalletId = transactionRequest.WalletId;
-            existingTransaction.UpdatedAt = DateTime.Now;
+            existingTransaction.UpdatedAt = DateTime.UtcNow;
 
-            // Cập nhật tag bằng AI
+            // **Xóa các TransactionTag cũ trước khi cập nhật**
+            await transactionTagRepository.DeleteByTransactionIdAsync(existingTransaction.Id);
+
+            // **Gán Tag mới bằng AI**
             var tag = await mlService.ClassificationTag(existingTransaction.Description);
-            existingTransaction.TagId = tag.Id;
+            await transactionTagRepository.InsertAsync(new TransactionTag
+            {
+                TransactionId = existingTransaction.Id,
+                TagId = tag.Id
+            });
+
+            await transactionActivityRepository.DeleteByTransactionIdAsync(existingTransaction.Id);
+
+            // **Thêm danh sách TransactionActivities mới**
+            if (transactionRequest.Activities.Any())
+            {
+                var transactionActivities = transactionRequest.Activities
+                    .Select(activityId => new TransactionActivity
+                    {
+                        TransactionId = existingTransaction.Id,
+                        ActivityId = activityId
+                    }).ToList();
+
+                await transactionActivityRepository.InsertRangeAsync(transactionActivities);
+            }
 
             existingTransaction = await transactionRepository.UpdateAsync(existingTransaction);
 

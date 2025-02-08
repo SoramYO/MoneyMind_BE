@@ -1,4 +1,4 @@
-using AutoMapper;
+﻿using AutoMapper;
 using Microsoft.AspNetCore.Identity;
 using MoneyMind_BLL.DTOs;
 using MoneyMind_BLL.DTOs.Admin;
@@ -154,26 +154,31 @@ namespace MoneyMind_BLL.Services.Implementations
                 TotalTransactions = (await _transactionRepository.GetAsync()).Item1.Count()
             };
 
-            var transactions = (await _transactionRepository.GetAsync(includeProperties: "Tag")).Item1;
+            // Lấy tất cả giao dịch và bao gồm TransactionTags + Tag
+            var transactions = (await _transactionRepository.GetAsync(includeProperties: "TransactionTags.Tag")).Item1;
+
+            // Nhóm các giao dịch theo Tag.Name
             var expensesByCategory = transactions
-                .GroupBy(t => t.Tag.Name)
-                .ToDictionary(g => g.Key, g => g.Sum(t => t.Amount));
+                .SelectMany(t => t.TransactionTags) // Lấy tất cả các TransactionTags của từng Transaction
+                .GroupBy(tt => tt.Tag.Name) // Nhóm theo Tag.Name
+                .ToDictionary(g => g.Key, g => g.Sum(tt => tt.Transaction.Amount)); // Cộng tổng số tiền từ Transaction
 
             response.ExpensesByCategory = expensesByCategory;
             return response;
         }
 
+
         public async Task<ListDataResponse> GetAllTransactionsAsync(
-            Expression<Func<Transaction, bool>>? filter,
-            Func<IQueryable<Transaction>, IOrderedQueryable<Transaction>> orderBy,
-            string includeProperties,
-            int pageIndex,
-            int pageSize)
+    Expression<Func<Transaction, bool>>? filter,
+    Func<IQueryable<Transaction>, IOrderedQueryable<Transaction>> orderBy,
+    string includeProperties,
+    int pageIndex,
+    int pageSize)
         {
             var result = await _transactionRepository.GetAsync(
                 filter: filter,
                 orderBy: orderBy,
-                includeProperties: includeProperties,
+                includeProperties: "TransactionTags.Tag", // Load TransactionTags + Tag
                 pageIndex: pageIndex,
                 pageSize: pageSize);
 
@@ -188,13 +193,13 @@ namespace MoneyMind_BLL.Services.Implementations
                 t.IsActive,
                 t.CreateAt,
                 t.UpdatedAt,
-                Tags = new
+                Tags = t.TransactionTags.Select(tt => new // Duyệt qua TransactionTags để lấy Tags
                 {
-                    t.Tag.Id,
-                    t.Tag.Name,
-                    t.Tag.Description,
-                    t.Tag.Color
-                }
+                    tt.Tag.Id,
+                    tt.Tag.Name,
+                    tt.Tag.Description,
+                    tt.Tag.Color
+                }).ToList()
             }).ToList();
 
             return new ListDataResponse
@@ -205,5 +210,6 @@ namespace MoneyMind_BLL.Services.Implementations
                 TotalRecord = result.Item3
             };
         }
+
     }
 } 
