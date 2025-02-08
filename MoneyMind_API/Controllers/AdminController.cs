@@ -119,7 +119,7 @@ namespace MoneyMind_API.Controllers
                 var result = await _adminService.GetAllTransactionsAsync(
                     filter: filter,
                     orderBy: q => q.OrderByDescending(t => t.TransactionDate),
-                    includeProperties: "TransactionTags.Tag",
+                    includeProperties: "Tag",
                     pageIndex: pageIndex,
                     pageSize: pageSize);
 
