@@ -30,16 +30,16 @@ namespace MoneyMind_BLL.Services.Implementations
             return transactions.Item1.Sum(t => t.Amount);
         }
 
-        public async Task<UserProfileResponse> GetUserProfileAsync(Guid userId)
+        public async Task<IdentityUser> GetUserProfileAsync(Guid userId)
         {
             var user = await _userManager.FindByIdAsync(userId.ToString());
             if (user == null)
                 throw new Exception("User not found");
 
-            return _mapper.Map<UserProfileResponse>(user);
+            return user;
         }
 
-        public async Task<UserProfileResponse> UpdateUserProfileAsync(Guid userId, UserProfileRequest request)
+        public async Task<IdentityUser> UpdateUserProfileAsync(Guid userId, UserProfileRequest request)
         {
             var user = await _userManager.FindByIdAsync(userId.ToString());
             if (user == null)
@@ -52,7 +52,7 @@ namespace MoneyMind_BLL.Services.Implementations
             if (!result.Succeeded)
                 throw new Exception($"Failed to update user: {string.Join(", ", result.Errors.Select(e => e.Description))}");
 
-            return _mapper.Map<UserProfileResponse>(user);
+            return user;
         }
 
         public async Task<Dictionary<string, double>> GetTransactionsByCategoryAsync(Guid userId, DateTime? fromDate, DateTime? toDate)
