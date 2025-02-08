@@ -154,11 +154,10 @@ namespace MoneyMind_BLL.Services.Implementations
                 TotalTransactions = (await _transactionRepository.GetAsync()).Item1.Count()
             };
 
-            var transactions = (await _transactionRepository.GetAsync(includeProperties: "TransactionTags.Tag")).Item1;
+            var transactions = (await _transactionRepository.GetAsync(includeProperties: "Tag")).Item1;
             var expensesByCategory = transactions
-                .SelectMany(t => t.TransactionTags.Select(tt => tt.Tag))
-                .GroupBy(t => t.Name)
-                .ToDictionary(g => g.Key, g => g.Sum(t => t.TransactionTags.Sum(tt => tt.Transaction.Amount)));
+                .GroupBy(t => t.Tag.Name)
+                .ToDictionary(g => g.Key, g => g.Sum(t => t.Amount));
 
             response.ExpensesByCategory = expensesByCategory;
             return response;
@@ -189,13 +188,13 @@ namespace MoneyMind_BLL.Services.Implementations
                 t.IsActive,
                 t.CreateAt,
                 t.UpdatedAt,
-                Tags = t.TransactionTags.Select(tt => new
+                Tags = new
                 {
-                    tt.Tag.Id,
-                    tt.Tag.Name,
-                    tt.Tag.Description,
-                    tt.Tag.Color
-                }).ToList()
+                    t.Tag.Id,
+                    t.Tag.Name,
+                    t.Tag.Description,
+                    t.Tag.Color
+                }
             }).ToList();
 
             return new ListDataResponse

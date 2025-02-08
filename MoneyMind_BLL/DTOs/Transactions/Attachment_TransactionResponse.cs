@@ -1,4 +1,4 @@
-﻿using MoneyMind_BLL.DTOs.TransactionTags;
+﻿using MoneyMind_BLL.DTOs.Tags;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,6 +14,6 @@ namespace MoneyMind_BLL.DTOs.Transactions
         public string Description { get; set; } = null!;
         public DateTime TransactionDate { get; set; }
         public DateTime CreateAt { get; set; }
-        public virtual ICollection<Attachment_TransactionsTagResponse> TransactionTags { get; set; } = new List<Attachment_TransactionsTagResponse>();
+        public virtual ICollection<TagResponse> Tags { get; set; } = new List<TagResponse>();
     }
 }

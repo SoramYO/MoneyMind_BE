@@ -66,6 +66,8 @@ builder.Services.AddDbContext<MoneyMindAuthDbContext>(options =>
         builder.Configuration.GetConnectionString("MoneyMindAuthConnectionString"),
         b => b.MigrationsAssembly("MoneyMind_DAL")));
 
+builder.Services.AddHttpContextAccessor();
+
 //Initial Model AI
 builder.Services.AddSingleton(mlContext);
 builder.Services.AddSingleton(loadedModel);
@@ -74,39 +76,26 @@ builder.Services.AddSingleton(loadedModel);
 builder.Services.AddHostedService<SheetSyncService>();
 
 //Service
-builder.Services.AddScoped<ITokenService, TokenService>();
-builder.Services.AddScoped<IEmailService, EmailService>();
-builder.Services.AddScoped<ITransactionService, TransactionService>();
-builder.Services.AddScoped<IWalletService, WalletService>();
-builder.Services.AddScoped<IWalletTypeService, WalletTypeService>();
-builder.Services.AddScoped<ISubWalletTypeService, SubWalletTypeService>();
-builder.Services.AddScoped<IGoalItemService, GoalItemService>();
-builder.Services.AddScoped<ITagService, TagService>();
-builder.Services.AddScoped<ITransactionTagService, TransactionTagService>();
-builder.Services.AddScoped<ITransactionSyncLogService, TransactionSyncLogService>();
-builder.Services.AddScoped<IMessageService, MessageService>();
-builder.Services.AddScoped<IChatService, ChatService>();
-builder.Services.AddScoped<IGoogleSheetSyncService, GoogleSheetSyncService>();
-builder.Services.AddScoped<IMLService, MLService>();
-builder.Services.AddScoped<ISheetService, SheetService>();
-builder.Services.AddScoped<IAdminService, AdminService>();
-builder.Services.AddScoped<IUserService, UserService>();
-builder.Services.AddScoped<IMonthlyGoalService, MonthlyGoalService>();
+builder.Services.Scan(scan => scan
+    .FromAssemblyOf<IAdminService>()
+    .AddClasses(classes => classes.InNamespaces(
+        "MoneyMind_BLL.Services.Implementations"
+    ))
+    .AsImplementedInterfaces()
+    .WithScopedLifetime()
+);
 
 
 // Repositories
-builder.Services.AddScoped<ITransactionRepository, TransactionRepository>();
-builder.Services.AddScoped<IWalletRepository, WalletRepository>();
-builder.Services.AddScoped<IWalletTypeRepository, WalletTypeRepository>();
-builder.Services.AddScoped<ISubWalletTypeRepository, SubWalletTypeRepository>();
-builder.Services.AddScoped<IGoalItemRepository, GoalItemRepository>();
-builder.Services.AddScoped<ITagRepository, TagRepository>();
-builder.Services.AddScoped<ITransactionTagRepository, TransactionTagRepository>();
-builder.Services.AddScoped<ITransactionSyncLogRepository, TransactionSyncLogRepository>();
-builder.Services.AddScoped<IMessageRepository, MessageRepository>();
-builder.Services.AddScoped<IChatRepository, ChatRepository>();
-builder.Services.AddScoped<ISheetTransactionRepository, SheetTransactionRepository>();
-builder.Services.AddScoped<IMonthlyGoalRepository, MonthlyGoalRepository>();
+builder.Services.Scan(scan => scan
+    .FromAssemblyOf<IChatRepository>()
+    .AddClasses(classes => classes.InNamespaces(
+        "MoneyMind_DAL.Repositories.Implementations"
+    ))
+    .AsImplementedInterfaces()
+    .WithScopedLifetime()
+);
+
 // AutoMapper configuration
 builder.Services.AddAutoMapper(typeof(AutoMapperProfiles));
 
@@ -158,7 +147,6 @@ builder.Services.AddCors(options =>
 
 // Add MB Bank sync services
 builder.Services.AddHttpClient();
-
 
 var app = builder.Build();
 

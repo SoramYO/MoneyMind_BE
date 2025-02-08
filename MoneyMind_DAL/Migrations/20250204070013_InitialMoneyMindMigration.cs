@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace MoneyMind_DAL.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialCreate : Migration
+    public partial class InitialMoneyMindMigration : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -223,41 +223,23 @@ namespace MoneyMind_DAL.Migrations
                     UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
                     IsActive = table.Column<bool>(type: "bit", nullable: false),
                     UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    WalletId = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
+                    WalletId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    TagId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Transactions", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Transactions_Wallets_WalletId",
-                        column: x => x.WalletId,
-                        principalTable: "Wallets",
-                        principalColumn: "Id");
-                });
-
-            migrationBuilder.CreateTable(
-                name: "TransactionTags",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    TagId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    TransactionId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_TransactionTags", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_TransactionTags_Tags_TagId",
+                        name: "FK_Transactions_Tags_TagId",
                         column: x => x.TagId,
                         principalTable: "Tags",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_TransactionTags_Transactions_TransactionId",
-                        column: x => x.TransactionId,
-                        principalTable: "Transactions",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        name: "FK_Transactions_Wallets_WalletId",
+                        column: x => x.WalletId,
+                        principalTable: "Wallets",
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.InsertData(
@@ -342,19 +324,14 @@ namespace MoneyMind_DAL.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_Transactions_WalletId",
+                name: "IX_Transactions_TagId",
                 table: "Transactions",
-                column: "WalletId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_TransactionTags_TagId",
-                table: "TransactionTags",
                 column: "TagId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_TransactionTags_TransactionId",
-                table: "TransactionTags",
-                column: "TransactionId");
+                name: "IX_Transactions_WalletId",
+                table: "Transactions",
+                column: "WalletId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Wallets_SubWalletTypeId",
@@ -381,10 +358,10 @@ namespace MoneyMind_DAL.Migrations
                 name: "SheetTransctions");
 
             migrationBuilder.DropTable(
-                name: "TransactionSyncLogs");
+                name: "Transactions");
 
             migrationBuilder.DropTable(
-                name: "TransactionTags");
+                name: "TransactionSyncLogs");
 
             migrationBuilder.DropTable(
                 name: "MonthlyGoals");
@@ -394,9 +371,6 @@ namespace MoneyMind_DAL.Migrations
 
             migrationBuilder.DropTable(
                 name: "Tags");
-
-            migrationBuilder.DropTable(
-                name: "Transactions");
 
             migrationBuilder.DropTable(
                 name: "Wallets");

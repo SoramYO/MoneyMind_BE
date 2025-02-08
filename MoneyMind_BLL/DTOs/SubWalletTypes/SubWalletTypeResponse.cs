@@ -20,6 +20,7 @@ namespace MoneyMind_BLL.DTOs.SubWalletTypes
         public bool IsActive { get; set; }
         public Guid UserId { get; set; }
         public Guid WalletTypeId { get; set; }
-        public virtual WalletTypeResponse WalletType { get; set; }
+        public string WalletTypeName { get; set; }
+        public string WalletTypeDescription { get; set; }
     }
 }

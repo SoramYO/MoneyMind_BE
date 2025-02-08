@@ -9,16 +9,15 @@ namespace MoneyMind_DAL.Entities
 {
     public enum GoalStatus
     {
-        Pending = 0,        // Chưa bắt đầu
         InProgress = 1,     // Đang thực hiện
         Completed = 2,      // Hoàn thành
-        Failed = 3          // Không đạt được
     }
     public class MonthlyGoal
     {
         public MonthlyGoal()
         {
             Id = Guid.NewGuid();
+            CreateAt = DateTime.Now;
         }
         public Guid Id { get; set; }
         public GoalStatus Status { get; set; }

@@ -9,5 +9,6 @@ namespace MoneyMind_DAL.Repositories.Interfaces
 {
     public interface IMonthlyGoalRepository : IGenericRepository<MonthlyGoal>
     {
+        Task<MonthlyGoal> GetCurrentGoalForUserAsync(Guid userId, DateTime transactionDate);
     }
 }

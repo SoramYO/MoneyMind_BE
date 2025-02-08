@@ -58,7 +58,7 @@ namespace MoneyMind_API.Controllers
             var listDataResponse = await monthlyGoalService.GetMonthlyGoalAsync(
                 filter: filterExpression,
                 orderBy: orderByFunc,
-                includeProperties: "GoalItems",
+                includeProperties: "GoalItems.WalletType",
                 pageIndex: pageIndex,
                 pageSize: pageSize
             );

@@ -28,6 +28,7 @@ namespace MoneyMind_DAL.Entities
         public Guid UserId { get; set; }
         public Guid? WalletId { get; set; }
         public virtual Wallet? Wallet { get; set; }
-        public virtual ICollection<TransactionTag> TransactionTags { get; set; } = new List<TransactionTag>();
+        public Guid TagId { get; set; }
+        public virtual Tag Tag { get; set; }
     }
 }

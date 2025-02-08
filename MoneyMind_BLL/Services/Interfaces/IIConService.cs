@@ -6,7 +6,8 @@ using System.Threading.Tasks;
 
 namespace MoneyMind_BLL.Services.Interfaces
 {
-    public interface ITransactionTagService
+    public interface IIConService
     {
+        List<string> GetAllIconUrls();
     }
 }

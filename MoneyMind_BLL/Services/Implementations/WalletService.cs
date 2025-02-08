@@ -94,17 +94,26 @@ namespace MoneyMind_BLL.Services.Implementations
         public async Task<WalletResponse> UpdateWalletAsync(Guid walletId, Guid userId, WalletRequest walletRequest)
         {
             var existingWallet = await walletRepository.GetByIdAsync(walletId);
-            if (existingWallet == null || existingWallet.UserId != userId)
+            if (existingWallet == null || existingWallet.UserId != userId || walletRequest.SubWalletTypeId != existingWallet.SubWalletTypeId)
             {
                 return null;
             }
 
             existingWallet.Balance = walletRequest.Balance;
-            existingWallet.SubWalletTypeId = walletRequest.SubWalletTypeId;
 
             existingWallet = await walletRepository.UpdateAsync(existingWallet);
 
             return mapper.Map<WalletResponse>(existingWallet);
+        }
+        public async Task UpdateBalanceAsync(Guid walletId, double amountDifference)
+        {
+            var wallet = await walletRepository.GetByIdAsync(walletId);
+            if (wallet != null)
+            {
+                wallet.Balance += amountDifference; // Có thể là cộng hoặc trừ
+                wallet.LastUpdatedTime = DateTime.Now;
+                await walletRepository.UpdateAsync(wallet);
+            }
         }
     }
 }
