@@ -9,10 +9,10 @@ using MoneyMind_DAL.DBContexts;
 
 #nullable disable
 
-namespace MoneyMind_DAL.Migrations
+namespace MoneyMind_DAL.Migrations.MoneyMindDb
 {
     [DbContext(typeof(MoneyMindDbContext))]
-    [Migration("20250208143140_InitialMoneyMindMigration")]
+    [Migration("20250208155700_InitialMoneyMindMigration")]
     partial class InitialMoneyMindMigration
     {
         /// <inheritdoc />
@@ -24,21 +24,6 @@ namespace MoneyMind_DAL.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
-
-            modelBuilder.Entity("ActivityTransaction", b =>
-                {
-                    b.Property<Guid>("ActivitiesId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("TransactionsId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("ActivitiesId", "TransactionsId");
-
-                    b.HasIndex("TransactionsId");
-
-                    b.ToTable("ActivityTransaction");
-                });
 
             modelBuilder.Entity("MoneyMind_DAL.Entities.Activity", b =>
                 {
@@ -60,9 +45,14 @@ namespace MoneyMind_DAL.Migrations
                     b.Property<Guid>("SubWalletTypeId")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<Guid?>("TransactionId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.HasKey("Id");
 
                     b.HasIndex("SubWalletTypeId");
+
+                    b.HasIndex("TransactionId");
 
                     b.ToTable("Activity");
                 });
@@ -778,21 +768,6 @@ namespace MoneyMind_DAL.Migrations
                         });
                 });
 
-            modelBuilder.Entity("ActivityTransaction", b =>
-                {
-                    b.HasOne("MoneyMind_DAL.Entities.Activity", null)
-                        .WithMany()
-                        .HasForeignKey("ActivitiesId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("MoneyMind_DAL.Entities.Transaction", null)
-                        .WithMany()
-                        .HasForeignKey("TransactionsId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
             modelBuilder.Entity("MoneyMind_DAL.Entities.Activity", b =>
                 {
                     b.HasOne("MoneyMind_DAL.Entities.SubWalletType", "SubWalletType")
@@ -800,6 +775,10 @@ namespace MoneyMind_DAL.Migrations
                         .HasForeignKey("SubWalletTypeId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.HasOne("MoneyMind_DAL.Entities.Transaction", null)
+                        .WithMany("Activities")
+                        .HasForeignKey("TransactionId");
 
                     b.Navigation("SubWalletType");
                 });
@@ -857,7 +836,7 @@ namespace MoneyMind_DAL.Migrations
             modelBuilder.Entity("MoneyMind_DAL.Entities.TransactionActivity", b =>
                 {
                     b.HasOne("MoneyMind_DAL.Entities.Activity", "Activity")
-                        .WithMany()
+                        .WithMany("TransactionActivities")
                         .HasForeignKey("ActivityId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -903,6 +882,11 @@ namespace MoneyMind_DAL.Migrations
                     b.Navigation("SubWalletType");
                 });
 
+            modelBuilder.Entity("MoneyMind_DAL.Entities.Activity", b =>
+                {
+                    b.Navigation("TransactionActivities");
+                });
+
             modelBuilder.Entity("MoneyMind_DAL.Entities.Chat", b =>
                 {
                     b.Navigation("Messages");
@@ -927,6 +911,8 @@ namespace MoneyMind_DAL.Migrations
 
             modelBuilder.Entity("MoneyMind_DAL.Entities.Transaction", b =>
                 {
+                    b.Navigation("Activities");
+
                     b.Navigation("TransactionTags");
                 });
 
