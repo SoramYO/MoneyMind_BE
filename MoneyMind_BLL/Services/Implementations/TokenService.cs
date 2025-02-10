@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using MoneyMind_BLL.Services.Interfaces;
+using MoneyMind_DAL.Entities;
 using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
@@ -22,7 +23,7 @@ namespace MoneyMind_BLL.Services.Implementations
             this.configuration = configuration;
         }
 
-        public string CreateJWTToken(IdentityUser user, List<string> roles)
+        public string CreateJWTToken(ApplicationUser user, List<string> roles)
         {
             // Create claims
             var claims = new List<Claim>

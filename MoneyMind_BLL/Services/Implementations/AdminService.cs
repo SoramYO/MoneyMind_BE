@@ -11,12 +11,12 @@ namespace MoneyMind_BLL.Services.Implementations
 {
     public class AdminService : IAdminService
     {
-        private readonly UserManager<IdentityUser> _userManager;
+        private readonly UserManager<ApplicationUser> _userManager;
         private readonly ITransactionRepository _transactionRepository;
         private readonly IMapper _mapper;
 
         public AdminService(
-            UserManager<IdentityUser> userManager,
+            UserManager<ApplicationUser> userManager,
             ITransactionRepository transactionRepository,
             IMapper mapper)
         {
@@ -58,7 +58,7 @@ namespace MoneyMind_BLL.Services.Implementations
             };
         }
 
-        public async Task<IdentityUser> CreateUserAsync(AdminCreateUserRequest request)
+        public async Task<ApplicationUser> CreateUserAsync(AdminCreateUserRequest request)
         {
 			var existingUser = await _userManager.FindByEmailAsync(request.Email);
 			if (existingUser != null)
@@ -66,7 +66,7 @@ namespace MoneyMind_BLL.Services.Implementations
 				throw new Exception("User with this email already exists");
 			}
 			
-            var user = new IdentityUser
+            var user = new ApplicationUser
             {
                 UserName = request.UserName,
                 Email = request.Email
@@ -88,7 +88,7 @@ namespace MoneyMind_BLL.Services.Implementations
 			return user;
         }
 
-        public async Task<IdentityUser> UpdateUserAsync(string userId, AdminUpdateUserRequest request)
+        public async Task<ApplicationUser> UpdateUserAsync(string userId, AdminUpdateUserRequest request)
         {
             var user = await _userManager.FindByIdAsync(userId);
             if (user == null)

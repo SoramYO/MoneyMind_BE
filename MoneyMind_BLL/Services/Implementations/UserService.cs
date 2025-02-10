@@ -3,17 +3,18 @@ using MoneyMind_BLL.DTOs.Users;
 using MoneyMind_BLL.Services.Interfaces;
 using MoneyMind_DAL.Repositories.Interfaces;
 using Microsoft.AspNetCore.Identity;
+using MoneyMind_DAL.Entities;
 
 namespace MoneyMind_BLL.Services.Implementations
 {
     public class UserService : IUserService
     {
-        private readonly UserManager<IdentityUser> _userManager;
+        private readonly UserManager<ApplicationUser> _userManager;
         private readonly ITransactionRepository _transactionRepository;
         private readonly IMapper _mapper;
 
         public UserService(
-            UserManager<IdentityUser> userManager,
+            UserManager<ApplicationUser> userManager,
             ITransactionRepository transactionRepository,
             IMapper mapper)
         {
@@ -30,7 +31,7 @@ namespace MoneyMind_BLL.Services.Implementations
             return transactions.Item1.Sum(t => t.Amount);
         }
 
-        public async Task<IdentityUser> GetUserProfileAsync(Guid userId)
+        public async Task<ApplicationUser> GetUserProfileAsync(Guid userId)
         {
             var user = await _userManager.FindByIdAsync(userId.ToString());
             if (user == null)
@@ -39,7 +40,7 @@ namespace MoneyMind_BLL.Services.Implementations
             return user;
         }
 
-        public async Task<IdentityUser> UpdateUserProfileAsync(Guid userId, UserProfileRequest request)
+        public async Task<ApplicationUser> UpdateUserProfileAsync(Guid userId, UserProfileRequest request)
         {
             var user = await _userManager.FindByIdAsync(userId.ToString());
             if (user == null)

@@ -5,6 +5,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Hosting;
 using MoneyMind_BLL.DTOs.GoogleSheet;
 using MoneyMind_BLL.Services.Interfaces;
+using MoneyMind_DAL.Entities;
 
 
 namespace MoneyMind_BLL.Services.BackgroundServices
@@ -32,7 +33,7 @@ namespace MoneyMind_BLL.Services.BackgroundServices
                     
                     using (var scope = _serviceProvider.CreateScope())
                     {
-                        var userManager = scope.ServiceProvider.GetRequiredService<UserManager<IdentityUser>>();
+                        var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
                         var sheetService = scope.ServiceProvider.GetRequiredService<ISheetService>();
                         var googleSheetSyncService = scope.ServiceProvider.GetRequiredService<IGoogleSheetSyncService>();
 
