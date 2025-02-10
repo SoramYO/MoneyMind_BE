@@ -13,6 +13,7 @@ using MoneyMind_BLL.Services.BackgroundServices;
 using MoneyMind_BLL.Services.Implementations;
 using MoneyMind_BLL.Services.Interfaces;
 using MoneyMind_DAL.DBContexts;
+using MoneyMind_DAL.Entities;
 using MoneyMind_DAL.Repositories.Implementations;
 using MoneyMind_DAL.Repositories.Interfaces;
 using System.Text;
@@ -100,11 +101,12 @@ builder.Services.Scan(scan => scan
 builder.Services.AddAutoMapper(typeof(AutoMapperProfiles));
 
 // Add Identity services
-builder.Services.AddIdentity<IdentityUser, IdentityRole>()
+builder.Services.AddIdentity<ApplicationUser, IdentityRole>() 
     .AddRoles<IdentityRole>()
-    .AddTokenProvider<DataProtectorTokenProvider<IdentityUser>>("MoneyMind")
+    .AddTokenProvider<DataProtectorTokenProvider<ApplicationUser>>("MoneyMind") 
     .AddEntityFrameworkStores<MoneyMindAuthDbContext>()
     .AddDefaultTokenProviders();
+
 builder.Services.Configure<IdentityOptions>(options =>
 {
     options.Password.RequireDigit = false;

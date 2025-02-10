@@ -7,6 +7,7 @@ using MoneyMind_BLL.DTOs.AccountTokens;
 using MoneyMind_BLL.DTOs.Emails;
 using MoneyMind_BLL.Services.Implementations;
 using MoneyMind_BLL.Services.Interfaces;
+using MoneyMind_DAL.Entities;
 
 namespace MoneyMind_API.Controllers
 {
@@ -16,9 +17,9 @@ namespace MoneyMind_API.Controllers
     {
         private readonly ITokenService tokenService;
         private readonly IEmailService emailService;
-        private readonly UserManager<IdentityUser> userManager;
+        private readonly UserManager<ApplicationUser> userManager;
 
-        public AuthenticationsController(ITokenService tokenService, IEmailService emailService, UserManager<IdentityUser> userManager)
+        public AuthenticationsController(ITokenService tokenService, IEmailService emailService, UserManager<ApplicationUser> userManager)
         {
             this.userManager = userManager;
             this.tokenService = tokenService;
@@ -35,10 +36,11 @@ namespace MoneyMind_API.Controllers
                 return BadRequest("Email already exists.");
             }
 
-            var identityUser = new IdentityUser
+            var identityUser = new ApplicationUser
             {
-                UserName = accountRegisterRequest.Username,
-                Email = accountRegisterRequest.Email
+                UserName = accountRegisterRequest.Email,
+                Email = accountRegisterRequest.Email,
+                FullName = accountRegisterRequest.FullName,
             };
 
             var identityResult = await userManager.CreateAsync(identityUser, accountRegisterRequest.Password);
@@ -107,8 +109,8 @@ namespace MoneyMind_API.Controllers
                 Data = new AccountResponse
                 {
                     UserId = Guid.Parse(user.Id),
-                    Username = user.UserName,
                     Email = user.Email,
+                    FullName = user.FullName,
                     Roles = roles.ToArray(),
                     Tokens = new AccountTokenResponse
                     {
@@ -206,10 +208,11 @@ namespace MoneyMind_API.Controllers
             if (user == null)
             {
                 // Nếu người dùng chưa tồn tại, tạo mới
-                var newUser = new IdentityUser
+                var newUser = new ApplicationUser
                 {
                     UserName = email,
                     Email = email,
+                    FullName = payload.Name,
                     EmailConfirmed = true
                 };
                 var createResult = await userManager.CreateAsync(newUser);
@@ -243,8 +246,8 @@ namespace MoneyMind_API.Controllers
                 Data = new AccountResponse
                 {
                     UserId = Guid.Parse(user.Id),
-                    Username = user.UserName,
                     Email = user.Email,
+                    FullName = user.FullName,
                     Roles = roles.ToArray(),
                     Tokens = new AccountTokenResponse
                     {

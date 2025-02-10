@@ -10,8 +10,8 @@ namespace MoneyMind_BLL.Services.Interfaces
     public interface IAdminService
     {
         Task<ListDataResponse> GetAllUsersAsync(int pageIndex, int pageSize);
-        Task<IdentityUser> CreateUserAsync(AdminCreateUserRequest request);
-        Task<IdentityUser> UpdateUserAsync(string userId, AdminUpdateUserRequest request);
+        Task<ApplicationUser> CreateUserAsync(AdminCreateUserRequest request);
+        Task<ApplicationUser> UpdateUserAsync(string userId, AdminUpdateUserRequest request);
         Task<bool> DeleteUserAsync(string userId);
         Task<AdminReportResponse> GetReportsAsync();
         Task<ListDataResponse> GetAllTransactionsAsync(
