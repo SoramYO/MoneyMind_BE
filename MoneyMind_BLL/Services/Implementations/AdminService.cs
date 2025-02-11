@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Identity;
 using MoneyMind_BLL.DTOs;
+using MoneyMind_BLL.DTOs.Accounts;
 using MoneyMind_BLL.DTOs.Admin;
 using MoneyMind_BLL.Services.Interfaces;
 using MoneyMind_DAL.Entities;
@@ -68,7 +69,8 @@ namespace MoneyMind_BLL.Services.Implementations
 			
             var user = new ApplicationUser
             {
-                UserName = request.UserName,
+				UserName = request.Email,
+				FullName = request.FullName,
                 Email = request.Email
             };
 
