@@ -77,7 +77,7 @@ namespace MoneyMind_API.Controllers
             var listDataResponse = await transactionService.GetTransactionAsync(
                 filter: filterExpression,
                 orderBy: orderByFunc,
-                includeProperties: "TransactionTags.Tag",
+                includeProperties: "TransactionTags.Tag,TransactionActivities.Activity",
                 pageIndex: pageIndex,
                 pageSize: pageSize
             );

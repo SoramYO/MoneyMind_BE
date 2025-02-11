@@ -35,6 +35,9 @@ namespace MoneyMind_DAL.Migrations.MoneyMindDb
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -42,14 +45,9 @@ namespace MoneyMind_DAL.Migrations.MoneyMindDb
                     b.Property<Guid>("SubWalletTypeId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid?>("TransactionId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.HasKey("Id");
 
                     b.HasIndex("SubWalletTypeId");
-
-                    b.HasIndex("TransactionId");
 
                     b.ToTable("Activity");
                 });
@@ -773,10 +771,6 @@ namespace MoneyMind_DAL.Migrations.MoneyMindDb
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("MoneyMind_DAL.Entities.Transaction", null)
-                        .WithMany("Activities")
-                        .HasForeignKey("TransactionId");
-
                     b.Navigation("SubWalletType");
                 });
 
@@ -839,7 +833,7 @@ namespace MoneyMind_DAL.Migrations.MoneyMindDb
                         .IsRequired();
 
                     b.HasOne("MoneyMind_DAL.Entities.Transaction", "Transaction")
-                        .WithMany()
+                        .WithMany("TransactionActivities")
                         .HasForeignKey("TransactionId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -908,7 +902,7 @@ namespace MoneyMind_DAL.Migrations.MoneyMindDb
 
             modelBuilder.Entity("MoneyMind_DAL.Entities.Transaction", b =>
                 {
-                    b.Navigation("Activities");
+                    b.Navigation("TransactionActivities");
 
                     b.Navigation("TransactionTags");
                 });

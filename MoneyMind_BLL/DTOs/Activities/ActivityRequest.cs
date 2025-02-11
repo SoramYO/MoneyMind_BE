@@ -7,12 +7,10 @@ using System.Threading.Tasks;
 
 namespace MoneyMind_BLL.DTOs.Activities
 {
-    public class ActivityResponse
+    public class ActivityRequest
     {
-        public Guid Id { get; set; }
         public string Name { get; set; } = string.Empty;
         public string Description { get; set; } = string.Empty;
-        public DateTime CreatedAt { get; set; }
-        public SubWalletTypeResponse SubWalletType { get; set; }
+        public Guid SubWalletTypeId { get; set; }
     }
 }

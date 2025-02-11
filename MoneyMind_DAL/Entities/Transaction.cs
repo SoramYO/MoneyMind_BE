@@ -30,9 +30,7 @@ namespace MoneyMind_DAL.Entities
         public Guid? WalletId { get; set; }
         public virtual Wallet? Wallet { get; set; }
         public virtual ICollection<TransactionTag> TransactionTags { get; set; } = new List<TransactionTag>();
-
-        // Quan hệ với Activity (Nhiều-Nhiều)
-        public virtual ICollection<Activity> Activities { get; set; } = new List<Activity>();
+        public virtual ICollection<TransactionActivity> TransactionActivities { get; set; } = new List<TransactionActivity>();
     }
 
 }

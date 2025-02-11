@@ -17,7 +17,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Migrations\MoneyMindAuthDb\" />
+    <Folder Include="Migrations\MoneyMindDb\" />
   </ItemGroup>
 
 </Project>

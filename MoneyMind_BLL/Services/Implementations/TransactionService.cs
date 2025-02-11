@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using MoneyMind_BLL.DTOs;
+using MoneyMind_BLL.DTOs.Activities;
 using MoneyMind_BLL.DTOs.MonthlyGoals;
 using MoneyMind_BLL.DTOs.SubWalletTypes;
 using MoneyMind_BLL.DTOs.Tags;
@@ -87,12 +88,15 @@ namespace MoneyMind_BLL.Services.Implementations
                 await walletService.UpdateBalanceAsync(transactionRequest.WalletId.Value, -(double)transactionDomain.Amount);
 
                 // Cập nhật GoalItem
-                var wallet = await walletRepository.GetByIdAsync(transactionRequest.WalletId.Value);
+                var wallet = await walletRepository.GetByIdAsync(transactionRequest.WalletId.Value, w => w.SubWalletType);
                 await goalItemService.UpdateGoalItemAsync(userId, wallet.SubWalletType.WalletTypeId, monthlyGoal.Id,
                                                           (double)transactionDomain.Amount, (double)monthlyGoal.TotalAmount);
             }
+            var response = mapper.Map<TransactionResponse>(transactionDomain);
+            response.Tags = new List<TagResponse> { new TagResponse { Id = tag.Id, Name = tag.Name, Color = tag.Color, Description = tag.Description } };
+            response.Activities = transactionRequest.Activities.Select(activityId => new ActivityResponse { Id = activityId }).ToList();
 
-            return mapper.Map<TransactionResponse>(transactionDomain);
+            return response;
         }
 
 
@@ -146,12 +150,31 @@ namespace MoneyMind_BLL.Services.Implementations
                         pageIndex: pageIndex,
                         pageSize: pageSize
                         );
-            var transactions = response.Item1;
+            var transactions = response.Item1.ToList(); // Convert to List to allow indexing
             var totalPages = response.Item2;
             var totalRecords = response.Item3;
 
-            // Giả sử authorDomains là danh sách các đối tượng AuthorDomain
             var transactionResponse = mapper.Map<List<TransactionResponse>>(transactions);
+
+            for (int i = 0; i < transactions.Count; i++)
+            {
+                transactionResponse[i].Tags = transactions[i].TransactionTags
+                    .Select(tt => new TagResponse
+                    {
+                        Id = tt.Tag.Id,
+                        Name = tt.Tag.Name,
+                        Color = tt.Tag.Color,
+                        Description = tt.Tag.Description
+                    }).ToList();
+
+                transactionResponse[i].Activities = transactions[i].TransactionActivities
+                    .Select(ta => new ActivityResponse
+                    {
+                        Id = ta.Activity.Id,
+                        Name = ta.Activity.Name,
+                        Description = ta.Activity.Description
+                    }).ToList();
+            }
 
             var listResponse = new ListDataResponse
             {

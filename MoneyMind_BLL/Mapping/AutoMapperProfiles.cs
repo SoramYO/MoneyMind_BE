@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using MoneyMind_BLL.DTOs.Activities;
 using MoneyMind_BLL.DTOs.GoalItems;
 using MoneyMind_BLL.DTOs.MonthlyGoals;
 using MoneyMind_BLL.DTOs.SubWalletTypes;
@@ -19,6 +20,9 @@ namespace MoneyMind_BLL.Mapping
     {
         public AutoMapperProfiles()
         {
+            CreateMap<Activity, ActivityResponse>().ReverseMap();
+            CreateMap<ActivityResponse, Activity>().ReverseMap();
+
             CreateMap<WalletType, WalletTypeResponse>().ReverseMap();
 
             CreateMap<SubWalletType, SubWalletTypeResponse>().ReverseMap();

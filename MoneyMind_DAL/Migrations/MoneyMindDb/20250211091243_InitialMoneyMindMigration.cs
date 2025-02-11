@@ -188,6 +188,28 @@ namespace MoneyMind_DAL.Migrations.MoneyMindDb
                 });
 
             migrationBuilder.CreateTable(
+                name: "Activity",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false),
+                    SubWalletTypeId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Activity", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Activity_SubWalletType_SubWalletTypeId",
+                        column: x => x.SubWalletTypeId,
+                        principalTable: "SubWalletType",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Wallet",
                 columns: table => new
                 {
@@ -237,30 +259,27 @@ namespace MoneyMind_DAL.Migrations.MoneyMindDb
                 });
 
             migrationBuilder.CreateTable(
-                name: "Activity",
+                name: "TransactionActivity",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    SubWalletTypeId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    TransactionId = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
+                    TransactionId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    ActivityId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Activity", x => x.Id);
+                    table.PrimaryKey("PK_TransactionActivity", x => new { x.TransactionId, x.ActivityId });
                     table.ForeignKey(
-                        name: "FK_Activity_SubWalletType_SubWalletTypeId",
-                        column: x => x.SubWalletTypeId,
-                        principalTable: "SubWalletType",
+                        name: "FK_TransactionActivity_Activity_ActivityId",
+                        column: x => x.ActivityId,
+                        principalTable: "Activity",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_Activity_Transaction_TransactionId",
+                        name: "FK_TransactionActivity_Transaction_TransactionId",
                         column: x => x.TransactionId,
                         principalTable: "Transaction",
-                        principalColumn: "Id");
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -282,30 +301,6 @@ namespace MoneyMind_DAL.Migrations.MoneyMindDb
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_TransactionTag_Transaction_TransactionId",
-                        column: x => x.TransactionId,
-                        principalTable: "Transaction",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "TransactionActivity",
-                columns: table => new
-                {
-                    TransactionId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    ActivityId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_TransactionActivity", x => new { x.TransactionId, x.ActivityId });
-                    table.ForeignKey(
-                        name: "FK_TransactionActivity_Activity_ActivityId",
-                        column: x => x.ActivityId,
-                        principalTable: "Activity",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_TransactionActivity_Transaction_TransactionId",
                         column: x => x.TransactionId,
                         principalTable: "Transaction",
                         principalColumn: "Id",
@@ -371,11 +366,6 @@ namespace MoneyMind_DAL.Migrations.MoneyMindDb
                 name: "IX_Activity_SubWalletTypeId",
                 table: "Activity",
                 column: "SubWalletTypeId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Activity_TransactionId",
-                table: "Activity",
-                column: "TransactionId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_GoalItem_MonthlyGoalId",
