@@ -46,7 +46,7 @@ namespace MoneyMind_BLL.Services.Implementations
                 TotalRecord = totalRecords,
                 TotalPage = totalPages,
                 PageIndex = pageIndex,
-                Data = tags
+                Data = tagsResponse
             };
 
             return listResponse;

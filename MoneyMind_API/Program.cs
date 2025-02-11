@@ -2,6 +2,7 @@
 
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.IdentityModel.Tokens;
@@ -14,7 +15,6 @@ using MoneyMind_BLL.Services.Implementations;
 using MoneyMind_BLL.Services.Interfaces;
 using MoneyMind_DAL.DBContexts;
 using MoneyMind_DAL.Entities;
-using MoneyMind_DAL.Repositories.Implementations;
 using MoneyMind_DAL.Repositories.Interfaces;
 using System.Text;
 
@@ -75,10 +75,9 @@ builder.Services.AddSingleton(loadedModel);
 
 //Background Service
 builder.Services.AddHostedService<SheetSyncService>();
-
 //Service
 builder.Services.Scan(scan => scan
-    .FromAssemblyOf<IAdminService>()
+    .FromAssemblyOf<IActivityService>()
     .AddClasses(classes => classes.InNamespaces(
         "MoneyMind_BLL.Services.Implementations"
     ))
@@ -89,13 +88,14 @@ builder.Services.Scan(scan => scan
 
 // Repositories
 builder.Services.Scan(scan => scan
-    .FromAssemblyOf<IChatRepository>()
+    .FromAssemblyOf<IActivityRepository>()
     .AddClasses(classes => classes.InNamespaces(
         "MoneyMind_DAL.Repositories.Implementations"
     ))
     .AsImplementedInterfaces()
     .WithScopedLifetime()
 );
+
 
 // AutoMapper configuration
 builder.Services.AddAutoMapper(typeof(AutoMapperProfiles));

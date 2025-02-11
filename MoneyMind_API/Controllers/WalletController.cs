@@ -103,13 +103,13 @@ namespace MoneyMind_API.Controllers
                 return Unauthorized(errorMessage);
             }
 
-            var subWalletTypeResponse = await walletService.AddWalletAsync(userId.Value, walletRequest);
+            var walletTypeResponse = await walletService.AddWalletAsync(userId.Value, walletRequest);
 
             var response = new ResponseObject
             {
                 Status = System.Net.HttpStatusCode.OK,
                 Message = "Create wallet successfully !",
-                Data = subWalletTypeResponse
+                Data = walletTypeResponse
             };
             return Ok(response);
         }
