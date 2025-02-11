@@ -20,6 +20,6 @@ namespace MoneyMind_BLL.DTOs.Transactions
         [DataType(DataType.Date, ErrorMessage = "Transaction date must be a valid date.")]
         public DateTime TransactionDate { get; set; }
         public Guid? WalletId { get; set; }
-        public List<Guid> Activities { get; set; } = new();
+        public List<Guid>? Activities { get; set; } = new();
     }
 }

@@ -9,6 +9,7 @@ using Google.Apis.Sheets.v4;
 using Google.Apis.Sheets.v4.Data;
 using Microsoft.Extensions.Hosting;
 using MoneyMind_BLL.DTOs.GoogleSheet;
+using MoneyMind_BLL.DTOs.Transactions;
 using MoneyMind_BLL.Services.Interfaces;
 using MoneyMind_DAL.Entities;
 using MoneyMind_DAL.Repositories.Implementations;
@@ -21,7 +22,8 @@ namespace MoneyMind_BLL.Services.Implementations
         private readonly ITransactionRepository _transactionRepository;
         private readonly ITransactionTagRepository _transactionTagRepository;
         private readonly IMLService _mlService;
-        private readonly ITransactionSyncLogRepository _syncLogRepository;
+        private readonly ITransactionService _transactionService;
+		private readonly ITransactionSyncLogRepository _syncLogRepository;
         private readonly string _contentRootPath;
 
         public GoogleSheetSyncService(
@@ -29,14 +31,16 @@ namespace MoneyMind_BLL.Services.Implementations
             ITransactionTagRepository transactionTagRepository,
             IMLService mlService,
             ITransactionSyncLogRepository syncLogRepository,
-            IHostEnvironment hostEnvironment)
+            IHostEnvironment hostEnvironment,
+            ITransactionService transactionService)
         {
             _transactionRepository = transactionRepository;
             _transactionTagRepository = transactionTagRepository;
             _mlService = mlService;
             _syncLogRepository = syncLogRepository;
             _contentRootPath = hostEnvironment.ContentRootPath;
-        }
+			_transactionService = transactionService;
+		}
 
         public async Task SyncTransactionsFromSheet(GoogleSheetRequest request)
         {
@@ -140,33 +144,26 @@ namespace MoneyMind_BLL.Services.Implementations
                                                 if (tag != null)
                                                 {
                                                     Console.WriteLine($"Category classified as: {tag.Name}");
-                                                    var transaction = new Transaction
-                                                    {
-                                                        Amount = (double)amount,
-                                                        Description = sheetRow.Description,
-                                                        TransactionDate = DateTime.ParseExact(
-                                                            sheetRow.TransactionDate,
-                                                            new string[] { 
-                                                                "dd/MM/yyyy HH:mm:ss",
-                                                                "yyyy-MM-dd HH:mm:ss",
-                                                                "MM/dd/yyyy HH:mm:ss"
-                                                            },
-                                                            CultureInfo.InvariantCulture,
-                                                            DateTimeStyles.None),
-                                                        RecipientName = sheetRow.CounterAccountName,
-                                                        UserId = request.UserId,
-                                                    };
 
-                                                    await _transactionRepository.InsertAsync(transaction);
 
-                                                    var transactionTag = new TransactionTag
-                                                    {
-                                                        TransactionId = transaction.Id,
-                                                        TagId = tag.Id
-                                                    };
+                                                    var transaction = new TransactionRequest
+													{
+														Amount = (double)amount,
+														Description = sheetRow.Description,
+														TransactionDate = DateTime.ParseExact(
+															sheetRow.TransactionDate,
+															new string[] {
+																"dd/MM/yyyy HH:mm:ss",
+																"yyyy-MM-dd HH:mm:ss",
+																"MM/dd/yyyy HH:mm:ss"
+															},
+															CultureInfo.InvariantCulture,
+															DateTimeStyles.None),
+														RecipientName = sheetRow.CounterAccountName,
+													};
 
-                                                    await _transactionTagRepository.InsertAsync(transactionTag);
-                                                    newTransactions++;
+													await _transactionService.AddTransactionAsync(request.UserId, transaction);
+													newTransactions++;
                                                     Console.WriteLine("New transaction added successfully");
                                                 }
                                                 else
