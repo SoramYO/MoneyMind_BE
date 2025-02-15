@@ -1,13 +1,14 @@
-﻿using System;
+﻿using MoneyMind_BLL.DTOs.Activities;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MoneyMind_BLL.DTOs.SubWalletTypes
+namespace MoneyMind_BLL.DTOs.WalletCategories
 {
-    public class SubWalletTypeRequest
+    public class WalletCategoryRequest
     {
         [Required(ErrorMessage = "Name is required.")]
         [MaxLength(50, ErrorMessage = "Name cannot exceed 50 characters.")]
@@ -25,6 +26,8 @@ namespace MoneyMind_BLL.DTOs.SubWalletTypes
 
         [Required(ErrorMessage = "WalletTypeId is required.")]
         public Guid WalletTypeId { get; set; }
+
+        public List<Attachment_ActivityRequest>? Activities { get; set; } = new List<Attachment_ActivityRequest>();
 
     }
 }

@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace MoneyMind_DAL.Repositories.Interfaces
 {
-    public interface ISubWalletTypeRepository : IGenericRepository<SubWalletType>
+    public interface IWalletCategoryRepository : IGenericRepository<WalletCategory>
     {
     }
 }

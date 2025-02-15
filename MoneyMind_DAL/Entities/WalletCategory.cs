@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 
 namespace MoneyMind_DAL.Entities
 {
-    public class SubWalletType
+    public class WalletCategory
     {
-        public SubWalletType()
+        public WalletCategory()
         {
             Id = Guid.NewGuid();
             CreateAt = DateTime.UtcNow; // Sử dụng UTC để tránh lỗi múi giờ

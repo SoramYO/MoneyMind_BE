@@ -8,7 +8,7 @@ using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 using MoneyMind_BLL.DTOs.Transactions;
-using MoneyMind_BLL.DTOs.SubWalletTypes;
+using MoneyMind_BLL.DTOs.WalletCategories;
 using MoneyMind_BLL.DTOs.MonthlyGoals;
 
 namespace MoneyMind_BLL.Services.Interfaces

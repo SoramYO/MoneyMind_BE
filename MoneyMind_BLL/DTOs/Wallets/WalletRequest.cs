@@ -12,6 +12,6 @@ namespace MoneyMind_BLL.DTOs.Wallets
         [Range(0.01, double.MaxValue, ErrorMessage = "Balance must be greater than 0.")]
         public double Balance { get; set; }
         [Required(ErrorMessage = "WalletTypeId is required.")]
-        public Guid SubWalletTypeId { get; set; }
+        public Guid WalletCategoryId { get; set; }
     }
 }

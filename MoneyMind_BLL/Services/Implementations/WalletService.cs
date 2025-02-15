@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
 using MoneyMind_BLL.DTOs;
 using MoneyMind_BLL.DTOs.MonthlyGoals;
-using MoneyMind_BLL.DTOs.SubWalletTypes;
+using MoneyMind_BLL.DTOs.WalletCategories;
 using MoneyMind_BLL.DTOs.Wallets;
 using MoneyMind_BLL.Services.Interfaces;
 using MoneyMind_DAL.Entities;
@@ -94,7 +94,7 @@ namespace MoneyMind_BLL.Services.Implementations
         public async Task<WalletResponse> UpdateWalletAsync(Guid walletId, Guid userId, WalletRequest walletRequest)
         {
             var existingWallet = await walletRepository.GetByIdAsync(walletId);
-            if (existingWallet == null || existingWallet.UserId != userId || walletRequest.SubWalletTypeId != existingWallet.SubWalletTypeId)
+            if (existingWallet == null || existingWallet.UserId != userId || walletRequest.WalletCategoryId != existingWallet.WalletCategoryId)
             {
                 return null;
             }

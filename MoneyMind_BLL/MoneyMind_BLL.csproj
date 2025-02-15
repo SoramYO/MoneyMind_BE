@@ -37,6 +37,9 @@
 		<ProjectReference Include="..\MoneyMind_DAL\MoneyMind_DAL.csproj" />
 	</ItemGroup>
 	<ItemGroup>
+	  <None Update="datadefaults.json">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </None>
 	  <None Update="transaction_model.zip">
 	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	  </None>

@@ -9,9 +9,9 @@ using System.Threading.Tasks;
 
 namespace MoneyMind_DAL.Repositories.Implementations
 {
-    public class SubWalletTypeRepository : GenericRepository<SubWalletType>, ISubWalletTypeRepository
+    public class WalletCategoryRepository : GenericRepository<WalletCategory>, IWalletCategoryRepository
     {
-        public SubWalletTypeRepository(MoneyMindDbContext context) : base(context)
+        public WalletCategoryRepository(MoneyMindDbContext context) : base(context)
         {
         }
     }

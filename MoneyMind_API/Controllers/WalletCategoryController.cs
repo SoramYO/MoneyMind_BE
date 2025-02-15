@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using MoneyMind_BLL.DTOs;
-using MoneyMind_BLL.DTOs.SubWalletTypes;
+using MoneyMind_BLL.DTOs.WalletCategories;
 using MoneyMind_BLL.Services.Implementations;
 using MoneyMind_BLL.Services.Interfaces;
 using MoneyMind_DAL.Entities;
@@ -15,13 +15,13 @@ namespace MoneyMind_API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class SubWalletTypeController : ControllerBase
+    public class WalletCategoryController : ControllerBase
     {
-        private readonly ISubWalletTypeService subWalletTypeService;
+        private readonly IWalletCategoryService walletCategoryService;
 
-        public SubWalletTypeController(ISubWalletTypeService subWalletTypeService)
+        public WalletCategoryController(IWalletCategoryService walletCategoryService)
         {
-            this.subWalletTypeService = subWalletTypeService;
+            this.walletCategoryService = walletCategoryService;
         }
 
         [HttpGet]
@@ -38,7 +38,7 @@ namespace MoneyMind_API.Controllers
             if (pageSize < 1) pageSize = 12;
 
             // Start with a base filter
-            Expression<Func<SubWalletType, bool>> filterExpression = s => s.IsActive;
+            Expression<Func<WalletCategory, bool>> filterExpression = s => s.IsActive;
             filterExpression = filterExpression.AndAlso(s => s.UserId == userId);
 
             //Combine filters using AndAlso method
@@ -48,12 +48,12 @@ namespace MoneyMind_API.Controllers
             }
 
             // Map string orderBy to the appropriate property (use switch or reflection if necessary)
-            Func<IQueryable<SubWalletType>, IOrderedQueryable<SubWalletType>> orderByFunc = q => q.OrderBy(s => s.CreateAt);
+            Func<IQueryable<WalletCategory>, IOrderedQueryable<WalletCategory>> orderByFunc = q => q.OrderBy(s => s.CreateAt);
 
-            var listDataResponse = await subWalletTypeService.GetSubWalletTypesAsync(
+            var listDataResponse = await walletCategoryService.GetWalletCategoriesAsync(
                 filter: filterExpression,
                 orderBy: orderByFunc,
-                includeProperties: "WalletType",
+                includeProperties: "WalletType,Activities",
                 pageIndex: pageIndex,
                 pageSize: pageSize
             );
@@ -61,7 +61,7 @@ namespace MoneyMind_API.Controllers
             var response = new ResponseObject
             {
                 Status = System.Net.HttpStatusCode.OK,
-                Message = "Get sub wallet type of user successfully!",
+                Message = "Get wallet category of user successfully!",
                 Data = listDataResponse
             };
 
@@ -69,16 +69,16 @@ namespace MoneyMind_API.Controllers
         }
 
         [HttpGet]
-        [Route("detail/{subWalletTypeId:Guid}")]
-        public async Task<IActionResult> GetMonthlyGoalByIdAsync([FromRoute] Guid subWalletTypeId)
+        [Route("detail/{walletCategoryId:Guid}")]
+        public async Task<IActionResult> GetMonthlyGoalByIdAsync([FromRoute] Guid walletCategoryId)
         {
-            var subWalletType = await subWalletTypeService.GetSubWalletTypeByIdAsync(subWalletTypeId);
-            if (subWalletType == null)
+            var walletCategory = await walletCategoryService.GetWalletCategoryByIdAsync(walletCategoryId);
+            if (walletCategory == null)
             {
                 return NotFound(new ResponseObject
                 {
                     Status = System.Net.HttpStatusCode.NotFound,
-                    Message = "Sub wallet type not found!",
+                    Message = "Wallet category type not found!",
                     Data = null
                 });
             }
@@ -86,14 +86,14 @@ namespace MoneyMind_API.Controllers
             return Ok(new ResponseObject
             {
                 Status = System.Net.HttpStatusCode.OK,
-                Message = "Get Sub wallet type successfully!",
-                Data = subWalletType
+                Message = "Get wallet category successfully!",
+                Data = walletCategory
             });
         }
 
         [HttpPost]
         [Authorize(Roles = "User")]
-        public async Task<IActionResult> CreateAsync(SubWalletTypeRequest subWalletTypeRequest)
+        public async Task<IActionResult> CreateAsync(WalletCategoryRequest walletCategoryRequest)
         {
             // Sử dụng helper để lấy UserId từ token
             var userId = JwtHelper.GetUserIdFromToken(HttpContext.Request, out var errorMessage);
@@ -104,13 +104,13 @@ namespace MoneyMind_API.Controllers
                 return Unauthorized(errorMessage);
             }
 
-            var subWalletTypeResponse = await subWalletTypeService.AddSubWalletTypeAsync(userId.Value, subWalletTypeRequest);
+            var walletCategoryResponse = await walletCategoryService.AddWalletCategoryAsync(userId.Value, walletCategoryRequest);
 
             var response = new ResponseObject
             {
                 Status = System.Net.HttpStatusCode.OK,
-                Message = "Create sub wallet type successfully !",
-                Data = subWalletTypeResponse
+                Message = "Create wallet category successfully !",
+                Data = walletCategoryResponse
             };
             return Ok(response);
         }
@@ -118,7 +118,7 @@ namespace MoneyMind_API.Controllers
         [HttpPost]
         [Route("create-default")]
         [Authorize(Roles = "User")]
-        public async Task<IActionResult> CreateDefaultSubWalletTypesAsync()
+        public async Task<IActionResult> CreateDefaultWalletCategoriesAsync()
         {
 
             // Sử dụng helper để lấy UserId từ token
@@ -129,31 +129,22 @@ namespace MoneyMind_API.Controllers
                 // Trả về lỗi nếu token không hợp lệ
                 return Unauthorized(errorMessage);
             }
-
-            var necessitiesId = "b203ae2f-3023-41c1-a25a-2b2ec238321d";
-            var financialFreedomId = "654a9673-4d23-44b1-9af8-a9562341a60e";
-            var educationId = "19ea7e67-8095-4a13-bba4-bda0a4a47a38";
-            var leisureId = "6193fcb1-c8c4-44e9-abde-78cdb4258c4e";
-            var charityId = "b79d14db-7a81-4046-b66e-1acd761123bb";
-            var savingsId = "ebebc667-520d-4eac-88ed-ef9eb8e26aab";
-
-            // Gọi Service để tạo SubWalletTypes
-            await subWalletTypeService.CreateDefaultSubWalletTypesAndActivitiesAsync(
-                Guid.Parse(necessitiesId),
-                Guid.Parse(financialFreedomId),
-                Guid.Parse(educationId),
-                Guid.Parse(leisureId),
-                Guid.Parse(charityId),
-                Guid.Parse(savingsId),
+            var walletCategoryResponse = await walletCategoryService.CreateDefaultWalletCategoriesAndActivitiesAsync(
                 userId.Value
             );
-            return Ok("Default sub wallet types created successfully.");
+            var response = new ResponseObject
+            {
+                Status = System.Net.HttpStatusCode.OK,
+                Message = "Create wallet categories default successfully !",
+                Data = walletCategoryResponse
+            };
+            return Ok(response);
         }
 
         [HttpPut]
         [Route("{id:Guid}")]
         [Authorize(Roles = "User")]
-        public async Task<IActionResult> UpdateAsync([FromRoute] Guid id, [FromBody] SubWalletTypeRequest subWalletTypeRequest)
+        public async Task<IActionResult> UpdateAsync([FromRoute] Guid id, [FromBody] WalletCategoryRequest walletCategoryRequest)
         {
             // Sử dụng helper để lấy UserId từ token
             var userId = JwtHelper.GetUserIdFromToken(HttpContext.Request, out var errorMessage);
@@ -164,16 +155,16 @@ namespace MoneyMind_API.Controllers
                 return Unauthorized(errorMessage);
             }
 
-            var subWalletTypeResponse = await subWalletTypeService.UpdateSubWalletTypeAsync(id, userId.Value, subWalletTypeRequest);
-            if (subWalletTypeResponse == null)
+            var walletCategoryResponse = await walletCategoryService.UpdateWalletCategoryAsync(id, userId.Value, walletCategoryRequest);
+            if (walletCategoryResponse == null)
             {
                 return NotFound();
             }
             var response = new ResponseObject
             {
                 Status = System.Net.HttpStatusCode.OK,
-                Message = "Update sub wallet types successfully !",
-                Data = subWalletTypeResponse
+                Message = "Update wallet category successfully!",
+                Data = walletCategoryResponse
             };
             return Ok(response);
         }
@@ -192,16 +183,16 @@ namespace MoneyMind_API.Controllers
                 return Unauthorized(errorMessage);
             }
 
-            var subWalletTypeResponse = await subWalletTypeService.DeleteSubWalletTypeAsync(id, userId.Value);
-            if (subWalletTypeResponse == null)
+            var walletCategoryResponse = await walletCategoryService.DeleteWalletCategoryAsync(id, userId.Value);
+            if (walletCategoryResponse == null)
             {
                 return NotFound();
             }
             var response = new ResponseObject
             {
                 Status = System.Net.HttpStatusCode.OK,
-                Message = "Delete sub wallet types successfully !",
-                Data = subWalletTypeResponse
+                Message = "Delete wallet category successfully !",
+                Data = walletCategoryResponse
             };
             return Ok(response);
         }

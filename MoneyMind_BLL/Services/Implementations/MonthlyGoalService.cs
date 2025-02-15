@@ -1,35 +1,32 @@
 ﻿using AutoMapper;
 using MoneyMind_BLL.DTOs;
+using MoneyMind_BLL.DTOs.DataDefaults;
 using MoneyMind_BLL.DTOs.MonthlyGoals;
-using MoneyMind_BLL.DTOs.SubWalletTypes;
 using MoneyMind_BLL.Services.Interfaces;
 using MoneyMind_DAL.Entities;
-using MoneyMind_DAL.Repositories.Implementations;
 using MoneyMind_DAL.Repositories.Interfaces;
-using System;
-using System.CodeDom;
-using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
-using System.Text;
-using System.Threading.Tasks;
+using System.Text.Json;
 
 namespace MoneyMind_BLL.Services.Implementations
 {
     public class MonthlyGoalService : IMonthlyGoalService
     {
+        private readonly IWalletTypeRepository walletTypeRepository;
         private readonly IMonthlyGoalRepository monthlyGoalRepository;
         private readonly ITransactionRepository transactionRepository;
         private readonly IGoalItemRepository goalItemRepository;
         private readonly IGoalItemService goalItemService;
         private readonly IMapper mapper;
 
-        public MonthlyGoalService(IMonthlyGoalRepository monthlyGoalRepository,
+        public MonthlyGoalService(IWalletTypeRepository walletTypeRepository,
+            IMonthlyGoalRepository monthlyGoalRepository,
             ITransactionRepository transactionRepository,
             IGoalItemRepository goalItemRepository,
             IGoalItemService goalItemService,
             IMapper mapper)
         {
+            this.walletTypeRepository = walletTypeRepository;
             this.monthlyGoalRepository = monthlyGoalRepository;
             this.transactionRepository = transactionRepository;
             this.goalItemRepository = goalItemRepository;
@@ -39,30 +36,40 @@ namespace MoneyMind_BLL.Services.Implementations
 
         public async Task<MonthlyGoalResponse> AddMonthlyGoalAsync(Guid userId, MonthlyGoalRequest monthlyGoalRequest)
         {
+            var jsonFilePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "datadefaults.json");
+            var jsonString = await File.ReadAllTextAsync(jsonFilePath);
+            var dataDefaults = JsonSerializer.Deserialize<DataDefaults>(jsonString);
+
+            var goalDefaults = dataDefaults.GoalItem;   
+
             // Map DTO sang Domain Model
             var monthlyGoalDomain = mapper.Map<MonthlyGoal>(monthlyGoalRequest);
             monthlyGoalDomain.UserId = userId;
 
-            // Danh sách WalletTypeId mặc định
-            var defaultWalletTypeIds = new List<Guid>
-            {
-                Guid.Parse("B79D14DB-7A81-4046-B66E-1ACD761123BB"),
-                Guid.Parse("B203AE2F-3023-41C1-A25A-2B2EC238321D"),
-                Guid.Parse("6193FCB1-C8C4-44E9-ABDE-78CDB4258C4E"),
-                Guid.Parse("654A9673-4D23-44B1-9AF8-A9562341A60E"),
-                Guid.Parse("19EA7E67-8095-4A13-BBA4-BDA0A4A47A38"),
-                Guid.Parse("EBEBC667-520D-4EAC-88ED-EF9EB8E26AAB")
-            };
+            var walletTypedIds = (await walletTypeRepository.GetAsync(filter: w => w.IsDisabled == false))
+                                               .Item1
+                                               .Select(item => item.Id);
+
+            //// Danh sách WalletTypeId mặc định
+            //var defaultWalletTypeIds = new List<Guid>
+            //{
+            //    Guid.Parse("B79D14DB-7A81-4046-B66E-1ACD761123BB"),
+            //    Guid.Parse("B203AE2F-3023-41C1-A25A-2B2EC238321D"),
+            //    Guid.Parse("6193FCB1-C8C4-44E9-ABDE-78CDB4258C4E"),
+            //    Guid.Parse("654A9673-4D23-44B1-9AF8-A9562341A60E"),
+            //    Guid.Parse("19EA7E67-8095-4A13-BBA4-BDA0A4A47A38"),
+            //    Guid.Parse("EBEBC667-520D-4EAC-88ED-EF9EB8E26AAB")
+            //};
 
             var goalItems = new List<GoalItem>();
 
-            foreach (var walletTypeId in defaultWalletTypeIds)
+            foreach (var walletTypeId in walletTypedIds)
             {
                 var usedAmount = await transactionRepository.GetSumAsync(
                     t => t.UserId == userId
                       && t.Wallet != null
-                      && t.Wallet.SubWalletType != null
-                      && t.Wallet.SubWalletType.WalletTypeId == walletTypeId
+                      && t.Wallet.WalletCategory != null
+                      && t.Wallet.WalletCategory.WalletTypeId == walletTypeId
                       && t.TransactionDate.Month == monthlyGoalDomain.Month
                       && t.TransactionDate.Year == monthlyGoalDomain.Year,
                     t => t.Amount
@@ -71,14 +78,13 @@ namespace MoneyMind_BLL.Services.Implementations
                 var goalItem = new GoalItem
                 {
                     Id = Guid.NewGuid(),
+                    Description = goalDefaults.Description,
                     MonthlyGoalId = monthlyGoalDomain.Id,
                     WalletTypeId = walletTypeId,
-                    MinTargetPercentage = 0,  // Mặc định có thể thay đổi
-                    MaxTargetPercentage = 100, // Mặc định có thể thay đổi
-                    MinAmount = 0,  // Giá trị tối thiểu mặc định
-                    MaxAmount = monthlyGoalDomain.TotalAmount / defaultWalletTypeIds.Count, // Chia đều ngân sách
-                    TargetMode = TargetMode.PercentageOnly, // Hoặc đặt mặc định là Absolute
-                    IsAchieved = false,
+                    MinTargetPercentage = goalDefaults.MinTargetPercentage,  // Mặc định có thể thay đổi
+                    MaxTargetPercentage = goalDefaults.MaxTargetPercentage, // Mặc định có thể thay đổi
+                    MinAmount = goalDefaults.MinAmount,  // Giá trị tối thiểu mặc định
+                    MaxAmount = goalDefaults.MaxAmount, // Chia đều ngân sách
                     UsedAmount = usedAmount,
                     UsedPercentage = (monthlyGoalDomain.TotalAmount > 0) ? (usedAmount / monthlyGoalDomain.TotalAmount) * 100 : 0
                 };
