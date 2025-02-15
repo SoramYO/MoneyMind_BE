@@ -1,0 +1,335 @@
+﻿{
+  "WalletCategories": [
+    {
+      "Name": "Housing",
+      "Description": "Expenses for rent or mortgage.",
+      "WalletTypeId": "b203ae2f-3023-41c1-a25a-2b2ec238321d",
+      "IconPath": "housing.png",
+      "Color": "#FF5733",
+      "Activities": [
+        {
+          "Name": "Pay Rent",
+          "Description": "Monthly rent payment."
+        },
+        {
+          "Name": "Home Maintenance",
+          "Description": "Repairs or maintenance expenses."
+        },
+        {
+          "Name": "Property Insurance",
+          "Description": "Insurance coverage for property or home."
+        },
+        {
+          "Name": "Property Tax",
+          "Description": "Annual or quarterly property tax payment."
+        }
+      ]
+    },
+    {
+      "Name": "Transportation",
+      "Description": "Expenses for fuel or public transport.",
+      "WalletTypeId": "b203ae2f-3023-41c1-a25a-2b2ec238321d",
+      "IconPath": "transportation.png",
+      "Color": "#33C1FF",
+      "Activities": [
+        {
+          "Name": "Buy Fuel",
+          "Description": "Fuel purchase for personal vehicle."
+        },
+        {
+          "Name": "Public Transport",
+          "Description": "Bus or train tickets/passes."
+        },
+        {
+          "Name": "Car Maintenance",
+          "Description": "Service or repairs for a vehicle."
+        },
+        {
+          "Name": "Taxi/Rideshare",
+          "Description": "Expenses for rideshare services like Uber."
+        }
+      ]
+    },
+    {
+      "Name": "Food",
+      "Description": "Daily groceries or meals.",
+      "WalletTypeId": "b203ae2f-3023-41c1-a25a-2b2ec238321d",
+      "IconPath": "food.png",
+      "Color": "#33FF57",
+      "Activities": [
+        {
+          "Name": "Buy Groceries",
+          "Description": "Purchase groceries for home cooking."
+        },
+        {
+          "Name": "Eat Out",
+          "Description": "Dining at a restaurant or food court."
+        },
+        {
+          "Name": "Food Delivery",
+          "Description": "Ordering meals via delivery services."
+        },
+        {
+          "Name": "Meal Prep",
+          "Description": "Ingredients/expenses for planned meal preparation."
+        }
+      ]
+    },
+    {
+      "Name": "Utilities",
+      "Description": "Electricity, water, and internet bills.",
+      "WalletTypeId": "b203ae2f-3023-41c1-a25a-2b2ec238321d",
+      "IconPath": "utilities.png",
+      "Color": "#FFC133",
+      "Activities": [
+        {
+          "Name": "Electricity Bill",
+          "Description": "Monthly electricity charges."
+        },
+        {
+          "Name": "Water Bill",
+          "Description": "Monthly water utility charges."
+        },
+        {
+          "Name": "Internet Bill",
+          "Description": "Broadband or fiber internet service fee."
+        },
+        {
+          "Name": "Phone Bill",
+          "Description": "Mobile or landline phone charges."
+        }
+      ]
+    },
+    {
+      "Name": "Investments",
+      "Description": "Long-term wealth building.",
+      "WalletTypeId": "654a9673-4d23-44b1-9af8-a9562341a60e",
+      "IconPath": "investments.png",
+      "Color": "#5733FF",
+      "Activities": [
+        {
+          "Name": "Stock Purchase",
+          "Description": "Buying shares in the stock market."
+        },
+        {
+          "Name": "Crypto Investment",
+          "Description": "Investing in cryptocurrency."
+        },
+        {
+          "Name": "Mutual Funds",
+          "Description": "Contributions to mutual or index funds."
+        },
+        {
+          "Name": "Reinvest Dividends",
+          "Description": "Reinvesting dividends from existing holdings."
+        }
+      ]
+    },
+    {
+      "Name": "Savings for Freedom",
+      "Description": "Funds for achieving financial independence.",
+      "WalletTypeId": "654a9673-4d23-44b1-9af8-a9562341a60e",
+      "IconPath": "savings_freedom.png",
+      "Color": "#FF33C1",
+      "Activities": [
+        {
+          "Name": "Transfer to Savings",
+          "Description": "Moving funds into a dedicated savings account."
+        },
+        {
+          "Name": "Retirement Fund",
+          "Description": "Putting money into retirement (e.g. 401k)."
+        },
+        {
+          "Name": "High-Yield Savings",
+          "Description": "Depositing into high-interest savings or CDs."
+        }
+      ]
+    },
+    {
+      "Name": "Tuition",
+      "Description": "Fees for schools or universities.",
+      "WalletTypeId": "19ea7e67-8095-4a13-bba4-bda0a4a47a38",
+      "IconPath": "tuition.png",
+      "Color": "#3388FF",
+      "Activities": [
+        {
+          "Name": "Pay Tuition Fees",
+          "Description": "Semester or annual fee payment."
+        },
+        {
+          "Name": "Buy Books",
+          "Description": "Purchasing books and mandatory study materials."
+        },
+        {
+          "Name": "Lab Fees",
+          "Description": "Science or technology lab/course fees."
+        },
+        {
+          "Name": "Online Course Fees",
+          "Description": "Enrolling in online courses or certifications."
+        }
+      ]
+    },
+    {
+      "Name": "Learning Materials",
+      "Description": "Books, courses, or online materials.",
+      "WalletTypeId": "19ea7e67-8095-4a13-bba4-bda0a4a47a38",
+      "IconPath": "learning_materials.png",
+      "Color": "#88FF33",
+      "Activities": [
+        {
+          "Name": "Purchase E-Books",
+          "Description": "Buying digital books for study or self-improvement."
+        },
+        {
+          "Name": "Learning Platform",
+          "Description": "Subscriptions to online learning platforms."
+        },
+        {
+          "Name": "Workshops/Seminars",
+          "Description": "Fees for attending workshops or professional seminars."
+        },
+        {
+          "Name": "Course Materials",
+          "Description": "Additional materials needed for studies."
+        }
+      ]
+    },
+    {
+      "Name": "Entertainment",
+      "Description": "Movies, games, or music subscriptions.",
+      "WalletTypeId": "6193fcb1-c8c4-44e9-abde-78cdb4258c4e",
+      "IconPath": "entertainment.png",
+      "Color": "#FF3388",
+      "Activities": [
+        {
+          "Name": "Watch Movie",
+          "Description": "Cinema tickets or streaming rentals."
+        },
+        {
+          "Name": "Buy Games",
+          "Description": "Video games or board games purchases."
+        },
+        {
+          "Name": "Streaming Subscription",
+          "Description": "Monthly fee for music or video streaming."
+        },
+        {
+          "Name": "Concert/Events",
+          "Description": "Tickets for concerts or live shows."
+        }
+      ]
+    },
+    {
+      "Name": "Travel",
+      "Description": "Vacation or trips.",
+      "WalletTypeId": "6193fcb1-c8c4-44e9-abde-78cdb4258c4e",
+      "IconPath": "travel.png",
+      "Color": "#FF5733",
+      "Activities": [
+        {
+          "Name": "Book Flight",
+          "Description": "Airline tickets for trips."
+        },
+        {
+          "Name": "Hotel Reservation",
+          "Description": "Booking hotels or accommodations."
+        },
+        {
+          "Name": "Travel Insurance",
+          "Description": "Insurance coverage for vacations or trips."
+        },
+        {
+          "Name": "Local Transport",
+          "Description": "Taxi, bus, or other local transport at destination."
+        }
+      ]
+    },
+    {
+      "Name": "Dining Out",
+      "Description": "Meals at restaurants or cafes.",
+      "WalletTypeId": "6193fcb1-c8c4-44e9-abde-78cdb4258c4e",
+      "IconPath": "dining_out.png",
+      "Color": "#FFC133",
+      "Activities": [
+        {
+          "Name": "Restaurant Meals",
+          "Description": "Expenses at full-service restaurants."
+        },
+        {
+          "Name": "Fast Food",
+          "Description": "Expenses at fast-food chains."
+        },
+        {
+          "Name": "Café Visits",
+          "Description": "Snacks, coffee, or pastries at a café."
+        },
+        {
+          "Name": "Special Occasions",
+          "Description": "Dining events for celebrations or parties."
+        }
+      ]
+    },
+    {
+      "Name": "Donations",
+      "Description": "Funds donated to charities or causes.",
+      "WalletTypeId": "b79d14db-7a81-4046-b66e-1acd761123bb",
+      "IconPath": "donations.png",
+      "Color": "#5733FF",
+      "Activities": [
+        {
+          "Name": "Charity Donations",
+          "Description": "Funds given to charitable organizations."
+        },
+        {
+          "Name": "Community Fund",
+          "Description": "Local community or cultural funds."
+        },
+        {
+          "Name": "Crowdfunding",
+          "Description": "Support for social or personal crowdfunding."
+        },
+        {
+          "Name": "Non-Profit Sponsorship",
+          "Description": "Recurring support for non-profit institutions."
+        }
+      ]
+    },
+    {
+      "Name": "Emergency Fund",
+      "Description": "Savings for unexpected events.",
+      "WalletTypeId": "ebebc667-520d-4eac-88ed-ef9eb8e26aab",
+      "IconPath": "emergency_fund.png",
+      "Color": "#FF5733",
+      "Activities": [
+        {
+          "Name": "Medical Emergencies",
+          "Description": "Unplanned medical bills or hospital fees."
+        },
+        {
+          "Name": "Unexpected Repairs",
+          "Description": "Car or home repairs not foreseen."
+        },
+        {
+          "Name": "Unplanned Travel",
+          "Description": "Emergency travel or urgent relocations."
+        },
+        {
+          "Name": "Crisis Support",
+          "Description": "Any urgent expense to handle unforeseen crises."
+        }
+      ]
+    }
+  ],
+  "MonthlyGoal": {
+    "TotalAmount": 6000000
+  },
+  "GoalItem": {
+    "Description": "Mục tiêu mặc định",
+    "MinTargetPercentage": 0,
+    "MaxTargetPercentage": 100,
+    "MinAmount": 0,
+    "MaxAmount": 1000000
+  }
+}

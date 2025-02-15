@@ -38,8 +38,8 @@ namespace MoneyMind_BLL.Services.Implementations
 
         public async Task<ActivityResponse> DeleteActivityAsync(Guid userId, Guid activityId)
         {
-            var existingActivity = await activityRepository.GetByIdAsync(activityId, a => a.SubWalletType);
-            if (existingActivity == null || existingActivity.SubWalletType.UserId != userId)
+            var existingActivity = await activityRepository.GetByIdAsync(activityId, a => a.WalletCategory);
+            if (existingActivity == null || existingActivity.WalletCategory.UserId != userId)
             {
                 return null;
             }
@@ -80,8 +80,8 @@ namespace MoneyMind_BLL.Services.Implementations
 
         public async Task<ActivityResponse> UpdateActivityAsync(Guid userId, Guid activityId, ActivityRequest activityRequest)
         {
-            var existingActivity = await activityRepository.GetByIdAsync(activityId, a => a.SubWalletType);
-            if (existingActivity == null || existingActivity.SubWalletType.UserId != userId)
+            var existingActivity = await activityRepository.GetByIdAsync(activityId, a => a.WalletCategory);
+            if (existingActivity == null || existingActivity.WalletCategory.UserId != userId || existingActivity.WalletCategoryId != activityRequest.WalletCategoryId)
             {
                 return null;
             }

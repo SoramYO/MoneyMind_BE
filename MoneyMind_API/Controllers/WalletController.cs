@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using MoneyMind_BLL.DTOs;
-using MoneyMind_BLL.DTOs.SubWalletTypes;
+using MoneyMind_BLL.DTOs.WalletCategories;
 using MoneyMind_BLL.DTOs.Wallets;
 using MoneyMind_BLL.Services.Implementations;
 using MoneyMind_BLL.Services.Interfaces;
@@ -28,7 +28,7 @@ namespace MoneyMind_API.Controllers
         [Authorize]
         public async Task<IActionResult> GetAsync(
             [FromRoute] Guid userId,
-            [FromQuery] Guid? subWalletTypeId = null,
+            [FromQuery] Guid? walletCategoryId = null,
             [FromQuery] int pageIndex = 1,
             [FromQuery] int pageSize = 12)
         {
@@ -41,9 +41,9 @@ namespace MoneyMind_API.Controllers
             filterExpression = filterExpression.AndAlso(s => s.UserId == userId);
 
             // Combine filters using AndAlso method
-            if (subWalletTypeId.HasValue)
+            if (walletCategoryId.HasValue)
             {
-                filterExpression = filterExpression.AndAlso(s => s.SubWalletTypeId == subWalletTypeId);
+                filterExpression = filterExpression.AndAlso(s => s.WalletCategoryId == walletCategoryId);
             }
 
             // Map string orderBy to the appropriate property (use switch or reflection if necessary)
@@ -52,7 +52,7 @@ namespace MoneyMind_API.Controllers
             var listDataResponse = await walletService.GetWalletsAsync(
                 filter: filterExpression,
                 orderBy: orderByFunc,
-                includeProperties: "SubWalletType.WalletType",
+                includeProperties: "WalletCategory.WalletType",
                 pageIndex: pageIndex,
                 pageSize: pageSize
             );
@@ -103,13 +103,13 @@ namespace MoneyMind_API.Controllers
                 return Unauthorized(errorMessage);
             }
 
-            var walletTypeResponse = await walletService.AddWalletAsync(userId.Value, walletRequest);
+            var walletResponse = await walletService.AddWalletAsync(userId.Value, walletRequest);
 
             var response = new ResponseObject
             {
                 Status = System.Net.HttpStatusCode.OK,
                 Message = "Create wallet successfully !",
-                Data = walletTypeResponse
+                Data = walletResponse
             };
             return Ok(response);
         }

@@ -2,7 +2,7 @@
 using MoneyMind_BLL.DTOs.Activities;
 using MoneyMind_BLL.DTOs.GoalItems;
 using MoneyMind_BLL.DTOs.MonthlyGoals;
-using MoneyMind_BLL.DTOs.SubWalletTypes;
+using MoneyMind_BLL.DTOs.WalletCategories;
 using MoneyMind_BLL.DTOs.Tags;
 using MoneyMind_BLL.DTOs.Transactions;
 using MoneyMind_BLL.DTOs.Wallets;
@@ -21,12 +21,14 @@ namespace MoneyMind_BLL.Mapping
         public AutoMapperProfiles()
         {
             CreateMap<Activity, ActivityResponse>().ReverseMap();
-            CreateMap<ActivityResponse, Activity>().ReverseMap();
+            CreateMap<ActivityRequest, Activity>().ReverseMap();
+            CreateMap<Attachment_ActivityRequest, Activity>().ReverseMap();
 
             CreateMap<WalletType, WalletTypeResponse>().ReverseMap();
+            CreateMap<WalletTypeRequest, WalletType>().ReverseMap();
 
-            CreateMap<SubWalletType, SubWalletTypeResponse>().ReverseMap();
-            CreateMap<SubWalletTypeRequest, SubWalletType>().ReverseMap();
+            CreateMap<WalletCategory, WalletCategoryResponse>().ReverseMap();
+            CreateMap<WalletCategoryRequest, WalletCategory>().ReverseMap();
 
             CreateMap<Wallet, Attachment_WalletResponse>().ReverseMap();
             CreateMap<Wallet, WalletResponse>().ReverseMap();
@@ -40,6 +42,7 @@ namespace MoneyMind_BLL.Mapping
 
             CreateMap<GoalItemRequest, GoalItem>().ReverseMap();
             CreateMap<GoalItem, GoalItemResponse>().ReverseMap();
+            CreateMap<GoalItemDefault, GoalItem>().ReverseMap();
 
             CreateMap<MonthlyGoalRequest, MonthlyGoal>().ReverseMap();
             CreateMap<MonthlyGoal, MonthlyGoalResponse>().ReverseMap();

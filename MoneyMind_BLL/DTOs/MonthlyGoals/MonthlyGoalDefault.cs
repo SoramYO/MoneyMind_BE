@@ -1,6 +1,4 @@
-﻿using MoneyMind_BLL.DTOs.GoalItems;
-using MoneyMind_DAL.Entities;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,10 +6,8 @@ using System.Threading.Tasks;
 
 namespace MoneyMind_BLL.DTOs.MonthlyGoals
 {
-    public class MonthlyGoalRequest
+    public class MonthlyGoalDefault
     {
         public double TotalAmount { get; set; }
-        public int Month { get; set; }
-        public int Year { get; set; }
     }
 }

@@ -1,8 +1,9 @@
 ﻿using AutoMapper;
 using MoneyMind_BLL.DTOs;
 using MoneyMind_BLL.DTOs.Activities;
+using MoneyMind_BLL.DTOs.DataDefaults;
 using MoneyMind_BLL.DTOs.MonthlyGoals;
-using MoneyMind_BLL.DTOs.SubWalletTypes;
+using MoneyMind_BLL.DTOs.WalletCategories;
 using MoneyMind_BLL.DTOs.Tags;
 using MoneyMind_BLL.DTOs.Transactions;
 using MoneyMind_BLL.DTOs.TransactionTags;
@@ -15,6 +16,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace MoneyMind_BLL.Services.Implementations
@@ -25,11 +27,12 @@ namespace MoneyMind_BLL.Services.Implementations
         private readonly ITransactionTagRepository transactionTagRepository;
         private readonly ITransactionActivityRepository transactionActivityRepository;
         private readonly IMonthlyGoalRepository monthlyGoalRepository;
+        private readonly IMonthlyGoalService monthlyGoalService;
         private readonly IGoalItemService goalItemService;
         private readonly IGoalItemRepository goalItemRepository;
         private readonly IWalletRepository walletRepository;
         private readonly IWalletService walletService;
-        private readonly ISubWalletTypeRepository subWalletTypeRepository;
+        private readonly IWalletCategoryRepository walletCategoryRepository;
         private readonly IMapper mapper;
         private readonly IMLService mlService;
 
@@ -37,27 +40,33 @@ namespace MoneyMind_BLL.Services.Implementations
             ITransactionTagRepository transactionTagRepository,
             ITransactionActivityRepository transactionActivityRepository,
             IMonthlyGoalRepository monthlyGoalRepository,
+            IMonthlyGoalService monthlyGoalService,
             IGoalItemService goalItemService,
             IGoalItemRepository goalItemRepository,
             IWalletRepository walletRepository,
             IWalletService walletService,
-            ISubWalletTypeRepository subWalletTypeRepository,
+            IWalletCategoryRepository walletCategoryRepository,
             IMapper mapper, IMLService mlService)
         {
             this.transactionRepository = transactionRepository;
             this.transactionTagRepository = transactionTagRepository;
             this.transactionActivityRepository = transactionActivityRepository;
             this.monthlyGoalRepository = monthlyGoalRepository;
+            this.monthlyGoalService = monthlyGoalService;
             this.goalItemService = goalItemService;
             this.goalItemRepository = goalItemRepository;
             this.walletRepository = walletRepository;
             this.walletService = walletService;
-            this.subWalletTypeRepository = subWalletTypeRepository;
+            this.walletCategoryRepository = walletCategoryRepository;
             this.mapper = mapper;
             this.mlService = mlService;
         }
         public async Task<TransactionResponse> AddTransactionAsync(Guid userId, TransactionRequest transactionRequest)
         {
+            var jsonFilePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "datadefaults.json");
+            var jsonString = await File.ReadAllTextAsync(jsonFilePath);
+            var dataDefaults = JsonSerializer.Deserialize<DataDefaults>(jsonString);
+
             // Tạo giao dịch mới
             var transactionDomain = mapper.Map<Transaction>(transactionRequest);
             transactionDomain.UserId = userId;
@@ -82,14 +91,25 @@ namespace MoneyMind_BLL.Services.Implementations
 
             // Cập nhật mục tiêu hàng tháng nếu có
             var monthlyGoal = await monthlyGoalRepository.GetCurrentGoalForUserAsync(userId, transactionDomain.TransactionDate);
-            if (monthlyGoal != null && transactionRequest.WalletId.HasValue)
+            if (monthlyGoal == null)
+            {
+                var monthlyGoalRequest = new MonthlyGoalRequest
+                {
+                    TotalAmount = dataDefaults.MonthlyGoal.TotalAmount,
+                    Month = transactionDomain.TransactionDate.Month,
+                    Year = transactionDomain.TransactionDate.Year
+                };
+                var monthlyGoalReponse  = await monthlyGoalService.AddMonthlyGoalAsync(userId, monthlyGoalRequest);
+                monthlyGoal = mapper.Map<MonthlyGoal>(monthlyGoalReponse);
+            }
+            if (transactionRequest.WalletId.HasValue)
             {
                 // Trừ tiền trong ví
                 await walletService.UpdateBalanceAsync(transactionRequest.WalletId.Value, -(double)transactionDomain.Amount);
 
                 // Cập nhật GoalItem
-                var wallet = await walletRepository.GetByIdAsync(transactionRequest.WalletId.Value, w => w.SubWalletType);
-                await goalItemService.UpdateGoalItemAsync(userId, wallet.SubWalletType.WalletTypeId, monthlyGoal.Id,
+                var wallet = await walletRepository.GetByIdAsync(transactionRequest.WalletId.Value, w => w.WalletCategory);
+                await goalItemService.UpdateGoalItemAsync(userId, wallet.WalletCategory.WalletTypeId, monthlyGoal.Id,
                                                           (double)transactionDomain.Amount, (double)monthlyGoal.TotalAmount);
             }
             var response = mapper.Map<TransactionResponse>(transactionDomain);
@@ -119,12 +139,12 @@ namespace MoneyMind_BLL.Services.Implementations
                 );
 
                 // Trừ (revert) usedAmount trong goalItem
-                var wallet = await walletRepository.GetByIdAsync(existingTransaction.WalletId.Value);
-                var subWalletType = await subWalletTypeRepository.GetByIdAsync(wallet.SubWalletTypeId);
+                var wallet = await walletRepository.GetByIdAsync(existingTransaction.WalletId.Value, w => w.WalletCategory);
+                var walletCategory = await walletCategoryRepository.GetByIdAsync(wallet.WalletCategory.Id);
 
                 await goalItemService.UpdateGoalItemAsync(
                     userId,
-                    subWalletType.WalletTypeId,
+                    walletCategory.WalletTypeId,
                     monthlyGoal.Id,
                     -(double)existingTransaction.Amount,
                     (double)monthlyGoal.TotalAmount
@@ -216,7 +236,11 @@ namespace MoneyMind_BLL.Services.Implementations
 
         public async Task<TransactionResponse> UpdateTransactionAsync(Guid transactionId, Guid userId, TransactionRequest transactionRequest)
         {
-            var existingTransaction = await transactionRepository.GetByIdAsync(transactionId, t => t.Wallet.SubWalletType);
+            var jsonFilePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "datadefaults.json");
+            var jsonString = await File.ReadAllTextAsync(jsonFilePath);
+            var dataDefaults = JsonSerializer.Deserialize<DataDefaults>(jsonString);
+
+            var existingTransaction = await transactionRepository.GetByIdAsync(transactionId, t => t.Wallet.WalletCategory);
             if (existingTransaction == null || existingTransaction.UserId != userId)
             {
                 return null;
@@ -224,6 +248,17 @@ namespace MoneyMind_BLL.Services.Implementations
 
             var amountDifference = transactionRequest.Amount - existingTransaction.Amount;
             var monthlyGoal = await monthlyGoalRepository.GetCurrentGoalForUserAsync(userId, existingTransaction.TransactionDate);
+            if (monthlyGoal == null)
+            {
+                var monthlyGoalRequest = new MonthlyGoalRequest
+                {
+                    TotalAmount = dataDefaults.MonthlyGoal.TotalAmount,
+                    Month = existingTransaction.TransactionDate.Month,
+                    Year = existingTransaction.TransactionDate.Year
+                };
+                var monthlyGoalReponse = await monthlyGoalService.AddMonthlyGoalAsync(userId, monthlyGoalRequest);
+                monthlyGoal = mapper.Map<MonthlyGoal>(monthlyGoalReponse);
+            }
 
             // Kiểm tra thay đổi WalletId
             bool isWalletChanged = existingTransaction.WalletId != transactionRequest.WalletId;
@@ -244,7 +279,7 @@ namespace MoneyMind_BLL.Services.Implementations
 
                         // B2: Giảm UsedAmount trong GoalItem cũ
                         var oldWallet = await walletRepository.GetByIdAsync(existingTransaction.WalletId.Value);
-                        var oldSubWalletType = await subWalletTypeRepository.GetByIdAsync(oldWallet.SubWalletTypeId);
+                        var oldSubWalletType = await walletCategoryRepository.GetByIdAsync(oldWallet.WalletCategory);
 
                         await goalItemService.UpdateGoalItemAsync(
                             userId,
@@ -265,12 +300,12 @@ namespace MoneyMind_BLL.Services.Implementations
                         );
 
                         // B2: Tăng UsedAmount trong GoalItem mới
-                        var newWallet = await walletRepository.GetByIdAsync(transactionRequest.WalletId.Value);
-                        var newSubWalletType = await subWalletTypeRepository.GetByIdAsync(newWallet.SubWalletTypeId);
+                        var newWallet = await walletRepository.GetByIdAsync(transactionRequest.WalletId.Value, w => w.WalletCategory);
+                        var newWalletCategory = await walletCategoryRepository.GetByIdAsync(newWallet.WalletCategory.Id);
 
                         await goalItemService.UpdateGoalItemAsync(
                             userId,
-                            newSubWalletType.WalletTypeId,
+                            newWalletCategory.WalletTypeId,
                             monthlyGoal.Id,
                             (double)transactionRequest.Amount,
                             (double)monthlyGoal.TotalAmount
@@ -287,11 +322,11 @@ namespace MoneyMind_BLL.Services.Implementations
 
                     // B2: Cập nhật GoalItem
                     var wallet = await walletRepository.GetByIdAsync(transactionRequest.WalletId.Value);
-                    var subWalletType = await subWalletTypeRepository.GetByIdAsync(wallet.SubWalletTypeId);
+                    var walletCategory = await walletCategoryRepository.GetByIdAsync(wallet.WalletCategory);
 
                     await goalItemService.UpdateGoalItemAsync(
                         userId,
-                        subWalletType.WalletTypeId,
+                        walletCategory.WalletTypeId,
                         monthlyGoal.Id,
                         (double)amountDifference,
                         (double)monthlyGoal.TotalAmount

@@ -24,8 +24,8 @@ namespace MoneyMind_DAL.Entities
         /// <summary>
         /// Properties related 
         /// </summary>
-        public Guid SubWalletTypeId { get; set; }
-        public virtual SubWalletType SubWalletType { get; set; } = null!;
+        public Guid WalletCategoryId { get; set; }
+        public virtual WalletCategory WalletCategory { get; set; } = null!;
 
         // Quan hệ Nhiều-Nhiều với Transaction
         public virtual ICollection<TransactionActivity> TransactionActivities { get; set; } = new List<TransactionActivity>();

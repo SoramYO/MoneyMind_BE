@@ -56,8 +56,8 @@ namespace MoneyMind_BLL.Services.Implementations
             return await transactionRepository
                 .GetSumAsync(t => t.UserId == userId
                                && t.Wallet != null
-                               && t.Wallet.SubWalletType != null
-                               && t.Wallet.SubWalletType.WalletTypeId == walletTypeId
+                               && t.Wallet.WalletCategory != null
+                               && t.Wallet.WalletCategory.WalletTypeId == walletTypeId
                                && t.TransactionDate.Month == month
                                && t.TransactionDate.Year == year,
                              t => t.Amount);

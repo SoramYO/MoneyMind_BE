@@ -1,4 +1,4 @@
-﻿using MoneyMind_BLL.DTOs.SubWalletTypes;
+﻿using MoneyMind_BLL.DTOs.WalletCategories;
 using MoneyMind_BLL.DTOs.Transactions;
 using MoneyMind_BLL.DTOs.WalletTypes;
 using MoneyMind_DAL.Entities;
@@ -18,6 +18,6 @@ namespace MoneyMind_BLL.DTOs.Wallets
         public DateTime CreatedTime { get; set; }
         public DateTime LastUpdatedTime { get; set; }
         public Guid UserId { get; set; }
-        public virtual SubWalletTypeResponse SubWalletType { get; set; }
+        public virtual WalletCategoryResponse WalletCategory { get; set; }
     }
 }

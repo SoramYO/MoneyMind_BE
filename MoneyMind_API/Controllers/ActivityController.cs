@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using Libook_API.Configure;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MoneyMind_BLL.DTOs;
 using MoneyMind_BLL.DTOs.Activities;
@@ -21,7 +22,7 @@ namespace MoneyMind_API.Controllers
 
         [HttpGet]
         public async Task<IActionResult> GetAll(
-            [FromQuery] Guid? subWalletTypeId = null,
+            [FromQuery] Guid? WalletCategoryId = null,
             [FromQuery] int pageIndex = 1,
             [FromQuery] int pageSize = 50)
         {
@@ -29,16 +30,16 @@ namespace MoneyMind_API.Controllers
             if (pageIndex < 1) pageIndex = 1;
             if (pageSize < 1) pageSize = 50;
 
-            Expression<Func<Activity, bool>> filterExpression = null;
-            if (subWalletTypeId.HasValue)
+            Expression<Func<Activity, bool>> filterExpression = s => s.IsDeleted == false;
+            if (WalletCategoryId.HasValue)
             {
-                filterExpression = s => s.SubWalletTypeId == subWalletTypeId;
+                filterExpression = filterExpression.AndAlso(s => s.WalletCategoryId == WalletCategoryId);
             }
 
             var listDataResponse = await activityService.GetActivityAsync(
                 filter: filterExpression,
                 orderBy: null,
-                includeProperties: "SubWalletType.WalletType",
+                includeProperties: "WalletCategory.WalletType",
                 pageIndex: pageIndex,
                 pageSize: pageSize
             );
@@ -91,7 +92,7 @@ namespace MoneyMind_API.Controllers
                 return Unauthorized(errorMessage);
             }
 
-            var activityResponse = await activityService.UpdateActivityAsync(id, userId.Value, activityRequest);
+            var activityResponse = await activityService.UpdateActivityAsync(userId.Value, id, activityRequest);
             if (activityResponse == null)
             {
                 return NotFound();
@@ -119,7 +120,7 @@ namespace MoneyMind_API.Controllers
                 return Unauthorized(errorMessage);
             }
 
-            var activityResponse = await activityService.DeleteActivityAsync(id, userId.Value);
+            var activityResponse = await activityService.DeleteActivityAsync(userId.Value, id);
             if (activityResponse == null)
             {
                 return NotFound();

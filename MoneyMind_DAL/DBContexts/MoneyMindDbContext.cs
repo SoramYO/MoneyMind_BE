@@ -23,7 +23,7 @@ namespace MoneyMind_DAL.DBContexts
         public virtual DbSet<Message> Message { get; set; }
         public virtual DbSet<MonthlyGoal> MonthlyGoal { get; set; }
         public virtual DbSet<SheetTransction> SheetTransction { get; set; }
-        public virtual DbSet<SubWalletType> SubWalletType { get; set; }
+        public virtual DbSet<WalletCategory> WalletCategory { get; set; }
         public virtual DbSet<Tag> Tag { get; set; }
         public virtual DbSet<Transaction> Transaction { get; set; }
         public virtual DbSet<TransactionActivity> TransactionActivity { get; set; }
@@ -61,37 +61,43 @@ namespace MoneyMind_DAL.DBContexts
                 {
                     Id = Guid.Parse(necessitiesId),
                     Name = "Necessities",
-                    Description = "Essential expenses for daily living, including food, housing, and utilities."
+                    Description = "Essential expenses for daily living, including food, housing, and utilities.",
+                    IsDisabled = false
                 },
                 new WalletType
                 {
                     Id = Guid.Parse(financialFreedomId),
                     Name = "Financial Freedom",
-                    Description = "Allocations for building wealth and achieving long-term financial independence."
+                    Description = "Allocations for building wealth and achieving long-term financial independence.",
+                    IsDisabled = false,
                 },
                 new WalletType
                 {
                     Id = Guid.Parse(educationId),
                     Name = "Education",
-                    Description = "Investments in personal growth, such as books, courses, and training programs."
+                    Description = "Investments in personal growth, such as books, courses, and training programs.",
+                    IsDisabled = false
                 },
                 new WalletType
                 {
                     Id = Guid.Parse(leisureId),
                     Name = "Leisure",
-                    Description = "Spending on entertainment and recreational activities for enjoyment."
+                    Description = "Spending on entertainment and recreational activities for enjoyment.",
+                    IsDisabled = false
                 },
                 new WalletType
                 {
                     Id = Guid.Parse(charityId),
                     Name = "Charity",
-                    Description = "Contributions to charitable causes or support for those in need."
+                    Description = "Contributions to charitable causes or support for those in need.",
+                    IsDisabled = false
                 },
                 new WalletType
                 {
                     Id = Guid.Parse(savingsId),
                     Name = "Savings",
-                    Description = "Funds set aside for major purchases, emergencies, or future needs."
+                    Description = "Funds set aside for major purchases, emergencies, or future needs.",
+                    IsDisabled = false
                 }
             );
 

@@ -1,4 +1,4 @@
-﻿using MoneyMind_BLL.DTOs.SubWalletTypes;
+﻿using MoneyMind_BLL.DTOs.WalletCategories;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,6 +13,5 @@ namespace MoneyMind_BLL.DTOs.Activities
         public string Name { get; set; } = string.Empty;
         public string Description { get; set; } = string.Empty;
         public DateTime CreatedAt { get; set; }
-        public SubWalletTypeResponse SubWalletType { get; set; }
     }
 }

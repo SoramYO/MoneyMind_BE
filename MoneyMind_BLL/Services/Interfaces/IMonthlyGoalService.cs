@@ -1,4 +1,4 @@
-﻿using MoneyMind_BLL.DTOs.SubWalletTypes;
+﻿using MoneyMind_BLL.DTOs.WalletCategories;
 using MoneyMind_BLL.DTOs;
 using MoneyMind_DAL.Entities;
 using System;

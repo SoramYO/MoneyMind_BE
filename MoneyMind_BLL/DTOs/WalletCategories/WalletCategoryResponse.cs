@@ -1,4 +1,5 @@
-﻿using MoneyMind_BLL.DTOs.Wallets;
+﻿using MoneyMind_BLL.DTOs.Activities;
+using MoneyMind_BLL.DTOs.Wallets;
 using MoneyMind_BLL.DTOs.WalletTypes;
 using MoneyMind_DAL.Entities;
 using System;
@@ -7,9 +8,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MoneyMind_BLL.DTOs.SubWalletTypes
+namespace MoneyMind_BLL.DTOs.WalletCategories
 {
-    public class SubWalletTypeResponse
+    public class WalletCategoryResponse
     {
         public Guid Id { get; set; }
         public string Name { get; set; }
@@ -22,5 +23,6 @@ namespace MoneyMind_BLL.DTOs.SubWalletTypes
         public Guid WalletTypeId { get; set; }
         public string WalletTypeName { get; set; }
         public string WalletTypeDescription { get; set; }
+        public List<ActivityResponse> Activities { get; set; } = new List<ActivityResponse>();
     }
 }
