@@ -8,14 +8,18 @@ using Microsoft.Extensions.FileProviders;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.ML;
 using Microsoft.OpenApi.Models;
+
 using MoneyMind_API.Middlewares;
 using MoneyMind_BLL.Mapping;
 using MoneyMind_BLL.Services.BackgroundServices;
-using MoneyMind_BLL.Services.Implementations;
+using MoneyMind_BLL.Hubs;
 using MoneyMind_BLL.Services.Interfaces;
+using MoneyMind_BLL.Services.Implementations;
 using MoneyMind_DAL.DBContexts;
 using MoneyMind_DAL.Entities;
 using MoneyMind_DAL.Repositories.Interfaces;
+using MoneyMind_DAL.Repositories.Implementations;
+
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -96,6 +100,11 @@ builder.Services.Scan(scan => scan
     .WithScopedLifetime()
 );
 
+builder.Services.AddScoped<IUserFcmTokenRepository, UserFcmTokenRepository>();
+
+// Services
+builder.Services.AddScoped<INotificationService, NotificationService>();
+builder.Services.AddScoped<IGoogleSheetSyncService, GoogleSheetSyncService>();
 
 // AutoMapper configuration
 builder.Services.AddAutoMapper(typeof(AutoMapperProfiles));
@@ -122,7 +131,8 @@ builder.Services.Configure<IdentityOptions>(options =>
 builder.Services.AddAuthentication(options =>
 {
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-}).AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, options =>
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+}).AddJwtBearer(options =>
 {
     options.TokenValidationParameters = new TokenValidationParameters
     {
@@ -134,21 +144,40 @@ builder.Services.AddAuthentication(options =>
         ValidAudience = builder.Configuration["Jwt:Audience"],
         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]))
     };
+
+    options.Events = new JwtBearerEvents
+    {
+        OnMessageReceived = context =>
+        {
+            var accessToken = context.Request.Query["access_token"];
+            var path = context.HttpContext.Request.Path;
+            if (!string.IsNullOrEmpty(accessToken) && path.StartsWithSegments("/notificationHub"))
+            {
+                context.Token = accessToken;
+            }
+            return Task.CompletedTask;
+        }
+    };
 });
 
 // CORS configuration
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowAll", policy =>
-    {
-        policy.AllowAnyOrigin()
-              .AllowAnyMethod()
-              .AllowAnyHeader();
-    });
+	options.AddPolicy("AllowAll", policy =>
+	{
+		policy.AllowAnyOrigin()
+			  .AllowAnyMethod()
+			  .AllowAnyHeader();
+	});
 });
+
 
 // Add MB Bank sync services
 builder.Services.AddHttpClient();
+
+// Add SignalR services
+builder.Services.AddSignalR();
+
 
 var app = builder.Build();
 
@@ -177,9 +206,9 @@ app.UseStaticFiles(new StaticFileOptions
 
 app.UseCors("AllowAll");
 
-app.UseAuthorization();
-app.UseAuthorization();
+
 
 app.MapControllers();
 
+app.UseAuthorization();
 app.Run();

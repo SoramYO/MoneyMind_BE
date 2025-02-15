@@ -31,8 +31,11 @@ namespace MoneyMind_DAL.DBContexts
         public virtual DbSet<TransactionTag> TransactionTag { get; set; }
         public virtual DbSet<Wallet> Wallet { get; set; }
         public virtual DbSet<WalletType> WalletType { get; set; }
+        public virtual DbSet<Notification> Notification { get; set; }
 
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+		public virtual DbSet<UserFcmToken> UserFcmTokens { get; set; }
+
+		protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             => optionsBuilder.UseSqlServer("Name=MoneyMindConnectionString");
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

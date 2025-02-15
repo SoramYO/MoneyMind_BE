@@ -5,6 +5,7 @@ using MoneyMind_BLL.DTOs;
 using MoneyMind_BLL.DTOs.Accounts;
 using MoneyMind_BLL.DTOs.AccountTokens;
 using MoneyMind_BLL.DTOs.Emails;
+using MoneyMind_BLL.DTOs.Notification;
 using MoneyMind_BLL.Services.Implementations;
 using MoneyMind_BLL.Services.Interfaces;
 using MoneyMind_DAL.Entities;
@@ -18,13 +19,20 @@ namespace MoneyMind_API.Controllers
         private readonly ITokenService tokenService;
         private readonly IEmailService emailService;
         private readonly UserManager<ApplicationUser> userManager;
+		private readonly INotificationService _notificationService;
 
-        public AuthenticationsController(ITokenService tokenService, IEmailService emailService, UserManager<ApplicationUser> userManager)
+		public AuthenticationsController(
+            ITokenService tokenService, 
+            IEmailService emailService, 
+            UserManager<ApplicationUser> userManager,
+			INotificationService notificationService
+			)
         {
             this.userManager = userManager;
             this.tokenService = tokenService;
             this.emailService = emailService;
-        }
+			_notificationService = notificationService;
+		}
 
         [HttpPost]
         [Route("Register")]
@@ -259,5 +267,18 @@ namespace MoneyMind_API.Controllers
 
             return Ok(response);
         }
-    }
+
+		[HttpPost("register-token")]
+		public async Task<IActionResult> RegisterToken([FromBody] TokenFCMRequest request)
+		{
+			var userId = JwtHelper.GetUserIdFromToken(HttpContext.Request, out var errorMessage);
+			if (userId == null)
+			{
+				return Unauthorized(errorMessage);
+			}
+
+			await _notificationService.SaveUserFcmToken(userId.Value, request.Token);
+			return Ok();
+		}
+	}
 }
