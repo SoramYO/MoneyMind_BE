@@ -32,7 +32,6 @@ namespace MoneyMind_DAL.DBContexts
         public virtual DbSet<Wallet> Wallet { get; set; }
         public virtual DbSet<WalletType> WalletType { get; set; }
         public virtual DbSet<Notification> Notification { get; set; }
-
 		public virtual DbSet<UserFcmToken> UserFcmTokens { get; set; }
 
 		protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)

@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace MoneyMind_DAL.Migrations
 {
     /// <inheritdoc />
-    public partial class AddNotificationAndFcmToken : Migration
+    public partial class InitialMoneyMindMigration : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -129,7 +129,8 @@ namespace MoneyMind_DAL.Migrations
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     Name = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    Description = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    IsDisabled = table.Column<bool>(type: "bit", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -194,7 +195,7 @@ namespace MoneyMind_DAL.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "SubWalletType",
+                name: "WalletCategory",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
@@ -209,9 +210,9 @@ namespace MoneyMind_DAL.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_SubWalletType", x => x.Id);
+                    table.PrimaryKey("PK_WalletCategory", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_SubWalletType_WalletType_WalletTypeId",
+                        name: "FK_WalletCategory_WalletType_WalletTypeId",
                         column: x => x.WalletTypeId,
                         principalTable: "WalletType",
                         principalColumn: "Id",
@@ -227,15 +228,15 @@ namespace MoneyMind_DAL.Migrations
                     Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     IsDeleted = table.Column<bool>(type: "bit", nullable: false),
-                    SubWalletTypeId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
+                    WalletCategoryId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Activity", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Activity_SubWalletType_SubWalletTypeId",
-                        column: x => x.SubWalletTypeId,
-                        principalTable: "SubWalletType",
+                        name: "FK_Activity_WalletCategory_WalletCategoryId",
+                        column: x => x.WalletCategoryId,
+                        principalTable: "WalletCategory",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -251,15 +252,15 @@ namespace MoneyMind_DAL.Migrations
                     LastUpdatedTime = table.Column<DateTime>(type: "datetime2", nullable: false),
                     IsActive = table.Column<bool>(type: "bit", nullable: false),
                     UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    SubWalletTypeId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
+                    WalletCategoryId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Wallet", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Wallet_SubWalletType_SubWalletTypeId",
-                        column: x => x.SubWalletTypeId,
-                        principalTable: "SubWalletType",
+                        name: "FK_Wallet_WalletCategory_WalletCategoryId",
+                        column: x => x.WalletCategoryId,
+                        principalTable: "WalletCategory",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -382,21 +383,21 @@ namespace MoneyMind_DAL.Migrations
 
             migrationBuilder.InsertData(
                 table: "WalletType",
-                columns: new[] { "Id", "Description", "Name" },
+                columns: new[] { "Id", "Description", "IsDisabled", "Name" },
                 values: new object[,]
                 {
-                    { new Guid("19ea7e67-8095-4a13-bba4-bda0a4a47a38"), "Investments in personal growth, such as books, courses, and training programs.", "Education" },
-                    { new Guid("6193fcb1-c8c4-44e9-abde-78cdb4258c4e"), "Spending on entertainment and recreational activities for enjoyment.", "Leisure" },
-                    { new Guid("654a9673-4d23-44b1-9af8-a9562341a60e"), "Allocations for building wealth and achieving long-term financial independence.", "Financial Freedom" },
-                    { new Guid("b203ae2f-3023-41c1-a25a-2b2ec238321d"), "Essential expenses for daily living, including food, housing, and utilities.", "Necessities" },
-                    { new Guid("b79d14db-7a81-4046-b66e-1acd761123bb"), "Contributions to charitable causes or support for those in need.", "Charity" },
-                    { new Guid("ebebc667-520d-4eac-88ed-ef9eb8e26aab"), "Funds set aside for major purchases, emergencies, or future needs.", "Savings" }
+                    { new Guid("19ea7e67-8095-4a13-bba4-bda0a4a47a38"), "Investments in personal growth, such as books, courses, and training programs.", false, "Education" },
+                    { new Guid("6193fcb1-c8c4-44e9-abde-78cdb4258c4e"), "Spending on entertainment and recreational activities for enjoyment.", false, "Leisure" },
+                    { new Guid("654a9673-4d23-44b1-9af8-a9562341a60e"), "Allocations for building wealth and achieving long-term financial independence.", false, "Financial Freedom" },
+                    { new Guid("b203ae2f-3023-41c1-a25a-2b2ec238321d"), "Essential expenses for daily living, including food, housing, and utilities.", false, "Necessities" },
+                    { new Guid("b79d14db-7a81-4046-b66e-1acd761123bb"), "Contributions to charitable causes or support for those in need.", false, "Charity" },
+                    { new Guid("ebebc667-520d-4eac-88ed-ef9eb8e26aab"), "Funds set aside for major purchases, emergencies, or future needs.", false, "Savings" }
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_Activity_SubWalletTypeId",
+                name: "IX_Activity_WalletCategoryId",
                 table: "Activity",
-                column: "SubWalletTypeId");
+                column: "WalletCategoryId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_GoalItem_MonthlyGoalId",
@@ -412,11 +413,6 @@ namespace MoneyMind_DAL.Migrations
                 name: "IX_Message_ChatId",
                 table: "Message",
                 column: "ChatId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_SubWalletType_WalletTypeId",
-                table: "SubWalletType",
-                column: "WalletTypeId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Tag_Name",
@@ -440,9 +436,14 @@ namespace MoneyMind_DAL.Migrations
                 column: "TagId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Wallet_SubWalletTypeId",
+                name: "IX_Wallet_WalletCategoryId",
                 table: "Wallet",
-                column: "SubWalletTypeId");
+                column: "WalletCategoryId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_WalletCategory_WalletTypeId",
+                table: "WalletCategory",
+                column: "WalletTypeId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_WalletType_Name",
@@ -497,7 +498,7 @@ namespace MoneyMind_DAL.Migrations
                 name: "Wallet");
 
             migrationBuilder.DropTable(
-                name: "SubWalletType");
+                name: "WalletCategory");
 
             migrationBuilder.DropTable(
                 name: "WalletType");
