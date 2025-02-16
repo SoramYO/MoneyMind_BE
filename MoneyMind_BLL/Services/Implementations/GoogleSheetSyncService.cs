@@ -14,6 +14,7 @@ using MoneyMind_BLL.Services.Interfaces;
 using MoneyMind_DAL.Entities;
 using MoneyMind_DAL.Repositories.Implementations;
 using MoneyMind_DAL.Repositories.Interfaces;
+using Microsoft.Extensions.Logging;
 
 namespace MoneyMind_BLL.Services.Implementations
 {
@@ -25,6 +26,8 @@ namespace MoneyMind_BLL.Services.Implementations
         private readonly ITransactionService _transactionService;
 		private readonly ITransactionSyncLogRepository _syncLogRepository;
         private readonly string _contentRootPath;
+        private readonly ILogger<GoogleSheetSyncService> _logger;
+        private readonly INotificationService _notificationService;
 
         public GoogleSheetSyncService(
             ITransactionRepository transactionRepository,
@@ -32,7 +35,9 @@ namespace MoneyMind_BLL.Services.Implementations
             IMLService mlService,
             ITransactionSyncLogRepository syncLogRepository,
             IHostEnvironment hostEnvironment,
-            ITransactionService transactionService)
+            ITransactionService transactionService,
+            ILogger<GoogleSheetSyncService> logger,
+            INotificationService notificationService)
         {
             _transactionRepository = transactionRepository;
             _transactionTagRepository = transactionTagRepository;
@@ -40,9 +45,11 @@ namespace MoneyMind_BLL.Services.Implementations
             _syncLogRepository = syncLogRepository;
             _contentRootPath = hostEnvironment.ContentRootPath;
 			_transactionService = transactionService;
+            _logger = logger;
+            _notificationService = notificationService;
 		}
 
-        public async Task SyncTransactionsFromSheet(GoogleSheetRequest request)
+        public async Task<SyncResult> SyncTransactionsFromSheet(GoogleSheetRequest request)
         {
             var syncLog = new TransactionSyncLog
             {
@@ -50,6 +57,7 @@ namespace MoneyMind_BLL.Services.Implementations
                 Status = "InProcess",
                 ErrorMessage = ""
             };
+            var result = new SyncResult { NewTransactions = 0 };
 
             try
             {
@@ -165,6 +173,13 @@ namespace MoneyMind_BLL.Services.Implementations
 													await _transactionService.AddTransactionAsync(request.UserId, transaction);
 													newTransactions++;
                                                     Console.WriteLine("New transaction added successfully");
+                                                    result.NewTransactions++;
+                                                    
+                                                    // Send notification for new transaction
+                                                    await _notificationService.SendNotificationToUser(
+                                                        request.UserId,
+                                                        $"Đã thêm giao dịch mới: {transaction.Description} với số tiền {transaction.Amount:N0} VNĐ"
+                                                    );
                                                 }
                                                 else
                                                 {
@@ -206,13 +221,21 @@ namespace MoneyMind_BLL.Services.Implementations
                     }
                     catch (Exception ex)
                     {
-                        Console.WriteLine($"Error processing sheet {sheetName}: {ex.Message}");
+                        _logger.LogError(ex, "Error processing sheet {SheetName}", sheetName);
                     }
                 }
 
                 syncLog.Status = "Success";
                 await _syncLogRepository.UpdateAsync(syncLog);
                 Console.WriteLine("Sync completed successfully");
+                
+                // Send final sync notification
+                await _notificationService.SendNotificationToUser(
+                    request.UserId,
+                    $"Đồng bộ hoàn tất! Đã thêm {result.NewTransactions} giao dịch mới."
+                );
+                
+                return result;
             }
             catch (Exception ex)
             {
@@ -261,5 +284,6 @@ namespace MoneyMind_BLL.Services.Implementations
                 PaymentChannel = row.Count > 12 ? row[12]?.ToString() : ""
             };
         }
-    }
+
+	}
 } 

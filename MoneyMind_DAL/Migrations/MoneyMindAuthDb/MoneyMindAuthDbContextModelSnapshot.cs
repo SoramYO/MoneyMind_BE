@@ -3,20 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using MoneyMind_DAL.DBContexts;
 
 #nullable disable
 
-namespace MoneyMind_DAL.Migrations
+namespace MoneyMind_DAL.Migrations.MoneyMindAuthDb
 {
     [DbContext(typeof(MoneyMindAuthDbContext))]
-    [Migration("20250208155649_InitialMoneyMindAuthMigration")]
-    partial class InitialMoneyMindAuthMigration
+    partial class MoneyMindAuthDbContextModelSnapshot : ModelSnapshot
     {
-        /// <inheritdoc />
-        protected override void BuildTargetModel(ModelBuilder modelBuilder)
+        protected override void BuildModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

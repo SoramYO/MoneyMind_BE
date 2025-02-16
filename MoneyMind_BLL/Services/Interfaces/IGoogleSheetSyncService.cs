@@ -10,6 +10,11 @@ namespace MoneyMind_BLL.Services.Interfaces
 {
     public interface IGoogleSheetSyncService
     {
-        Task SyncTransactionsFromSheet(GoogleSheetRequest request);
-    } 
+        Task<SyncResult> SyncTransactionsFromSheet(GoogleSheetRequest request);
+    }
+
+    public class SyncResult
+    {
+        public int NewTransactions { get; set; }
+    }
 }
