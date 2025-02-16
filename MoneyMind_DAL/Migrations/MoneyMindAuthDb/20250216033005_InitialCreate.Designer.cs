@@ -12,8 +12,8 @@ using MoneyMind_DAL.DBContexts;
 namespace MoneyMind_DAL.Migrations.MoneyMindAuthDb
 {
     [DbContext(typeof(MoneyMindAuthDbContext))]
-    [Migration("20250214140716_AddNotificationAndFcmToken")]
-    partial class AddNotificationAndFcmToken
+    [Migration("20250216033005_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace MoneyMind_DAL.Migrations.MoneyMindAuthDb
 {
     /// <inheritdoc />
-    public partial class AddNotificationAndFcmToken : Migration
+    public partial class InitialCreate : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
