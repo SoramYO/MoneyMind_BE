@@ -101,42 +101,25 @@ public class NotificationService : INotificationService
 
     public async Task SendPushNotification(NotificationRequest request)
     {
-        try
+        var message = new FirebaseAdmin.Messaging.Message()
         {
-            var message = new FirebaseAdmin.Messaging.Message()
+            Token = request.FcmToken,
+            Notification = new FirebaseAdmin.Messaging.Notification
             {
-                Token = request.FcmToken,
-                Notification = new FirebaseAdmin.Messaging.Notification
-                {
-                    Title = request.Title,
-                    Body = request.Body
-                },
-                Data = request.Data,
-                Android = new AndroidConfig
-                {
-                    Priority = Priority.High,
-                    Notification = new AndroidNotification
-                    {
-                        Sound = "default",
-                        Priority = NotificationPriority.HIGH
-                    }
-                },
-                Apns = new ApnsConfig
-                {
-                    Aps = new Aps
-                    {
-                        Sound = "default",
-                        Badge = 1
-                    }
-                }
-            };
+                Title = request.Title,
+                Body = request.Body
+            },
+            Data = request.Data
+        };
 
+        try 
+        {
             var result = await _firebaseMessaging.SendAsync(message);
-            Console.WriteLine("FCM notification sent successfully: {MessageId}", result);
+            Console.WriteLine($"Successfully sent message: {result}");
         }
         catch (Exception ex)
         {
-			Console.WriteLine( "Error sending FCM notification");
+            Console.WriteLine($"Error sending message: {ex.Message}");
             throw;
         }
     }
