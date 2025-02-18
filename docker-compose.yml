@@ -1,0 +1,41 @@
+version: "3.8"
+
+services:
+  moneymind-api:
+    build:
+      context: .
+      dockerfile: docker.yml
+    depends_on:
+      - db
+      - auth_db
+    ports:
+      - "8080:80"
+    environment:
+      - ConnectionStrings__MoneyMindConnectionString=Server=db;Database=MoneyMindDb;User=sa;Password=Abc!1234;
+      - ConnectionStrings__MoneyMindAuthConnectionString=Server=auth_db;Database=MoneyMindAuthDb;User=sa;Password=Abc!1234;
+
+  db:
+    image: mcr.microsoft.com/mssql/server:2019-latest
+    container_name: moneyminddb
+    environment:
+      SA_PASSWORD: "Abc!1234"
+      ACCEPT_EULA: "Y"
+    ports:
+      - "1433:1433"
+    volumes:
+      - sqlvolume_db:/var/opt/mssql
+
+  auth_db:
+    image: mcr.microsoft.com/mssql/server:2019-latest
+    container_name: moneymindauthdb
+    environment:
+      SA_PASSWORD: "Abc!1234"
+      ACCEPT_EULA: "Y"
+    ports:
+      - "1434:1433"
+    volumes:
+      - sqlvolume_auth:/var/opt/mssql
+
+volumes:
+  sqlvolume_db:
+  sqlvolume_auth:
