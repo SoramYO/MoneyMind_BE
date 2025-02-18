@@ -43,7 +43,7 @@ namespace MoneyMind_BLL.Services.Implementations
 				userDtos.Add(new
 				{
 					user.Id,
-					user.UserName,
+					user.FullName,
 					user.Email,
                     user.EmailConfirmed,
 					Roles = roles
@@ -100,7 +100,7 @@ namespace MoneyMind_BLL.Services.Implementations
 
             if (!string.IsNullOrEmpty(request.Email))
             {
-                user.UserName = request.UserName;
+                user.FullName = request.FullName;
                 user.Email = request.Email;
             }
 
