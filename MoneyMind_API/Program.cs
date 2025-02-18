@@ -78,7 +78,7 @@ builder.Services.AddSingleton(mlContext);
 builder.Services.AddSingleton(loadedModel);
 
 //Background Service
-builder.Services.AddHostedService<SheetSyncService>();
+//builder.Services.AddHostedService<SheetSyncService>();
 //Service
 builder.Services.Scan(scan => scan
     .FromAssemblyOf<IActivityService>()

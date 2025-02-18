@@ -43,7 +43,7 @@ public class NotificationService : INotificationService
 
             if (!userTokens.Item1.Any())
             {
-				Console.WriteLine("No FCM token found for user {UserId}", userId);
+                Console.WriteLine("No FCM token found for user {0}", userId);
                 return;
             }
 
@@ -58,9 +58,9 @@ public class NotificationService : INotificationService
                 });
             }
         }
-        catch (Exception ex)
+          catch (Exception ex)
         {
-			Console.WriteLine("Error sending notification to user {UserId}", userId);
+            Console.WriteLine("Error sending notification to user {0}: {1}", userId, ex.Message);
         }
     }
 
