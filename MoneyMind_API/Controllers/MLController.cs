@@ -9,11 +9,11 @@ namespace MoneyMind_API.Controllers
     [ApiController]
     public class MLController : ControllerBase
     {
-        private readonly IMLService mlService;
+        private readonly IClassificationService classificationService;
 
-        public MLController(IMLService mlService)
+        public MLController(IClassificationService classificationService)
         {
-            this.mlService = mlService;
+            this.classificationService = classificationService;
         }
 
         // POST: api/ml/classify
@@ -25,7 +25,7 @@ namespace MoneyMind_API.Controllers
 
             try
             {
-                var category = await mlService.ClassificationTag(transactionToClassification.Description);
+                var category = await classificationService.ClassificationTag(transactionToClassification.Description);
 
                 if (category == null)
                     return NotFound("No matching tag found.");
