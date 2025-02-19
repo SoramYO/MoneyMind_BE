@@ -10,15 +10,8 @@ using MoneyMind_DAL.DBContexts;
 #nullable disable
 
 namespace MoneyMind_DAL.Migrations
-{
-    [DbContext(typeof(MoneyMindDbContext))]
-<<<<<<<< HEAD:MoneyMind_DAL/Migrations/20250219125742_InitialMoneyMindMigration.Designer.cs
-    [Migration("20250219125742_InitialMoneyMindMigration")]
+{ 
     partial class InitialMoneyMindMigration
-========
-    [Migration("20250216032951_InitialCreate")]
-    partial class InitialCreate
->>>>>>>> 6ef27173440f15b603ebb8158da9ed8af8febaa8:MoneyMind_DAL/Migrations/20250216032951_InitialCreate.Designer.cs
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

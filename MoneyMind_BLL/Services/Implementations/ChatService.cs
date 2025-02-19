@@ -16,6 +16,7 @@ using System.Threading.Tasks;
 using MoneyMind_BLL.Utils;
 
 using MoneyMind_BLL.DTOs.ChatBots;
+using Microsoft.IdentityModel.Tokens;
 
 namespace MoneyMind_BLL.Services.Implementations
 {
@@ -199,7 +200,7 @@ namespace MoneyMind_BLL.Services.Implementations
                             orderBy: q => q.OrderByDescending(m => m.TransactionDate),
                             includeProperties: "",
                             pageIndex: 1,
-                            pageSize: 10
+                            pageSize: 20
                         );
 
                         var transactions = response.Item1;
@@ -214,9 +215,10 @@ namespace MoneyMind_BLL.Services.Implementations
                         break;
                     }
             }
-
-            var finalPrompt = BuildPrompt(intent, message, contextData);
-
+            var finalPrompt = message;
+            if (!contextData.IsNullOrEmpty()) {
+                finalPrompt = BuildPrompt(intent, message, contextData);
+            }
             // Bước 4: Gọi API Gemini (hoặc bất kỳ dịch vụ AI nào)
             var geminiResponse = await geminiApiService.GenerateResponseAsync(finalPrompt);
 
@@ -227,14 +229,15 @@ namespace MoneyMind_BLL.Services.Implementations
         private string BuildPrompt(IntentType intent, string userMessage, string contextData)
         {
             return $@"
-        Người dùng vừa hỏi: {userMessage}
-        Ý định đã xác định: {intent}
-        Dữ liệu liên quan:
-        {contextData}
+Người dùng vừa hỏi: {userMessage}
+Ý định đã xác định: {intent}
+Thông tin tài chính liên quan:
+{contextData}
 
-        Vui lòng đưa ra phản hồi/lời khuyên hữu ích nhất dựa trên dữ liệu trên.
-        ";
+Bạn là một chuyên gia tư vấn tài chính với nhiều năm kinh nghiệm. Dựa trên thông tin trên, vui lòng phân tích và đưa ra phản hồi/lời khuyên chi tiết, cụ thể, cùng các bước hành động khả thi giúp người dùng quản lý tài chính hiệu quả nhất. Nếu cần, hãy gợi ý các giải pháp tối ưu, cân nhắc rủi ro và lợi ích.
+";
         }
+
 
         public async Task<ChatResponse> GetChatByIdAsync(Guid chatId)
         {

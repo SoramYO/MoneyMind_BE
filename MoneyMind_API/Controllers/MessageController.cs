@@ -28,11 +28,11 @@ namespace MoneyMind_API.Controllers
              [FromRoute] Guid userId,
              [FromQuery] Guid chatId,
              [FromQuery] int pageIndex = 1,
-             [FromQuery] int pageSize = 20)
+             [FromQuery] int pageSize = 15)
         {
             // Đảm bảo pageIndex và pageSize hợp lệ
             if (pageIndex < 1) pageIndex = 1;
-            if (pageSize < 1) pageSize = 20;
+            if (pageSize < 1) pageSize = 15;
 
             // Tạo bộ lọc
             Expression<Func<Message, bool>> filterExpression = s => s.Chat.UserId == userId;
