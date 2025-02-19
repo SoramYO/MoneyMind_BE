@@ -76,7 +76,7 @@ builder.Services.AddHttpContextAccessor();
 builder.Services.AddSingleton<IMLModel, MLModel>();
 
 //Background Service
-builder.Services.AddHostedService<SheetSyncService>();
+//builder.Services.AddHostedService<SheetSyncService>();
 //Service
 builder.Services.Scan(scan => scan
     .FromAssemblyOf<IActivityService>()

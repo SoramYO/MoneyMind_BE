@@ -175,11 +175,6 @@ namespace MoneyMind_BLL.Services.Implementations
                                                     Console.WriteLine("New transaction added successfully");
                                                     result.NewTransactions++;
                                                     
-                                                    // Send notification for new transaction
-                                                    await _notificationService.SendNotificationToUser(
-                                                        request.UserId,
-                                                        $"Đã thêm giao dịch mới: {transaction.Description} với số tiền {transaction.Amount:N0} VNĐ"
-                                                    );
                                                 }
                                                 else
                                                 {
@@ -225,15 +220,17 @@ namespace MoneyMind_BLL.Services.Implementations
                     }
                 }
 
+
                 syncLog.Status = "Success";
                 await _syncLogRepository.UpdateAsync(syncLog);
                 Console.WriteLine("Sync completed successfully");
                 
                 // Send final sync notification
-                await _notificationService.SendNotificationToUser(
-                    request.UserId,
-                    $"Đồng bộ hoàn tất! Đã thêm {result.NewTransactions} giao dịch mới."
-                );
+               await _notificationService.SendNotificationToUser(
+    request.UserId,
+    $"Đồng bộ hoàn tất! Đã thêm {result.NewTransactions} giao dịch mới.",
+    "success"
+);
                 
                 return result;
             }
