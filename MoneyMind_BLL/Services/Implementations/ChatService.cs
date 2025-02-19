@@ -211,14 +211,12 @@ namespace MoneyMind_BLL.Services.Implementations
                 // Nếu không xác định được ý định hoặc chưa xử lý
                 default:
                     {
-                        contextData = "";
+                        contextData = "Không có dữ liệu.";
                         break;
                     }
             }
-            var finalPrompt = message;
-            if (!contextData.IsNullOrEmpty()) {
-                finalPrompt = BuildPrompt(intent, message, contextData);
-            }
+            var finalPrompt = BuildPrompt(intent, message, contextData);
+            
             // Bước 4: Gọi API Gemini (hoặc bất kỳ dịch vụ AI nào)
             var geminiResponse = await geminiApiService.GenerateResponseAsync(finalPrompt);
 

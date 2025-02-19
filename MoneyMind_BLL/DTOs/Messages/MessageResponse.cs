@@ -15,5 +15,6 @@ namespace MoneyMind_BLL.DTOs.Messages
         public DateTime SentTime { get; set; }
         public MessageType MessageType { get; set; }
         public bool IsBotResponse { get; set; }
+        public Guid ChatId { get; set; }
     }
 }
