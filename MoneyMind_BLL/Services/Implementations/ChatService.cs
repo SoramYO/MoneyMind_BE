@@ -232,9 +232,22 @@ Người dùng vừa hỏi: {userMessage}
 Thông tin tài chính liên quan:
 {contextData}
 
-Bạn là một chuyên gia tư vấn tài chính với nhiều năm kinh nghiệm. Dựa trên thông tin trên, vui lòng phân tích và đưa ra phản hồi/lời khuyên chi tiết, cụ thể, cùng các bước hành động khả thi giúp người dùng quản lý tài chính hiệu quả nhất. Nếu cần, hãy gợi ý các giải pháp tối ưu, cân nhắc rủi ro và lợi ích.
+Bạn là một chuyên gia tư vấn tài chính với nhiều năm kinh nghiệm. 
+Dựa trên thông tin trên, vui lòng phân tích và đưa ra phản hồi/lời khuyên chi tiết, cụ thể, 
+cùng các bước hành động khả thi giúp người dùng quản lý tài chính hiệu quả nhất. 
+Nếu cần, hãy gợi ý các giải pháp tối ưu, cân nhắc rủi ro và lợi ích.
+
+Yêu cầu đặc biệt:
+- Hãy trả lời kèm biểu tượng cảm xúc (emoji) để tăng tính sinh động và hài hước (ví dụ: 💰, 🤔, 😄...). 
+- Sử dụng giọng văn chuyên sâu nhưng vẫn nhẹ nhàng, có thể chèn một vài câu đùa vui vẻ (mức độ vừa phải). 
+- Đảm bảo nội dung tư vấn chính xác, tránh đưa ra thông tin sai lệch hoặc phi thực tế.
+- Kết hợp các ví dụ minh hoạ cụ thể (nếu cần) để người dùng dễ hiểu và áp dụng.
+- Giữ kết cấu mạch lạc, có thể chia thành các đề mục/bước hành động rõ ràng.
+
+Hãy bắt đầu!
 ";
         }
+
 
 
         public async Task<ChatResponse> GetChatByIdAsync(Guid chatId)
