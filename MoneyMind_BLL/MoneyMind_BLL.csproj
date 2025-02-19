@@ -42,6 +42,9 @@
 	  <None Update="datadefaults.json">
 	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	  </None>
+	  <None Update="intent_model.zip">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </None>
 	  <None Update="transaction_model.zip">
 	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	  </None>

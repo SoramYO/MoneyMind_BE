@@ -1,0 +1,20 @@
+{
+  "dependencies": {
+    "mssql1": {
+      "serviceConnectorResourceId": "/subscriptions/[parameters('subscriptionId')]/resourceGroups/[parameters('serviceConnectorResourceGroupName')]/providers/Microsoft.Web/sites/app-moneymind-swd392/providers/Microsoft.ServiceLinker/linkers/ConnectionStringsMoneyMindAuthConnection_F124A9836B",
+      "secretStore": "AzureAppSettings",
+      "resourceId": "/subscriptions/[parameters('subscriptionId')]/resourceGroups/[parameters('resourceGroupName')]/providers/Microsoft.Sql/servers/sqlserver-moneymind-swd392/databases/sqldb-moneymind-swd392",
+      "type": "mssql.azure",
+      "connectionId": "ConnectionStrings:MoneyMindAuthConnectionString",
+      "dynamicId": null
+    },
+    "mssql2": {
+      "serviceConnectorResourceId": "/subscriptions/[parameters('subscriptionId')]/resourceGroups/[parameters('serviceConnectorResourceGroupName')]/providers/Microsoft.Web/sites/app-moneymind-swd392/providers/Microsoft.ServiceLinker/linkers/ConnectionStringsMoneyMindConnectionStri_CCA5B2E228",
+      "secretStore": "AzureAppSettings",
+      "resourceId": "/subscriptions/[parameters('subscriptionId')]/resourceGroups/[parameters('resourceGroupName')]/providers/Microsoft.Sql/servers/sqlserver-moneymind-swd392/databases/sqldb-moneymind-swd392",
+      "type": "mssql.azure",
+      "connectionId": "ConnectionStrings:MoneyMindConnectionString",
+      "dynamicId": null
+    }
+  }
+}

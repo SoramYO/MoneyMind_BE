@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace MoneyMind_DAL.Migrations
 {
-    /// <inheritdoc />
+    /// <inheritdoc /
     public partial class InitialCreate : Migration
     {
         /// <inheritdoc />
@@ -21,7 +21,7 @@ namespace MoneyMind_DAL.Migrations
                     UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     StartTime = table.Column<DateTime>(type: "datetime2", nullable: false),
                     EndTime = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    Status = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Status = table.Column<int>(type: "int", nullable: false),
                     LastMessageTime = table.Column<DateTime>(type: "datetime2", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
@@ -145,7 +145,7 @@ namespace MoneyMind_DAL.Migrations
                     SenderId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     MessageContent = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     SentTime = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    MessageType = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    MessageType = table.Column<int>(type: "int", nullable: false),
                     IsBotResponse = table.Column<bool>(type: "bit", nullable: false),
                     ChatId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
                 },

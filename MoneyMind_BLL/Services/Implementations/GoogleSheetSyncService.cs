@@ -22,7 +22,7 @@ namespace MoneyMind_BLL.Services.Implementations
     {
         private readonly ITransactionRepository _transactionRepository;
         private readonly ITransactionTagRepository _transactionTagRepository;
-        private readonly IMLService _mlService;
+        private readonly IClassificationService _classificationService;
         private readonly ITransactionService _transactionService;
 		private readonly ITransactionSyncLogRepository _syncLogRepository;
         private readonly string _contentRootPath;
@@ -32,7 +32,7 @@ namespace MoneyMind_BLL.Services.Implementations
         public GoogleSheetSyncService(
             ITransactionRepository transactionRepository,
             ITransactionTagRepository transactionTagRepository,
-            IMLService mlService,
+            IClassificationService classificationService,
             ITransactionSyncLogRepository syncLogRepository,
             IHostEnvironment hostEnvironment,
             ITransactionService transactionService,
@@ -41,7 +41,7 @@ namespace MoneyMind_BLL.Services.Implementations
         {
             _transactionRepository = transactionRepository;
             _transactionTagRepository = transactionTagRepository;
-            _mlService = mlService;
+            _classificationService = classificationService;
             _syncLogRepository = syncLogRepository;
             _contentRootPath = hostEnvironment.ContentRootPath;
 			_transactionService = transactionService;
@@ -145,7 +145,7 @@ namespace MoneyMind_BLL.Services.Implementations
                                             if (existingTransaction == null)
                                             {
                                                 Console.WriteLine("Transaction is new, getting category classification...");
-                                                var tag = await _mlService.ClassificationTag(
+                                                var tag = await _classificationService.ClassificationTag(
                                                     sheetRow.Description
                                                 );
 

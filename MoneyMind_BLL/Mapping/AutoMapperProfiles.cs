@@ -13,6 +13,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using MoneyMind_BLL.DTOs.Chats;
+using MoneyMind_BLL.DTOs.Messages;
+using MoneyMind_BLL.DTOs.ChatBots;
 
 namespace MoneyMind_BLL.Mapping
 {
@@ -46,6 +49,17 @@ namespace MoneyMind_BLL.Mapping
 
             CreateMap<MonthlyGoalRequest, MonthlyGoal>().ReverseMap();
             CreateMap<MonthlyGoal, MonthlyGoalResponse>().ReverseMap();
+
+            CreateMap<ChatRequest, Chat>().ReverseMap();
+            CreateMap<Chat, ChatResponse>().ReverseMap();
+
+            CreateMap<MessageRequest, Message>().ReverseMap();
+            CreateMap<Message, MessageResponse>().ReverseMap();
+
+            CreateMap<Transaction, TransactionBotRequest>().ReverseMap();
+            CreateMap<Wallet, WalletBotRequest>().ReverseMap();
+            CreateMap<MonthlyGoal, MonthlyGoalBotRequest>().ReverseMap();
+            CreateMap<GoalItem, GoalItemBotRequest>().ReverseMap();
         }
     }
 }

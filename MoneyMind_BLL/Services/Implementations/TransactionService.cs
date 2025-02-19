@@ -34,7 +34,7 @@ namespace MoneyMind_BLL.Services.Implementations
         private readonly IWalletService walletService;
         private readonly IWalletCategoryRepository walletCategoryRepository;
         private readonly IMapper mapper;
-        private readonly IMLService mlService;
+        private readonly IClassificationService classificationService;
 
         public TransactionService(ITransactionRepository transactionRepository,
             ITransactionTagRepository transactionTagRepository,
@@ -46,7 +46,7 @@ namespace MoneyMind_BLL.Services.Implementations
             IWalletRepository walletRepository,
             IWalletService walletService,
             IWalletCategoryRepository walletCategoryRepository,
-            IMapper mapper, IMLService mlService)
+            IMapper mapper, IClassificationService classificationService)
         {
             this.transactionRepository = transactionRepository;
             this.transactionTagRepository = transactionTagRepository;
@@ -59,7 +59,7 @@ namespace MoneyMind_BLL.Services.Implementations
             this.walletService = walletService;
             this.walletCategoryRepository = walletCategoryRepository;
             this.mapper = mapper;
-            this.mlService = mlService;
+            this.classificationService = classificationService;
         }
         public async Task<TransactionResponse> AddTransactionAsync(Guid userId, TransactionRequest transactionRequest)
         {
@@ -73,7 +73,7 @@ namespace MoneyMind_BLL.Services.Implementations
             transactionDomain = await transactionRepository.InsertAsync(transactionDomain);
 
             // Gán tag cho giao dịch
-            var tag = await mlService.ClassificationTag(transactionDomain.Description);
+            var tag = await classificationService.ClassificationTag(transactionDomain.Description);
             await transactionTagRepository.InsertAsync(new TransactionTag { TransactionId = transactionDomain.Id, TagId = tag.Id });
 
             // Gán activities vào giao dịch
@@ -346,7 +346,7 @@ namespace MoneyMind_BLL.Services.Implementations
             await transactionTagRepository.DeleteByTransactionIdAsync(existingTransaction.Id);
 
             // **Gán Tag mới bằng AI**
-            var tag = await mlService.ClassificationTag(existingTransaction.Description);
+            var tag = await classificationService.ClassificationTag(existingTransaction.Description);
             await transactionTagRepository.InsertAsync(new TransactionTag
             {
                 TransactionId = existingTransaction.Id,

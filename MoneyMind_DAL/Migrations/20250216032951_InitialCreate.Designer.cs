@@ -10,10 +10,8 @@ using MoneyMind_DAL.DBContexts;
 #nullable disable
 
 namespace MoneyMind_DAL.Migrations
-{
-    [DbContext(typeof(MoneyMindDbContext))]
-    [Migration("20250216032951_InitialCreate")]
-    partial class InitialCreate
+{ 
+    partial class InitialMoneyMindMigration
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -73,9 +71,8 @@ namespace MoneyMind_DAL.Migrations
                     b.Property<DateTime>("StartTime")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
 
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("datetime2");
@@ -153,9 +150,8 @@ namespace MoneyMind_DAL.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("MessageType")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<int>("MessageType")
+                        .HasColumnType("int");
 
                     b.Property<Guid>("SenderId")
                         .HasColumnType("uniqueidentifier");

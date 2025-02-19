@@ -10,9 +10,10 @@ using Microsoft.ML;
 using Microsoft.OpenApi.Models;
 
 using MoneyMind_API.Middlewares;
+using MoneyMind_API.Hubs;
 using MoneyMind_BLL.Mapping;
 using MoneyMind_BLL.Services.BackgroundServices;
-using MoneyMind_BLL.Hubs;
+//using MoneyMind_BLL.Hubs;
 using MoneyMind_BLL.Services.Interfaces;
 using MoneyMind_BLL.Services.Implementations;
 using MoneyMind_DAL.DBContexts;
@@ -21,11 +22,9 @@ using MoneyMind_DAL.Repositories.Interfaces;
 using MoneyMind_DAL.Repositories.Implementations;
 
 using System.Text;
+using MoneyMind_BLL.MLModels;
 
 var builder = WebApplication.CreateBuilder(args);
-var mlContext = new MLContext();
-var modelPath = Path.Combine(AppContext.BaseDirectory, "transaction_model.zip");
-var loadedModel = mlContext.Model.Load(modelPath, out _);
 
 // Add services to the container.
 
@@ -74,8 +73,7 @@ builder.Services.AddDbContext<MoneyMindAuthDbContext>(options =>
 builder.Services.AddHttpContextAccessor();
 
 //Initial Model AI
-builder.Services.AddSingleton(mlContext);
-builder.Services.AddSingleton(loadedModel);
+builder.Services.AddSingleton<IMLModel, MLModel>();
 
 //Background Service
 //builder.Services.AddHostedService<SheetSyncService>();
@@ -158,6 +156,20 @@ builder.Services.AddAuthentication(options =>
             return Task.CompletedTask;
         }
     };
+
+    options.Events = new JwtBearerEvents
+    {
+        OnMessageReceived = context =>
+        {
+            var path = context.HttpContext.Request.Path;
+            if (!string.IsNullOrEmpty(context.Request.Query["access_token"]) &&
+                (path.StartsWithSegments("/chathub") || path.StartsWithSegments("/api/chathub")))
+            {
+                context.Token = context.Request.Query["access_token"];
+            }
+            return Task.CompletedTask;
+        }
+    };
 });
 
 // CORS configuration
@@ -181,13 +193,8 @@ builder.Services.AddSignalR();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
-
+app.UseSwagger();
+app.UseSwaggerUI();
 
 app.UseMiddleware<ExceptionHandlerMiddleware>();
 app.UseHttpsRedirection();
@@ -206,9 +213,12 @@ app.UseStaticFiles(new StaticFileOptions
 
 app.UseCors("AllowAll");
 
-
+app.UseAuthentication();
+app.UseAuthorization();
 
 app.MapControllers();
+app.MapHub<ChatHub>("/chathub");
 
-app.UseAuthorization();
+app.MapGet("/", () => "Welcome to MoneyMind API!");
+
 app.Run();
