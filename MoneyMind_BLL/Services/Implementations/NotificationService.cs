@@ -4,7 +4,6 @@ using Google.Apis.Auth.OAuth2;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Logging;
 using MoneyMind_BLL.DTOs.Notification;
-using MoneyMind_BLL.Hubs;
 using MoneyMind_BLL.Services.Interfaces;
 using MoneyMind_DAL.Entities;
 using MoneyMind_DAL.Repositories.Interfaces;

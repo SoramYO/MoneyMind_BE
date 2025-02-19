@@ -10,7 +10,9 @@ using MoneyMind_DAL.DBContexts;
 #nullable disable
 
 namespace MoneyMind_DAL.Migrations
-{ 
+{
+    [DbContext(typeof(MoneyMindDbContext))]
+    [Migration("20250219140831_InitialMoneyMindMigration")]
     partial class InitialMoneyMindMigration
     {
         /// <inheritdoc />
