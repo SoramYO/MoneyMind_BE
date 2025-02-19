@@ -23,10 +23,6 @@ namespace MoneyMind_API.Controllers
         public async Task<IActionResult> GetChatByUserIdAsync([FromRoute] Guid userId)
         {
             var chat = await chatService.GetChatByUserIdAsync(userId);
-            if (chat == null)
-            {
-                return NotFound();
-            }
             var response = new ResponseObject
             {
                 Status = System.Net.HttpStatusCode.OK,
