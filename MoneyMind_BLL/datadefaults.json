@@ -4,7 +4,7 @@
       "Name": "Housing",
       "Description": "Expenses for rent or mortgage.",
       "WalletTypeId": "b203ae2f-3023-41c1-a25a-2b2ec238321d",
-      "IconPath": "housing.png",
+      "IconPath": "https://firebasestorage.googleapis.com/v0/b/moneymind-972f5.firebasestorage.app/o/Icons%2Fhousing.png?alt=media&token=f3a86a7c-54f3-4369-9021-90a086136cd1",
       "Color": "#FF5733",
       "Activities": [
         {
@@ -29,7 +29,7 @@
       "Name": "Transportation",
       "Description": "Expenses for fuel or public transport.",
       "WalletTypeId": "b203ae2f-3023-41c1-a25a-2b2ec238321d",
-      "IconPath": "transportation.png",
+      "IconPath": "https://firebasestorage.googleapis.com/v0/b/moneymind-972f5.firebasestorage.app/o/Icons%2Ftransportation.png?alt=media&token=c60be2d0-9638-4056-b889-98ba5a43b5ee",
       "Color": "#33C1FF",
       "Activities": [
         {
@@ -54,7 +54,7 @@
       "Name": "Food",
       "Description": "Daily groceries or meals.",
       "WalletTypeId": "b203ae2f-3023-41c1-a25a-2b2ec238321d",
-      "IconPath": "food.png",
+      "IconPath": "https://firebasestorage.googleapis.com/v0/b/moneymind-972f5.firebasestorage.app/o/Icons%2Ffood.png?alt=media&token=12c4418d-abba-48fe-8c83-647255073144",
       "Color": "#33FF57",
       "Activities": [
         {
@@ -79,7 +79,7 @@
       "Name": "Utilities",
       "Description": "Electricity, water, and internet bills.",
       "WalletTypeId": "b203ae2f-3023-41c1-a25a-2b2ec238321d",
-      "IconPath": "utilities.png",
+      "IconPath": "https://firebasestorage.googleapis.com/v0/b/moneymind-972f5.firebasestorage.app/o/Icons%2Futilities.png?alt=media&token=ed16e0a2-6dde-4581-9633-13e696193be1",
       "Color": "#FFC133",
       "Activities": [
         {
@@ -104,7 +104,7 @@
       "Name": "Investments",
       "Description": "Long-term wealth building.",
       "WalletTypeId": "654a9673-4d23-44b1-9af8-a9562341a60e",
-      "IconPath": "investments.png",
+      "IconPath": "https://firebasestorage.googleapis.com/v0/b/moneymind-972f5.firebasestorage.app/o/Icons%2Finvestments.png?alt=media&token=f18a7a8d-0e18-43f5-8a34-53179a524aea",
       "Color": "#5733FF",
       "Activities": [
         {
@@ -129,7 +129,7 @@
       "Name": "Savings for Freedom",
       "Description": "Funds for achieving financial independence.",
       "WalletTypeId": "654a9673-4d23-44b1-9af8-a9562341a60e",
-      "IconPath": "savings_freedom.png",
+      "IconPath": "https://firebasestorage.googleapis.com/v0/b/moneymind-972f5.firebasestorage.app/o/Icons%2Fsavings_freedom.png?alt=media&token=36e4a1d2-989c-451a-912f-51d74a20d3ad",
       "Color": "#FF33C1",
       "Activities": [
         {
@@ -175,7 +175,7 @@
       "Name": "Learning Materials",
       "Description": "Books, courses, or online materials.",
       "WalletTypeId": "19ea7e67-8095-4a13-bba4-bda0a4a47a38",
-      "IconPath": "learning_materials.png",
+      "IconPath": "https://firebasestorage.googleapis.com/v0/b/moneymind-972f5.firebasestorage.app/o/Icons%2Ftuition.png?alt=media&token=8f793c2d-4c24-4bc0-8b5b-788059ac9448",
       "Color": "#88FF33",
       "Activities": [
         {
@@ -200,7 +200,7 @@
       "Name": "Entertainment",
       "Description": "Movies, games, or music subscriptions.",
       "WalletTypeId": "6193fcb1-c8c4-44e9-abde-78cdb4258c4e",
-      "IconPath": "entertainment.png",
+      "IconPath": "https://firebasestorage.googleapis.com/v0/b/moneymind-972f5.firebasestorage.app/o/Icons%2Fentertainment.png?alt=media&token=ce0c476f-fe16-4703-9d32-49afd93cad27",
       "Color": "#FF3388",
       "Activities": [
         {
@@ -225,7 +225,7 @@
       "Name": "Travel",
       "Description": "Vacation or trips.",
       "WalletTypeId": "6193fcb1-c8c4-44e9-abde-78cdb4258c4e",
-      "IconPath": "travel.png",
+      "IconPath": "https://firebasestorage.googleapis.com/v0/b/moneymind-972f5.firebasestorage.app/o/Icons%2Ftravel.png?alt=media&token=3fcc2cbf-4711-4fec-acd9-a7c4d1c10f1d",
       "Color": "#FF5733",
       "Activities": [
         {
@@ -250,7 +250,7 @@
       "Name": "Dining Out",
       "Description": "Meals at restaurants or cafes.",
       "WalletTypeId": "6193fcb1-c8c4-44e9-abde-78cdb4258c4e",
-      "IconPath": "dining_out.png",
+      "IconPath": "https://firebasestorage.googleapis.com/v0/b/moneymind-972f5.firebasestorage.app/o/Icons%2Fdining_out.png?alt=media&token=f450fa04-1a2f-4ddd-ace3-625889f04f9b",
       "Color": "#FFC133",
       "Activities": [
         {
@@ -275,7 +275,7 @@
       "Name": "Donations",
       "Description": "Funds donated to charities or causes.",
       "WalletTypeId": "b79d14db-7a81-4046-b66e-1acd761123bb",
-      "IconPath": "donations.png",
+      "IconPath": "https://firebasestorage.googleapis.com/v0/b/moneymind-972f5.firebasestorage.app/o/Icons%2Fdonations.png?alt=media&token=a4e14b47-c2a7-4797-81e0-86c2566f5a14",
       "Color": "#5733FF",
       "Activities": [
         {
@@ -300,7 +300,7 @@
       "Name": "Emergency Fund",
       "Description": "Savings for unexpected events.",
       "WalletTypeId": "ebebc667-520d-4eac-88ed-ef9eb8e26aab",
-      "IconPath": "emergency_fund.png",
+      "IconPath": "https://firebasestorage.googleapis.com/v0/b/moneymind-972f5.firebasestorage.app/o/Icons%2Femergency_fund.png?alt=media&token=d44f4afb-b91e-405c-8e34-099b2e7ed3de",
       "Color": "#FF5733",
       "Activities": [
         {
