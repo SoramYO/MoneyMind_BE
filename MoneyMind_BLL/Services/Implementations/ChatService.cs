@@ -71,7 +71,7 @@ namespace MoneyMind_BLL.Services.Implementations
                 case IntentType.AskSpendingAdvice:
                     {
                         var response = await transactionRepository.GetAsync(
-                            filter: t => t.UserId == userId,
+                            filter: t => t.UserId == userId && t.IsActive == true,
                             orderBy: q => q.OrderByDescending(m => m.TransactionDate),
                             includeProperties: "",
                             pageIndex: 1,
@@ -107,7 +107,7 @@ namespace MoneyMind_BLL.Services.Implementations
                 case IntentType.AskBudgetAdvice:
                     {
                         var response = await walletRepository.GetAsync(
-                                                    filter: t => t.UserId == userId,
+                                                    filter: t => t.UserId == userId && t.IsActive == true,
                                                     orderBy: q => q.OrderByDescending(m => m.Balance),
                                                     includeProperties: "WalletCategory",
                                                     pageIndex: 1,
@@ -195,6 +195,7 @@ namespace MoneyMind_BLL.Services.Implementations
                     {
                         var response = await transactionRepository.GetAsync(
                             filter: t => t.UserId == userId &&
+                                        t.IsActive == true &&
                                         t.TransactionDate > DateTime.UtcNow.AddDays(-3) &&
                                         t.TransactionDate <= DateTime.UtcNow,
                             orderBy: q => q.OrderByDescending(m => m.TransactionDate),
@@ -211,11 +212,15 @@ namespace MoneyMind_BLL.Services.Implementations
                 // Nếu không xác định được ý định hoặc chưa xử lý
                 default:
                     {
-                        contextData = "Không có dữ liệu.";
+                        contextData = "";
                         break;
                     }
             }
-            var finalPrompt = BuildPrompt(intent, message, contextData);
+            var finalPrompt = message;
+            if (contextData != null)
+            {
+                finalPrompt = BuildPrompt(intent, message, contextData);
+            }
             
             // Bước 4: Gọi API Gemini (hoặc bất kỳ dịch vụ AI nào)
             var geminiResponse = await geminiApiService.GenerateResponseAsync(finalPrompt);
@@ -243,6 +248,7 @@ Yêu cầu đặc biệt:
 - Đảm bảo nội dung tư vấn chính xác, tránh đưa ra thông tin sai lệch hoặc phi thực tế.
 - Kết hợp các ví dụ minh hoạ cụ thể (nếu cần) để người dùng dễ hiểu và áp dụng.
 - Giữ kết cấu mạch lạc, có thể chia thành các đề mục/bước hành động rõ ràng.
+- Trả lời tối đa 20 câu.
 
 Hãy bắt đầu!
 ";
