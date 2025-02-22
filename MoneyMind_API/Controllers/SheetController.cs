@@ -53,5 +53,20 @@ namespace MoneyMind_API.Controllers
 				return StatusCode(500, new { Message = "Error getting user sheets", Error = ex.Message });
 			}
 		}
+		[HttpGet("isExists/{userId}")]
+		public async Task<IActionResult> IsSheetExists(Guid userId)
+		{
+			try
+			{
+				var sheets = await _sheetService.GetUserSheetsAsync(userId);
+				var exists = sheets != null && sheets.Any();
+				return Ok(new { Exists = exists });
+			}
+			catch (Exception ex)
+			{
+				_logger.LogError(ex, "Error checking sheet existence");
+				return StatusCode(500, new { Message = "Error checking sheet existence", Error = ex.Message });
+			}
+		}
 	}
 }

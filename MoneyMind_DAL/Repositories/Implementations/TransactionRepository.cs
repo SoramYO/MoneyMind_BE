@@ -24,9 +24,9 @@ namespace MoneyMind_DAL.Repositories.Implementations
                     .SumAsync(selector);
         }
 
-        public async Task<Transaction> IsExistTransaction(string description, double amount)
+        public async Task<Transaction> IsExistTransaction(string description, double amount, Guid userId)
         {
-            var exist = await _dbSet.FirstOrDefaultAsync(t => t.Description.Equals(description) && t.Amount == amount);
+            var exist = await _dbSet.FirstOrDefaultAsync(t => t.Description.Equals(description) && t.Amount == amount && t.UserId == userId);
             return exist;
         }
     }

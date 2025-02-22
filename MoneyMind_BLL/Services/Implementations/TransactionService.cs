@@ -99,7 +99,7 @@ namespace MoneyMind_BLL.Services.Implementations
                     Month = transactionDomain.TransactionDate.Month,
                     Year = transactionDomain.TransactionDate.Year
                 };
-                var monthlyGoalReponse  = await monthlyGoalService.AddMonthlyGoalAsync(userId, monthlyGoalRequest);
+                var monthlyGoalReponse = await monthlyGoalService.AddMonthlyGoalAsync(userId, monthlyGoalRequest);
                 monthlyGoal = mapper.Map<MonthlyGoal>(monthlyGoalReponse);
             }
             if (transactionRequest.WalletId.HasValue)
@@ -222,13 +222,14 @@ namespace MoneyMind_BLL.Services.Implementations
             // Lấy danh sách Tags từ bảng TransactionTags
             var transactionResponse = mapper.Map<TransactionResponse>(transaction);
             transactionResponse.Tags = transaction.TransactionTags
-              .Select(tt => new TagResponse
-              {
-                  Id = tt.Tag.Id,
-                  Name = tt.Tag.Name,
-                  Color = tt.Tag.Color,
-                  Description = tt.Tag.Description
-              }).ToList();
+                .Where(tt => tt.Tag != null)
+                .Select(tt => new TagResponse
+                {
+                    Id = tt.Tag.Id,
+                    Name = tt.Tag.Name,
+                    Color = tt.Tag.Color,
+                    Description = tt.Tag.Description
+                }).ToList();
 
             return transactionResponse;
         }

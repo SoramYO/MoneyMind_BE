@@ -10,7 +10,7 @@ namespace MoneyMind_DAL.Repositories.Interfaces
 {
     public interface ITransactionRepository : IGenericRepository<Transaction>
     {
-        Task<Transaction> IsExistTransaction(string description, double amount);
+        Task<Transaction> IsExistTransaction(string description, double amount, Guid userId);
         Task<double> GetSumAsync(
             Expression<Func<Transaction, bool>> predicate,
             Expression<Func<Transaction, double>> selector);
