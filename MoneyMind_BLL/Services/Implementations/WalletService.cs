@@ -99,7 +99,10 @@ namespace MoneyMind_BLL.Services.Implementations
                 return null;
             }
 
+            existingWallet.Name = existingWallet.Name;
+            existingWallet.Description = existingWallet.Description;
             existingWallet.Balance = walletRequest.Balance;
+            existingWallet.LastUpdatedTime = DateTime.UtcNow;
 
             existingWallet = await walletRepository.UpdateAsync(existingWallet);
 
@@ -111,7 +114,7 @@ namespace MoneyMind_BLL.Services.Implementations
             if (wallet != null)
             {
                 wallet.Balance += amountDifference; // Có thể là cộng hoặc trừ
-                wallet.LastUpdatedTime = DateTime.Now;
+                wallet.LastUpdatedTime = DateTime.UtcNow;
                 await walletRepository.UpdateAsync(wallet);
             }
         }

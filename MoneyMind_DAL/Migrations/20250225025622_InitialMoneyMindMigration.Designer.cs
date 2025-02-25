@@ -12,7 +12,7 @@ using MoneyMind_DAL.DBContexts;
 namespace MoneyMind_DAL.Migrations
 {
     [DbContext(typeof(MoneyMindDbContext))]
-    [Migration("20250219140831_InitialMoneyMindMigration")]
+    [Migration("20250225025622_InitialMoneyMindMigration")]
     partial class InitialMoneyMindMigration
     {
         /// <inheritdoc />
@@ -696,11 +696,19 @@ namespace MoneyMind_DAL.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<bool>("IsActive")
                         .HasColumnType("bit");
 
                     b.Property<DateTime>("LastUpdatedTime")
                         .HasColumnType("datetime2");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<Guid>("UserId")
                         .HasColumnType("uniqueidentifier");
