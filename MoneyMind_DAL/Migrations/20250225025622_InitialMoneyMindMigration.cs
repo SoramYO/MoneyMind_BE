@@ -246,6 +246,8 @@ namespace MoneyMind_DAL.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Balance = table.Column<double>(type: "float", nullable: false),
                     Currency = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     CreatedTime = table.Column<DateTime>(type: "datetime2", nullable: false),

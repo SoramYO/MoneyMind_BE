@@ -221,7 +221,8 @@ namespace MoneyMind_BLL.Services.Implementations
 
             // Lấy danh sách Tags từ bảng TransactionTags
             var transactionResponse = mapper.Map<TransactionResponse>(transaction);
-            transactionResponse.Tags = transaction.TransactionTags
+            transactionResponse.Tags = transaction.TransactionTags.
+               Where(tt => tt.Tag != null)
               .Select(tt => new TagResponse
               {
                   Id = tt.Tag.Id,

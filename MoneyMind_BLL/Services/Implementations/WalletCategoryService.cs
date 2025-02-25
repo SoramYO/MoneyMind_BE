@@ -80,12 +80,14 @@ namespace MoneyMind_BLL.Services.Implementations
 
         public async Task<WalletCategoryResponse> GetWalletCategoryByIdAsync(Guid walletCategoryId)
         {
-            var walletCategory = await walletCategoryRepository.GetByIdAsync(walletCategoryId, s => s.WalletType,     s => s.Activities);
+            var walletCategory = await walletCategoryRepository.GetByIdAsync(walletCategoryId, s => s.WalletType, s => s.Activities);
 
             if (walletCategory == null)
             {
                 return null;
             }
+
+            walletCategory.Activities = walletCategory.Activities.Where(a => !a.IsDeleted).ToList();
 
             return mapper.Map<WalletCategoryResponse>(walletCategory);
         }
@@ -108,8 +110,15 @@ namespace MoneyMind_BLL.Services.Implementations
             var totalPages = response.Item2;
             var totalRecords = response.Item3;
 
+            foreach (var walletCategory in walletCategories)
+            {
+                walletCategory.Activities = walletCategory.Activities.Where(a => !a.IsDeleted).ToList();
+            }
+
             // Giả sử authorDomains là danh sách các đối tượng AuthorDomain
             var walletCategoryResponses = mapper.Map<List<WalletCategoryResponse>>(walletCategories);
+
+
 
             var listResponse = new ListDataResponse
             {
