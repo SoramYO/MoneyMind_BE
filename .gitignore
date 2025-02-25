@@ -49,6 +49,3 @@ bld/
 msbuild.log
 msbuild.err
 msbuild.wrn
-
-# Google Credentials
-MoneyMind_API/credentials.json
