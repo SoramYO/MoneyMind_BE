@@ -142,32 +142,30 @@ namespace MoneyMind_API.Controllers
         }
 
         [HttpPut]
-        [Route("{id:Guid}")]
-        [Authorize(Roles = "User")]
-        public async Task<IActionResult> UpdateAsync([FromRoute] Guid id, [FromBody] WalletCategoryRequest walletCategoryRequest)
-        {
-            // Sử dụng helper để lấy UserId từ token
-            var userId = JwtHelper.GetUserIdFromToken(HttpContext.Request, out var errorMessage);
+[Route("{id:Guid}")]
+[Authorize(Roles = "User")]
+public async Task<IActionResult> UpdateAsync([FromRoute] Guid id, [FromBody] WalletCategoryRequest walletCategoryRequest)
+{
+    var userId = JwtHelper.GetUserIdFromToken(HttpContext.Request, out var errorMessage);
+    if (userId == null) return Unauthorized(errorMessage);
 
-            if (userId == null)
-            {
-                // Trả về lỗi nếu token không hợp lệ
-                return Unauthorized(errorMessage);
-            }
+    var walletCategoryResponse = await walletCategoryService.UpdateWalletCategoryAsync(id, userId.Value, walletCategoryRequest);
+    
+    // Handle null response with proper error message
+    if (walletCategoryResponse == null)
+    {
+        return NotFound(new ResponseObject {
+            Status = System.Net.HttpStatusCode.OK,
+            Message = "Wallet category not found or unauthorized"
+        });
+    }
 
-            var walletCategoryResponse = await walletCategoryService.UpdateWalletCategoryAsync(id, userId.Value, walletCategoryRequest);
-            if (walletCategoryResponse == null)
-            {
-                return NotFound();
-            }
-            var response = new ResponseObject
-            {
-                Status = System.Net.HttpStatusCode.OK,
-                Message = "Update wallet category successfully!",
-                Data = walletCategoryResponse
-            };
-            return Ok(response);
-        }
+    return Ok(new ResponseObject {
+        Status = System.Net.HttpStatusCode.OK,
+        Message = "Update wallet category successfully!",
+        Data = walletCategoryResponse
+    });
+}
 
         [HttpPut]
         [Route("{id:Guid}/delete")]

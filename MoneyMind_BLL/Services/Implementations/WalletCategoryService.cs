@@ -131,22 +131,28 @@ namespace MoneyMind_BLL.Services.Implementations
             return listResponse;
         }
 
-        public async Task<WalletCategoryResponse> UpdateWalletCategoryAsync(Guid walletCategoryId, Guid userId, WalletCategoryRequest walletCategoryRequest)
-        {
-            var existingWalletCategory = await walletCategoryRepository.GetByIdAsync(walletCategoryId, s => s.Activities);
-            if (existingWalletCategory == null || existingWalletCategory.UserId != userId || existingWalletCategory.WalletTypeId == walletCategoryRequest.WalletTypeId)
-            {
-                return null;
-            }
+public async Task<WalletCategoryResponse> UpdateWalletCategoryAsync(Guid walletCategoryId, Guid userId, WalletCategoryRequest walletCategoryRequest)
+{
+    var existingWalletCategory = await walletCategoryRepository.GetByIdAsync(walletCategoryId, s => s.Activities);
+    
+    // Remove the WalletTypeId comparison
+    if (existingWalletCategory == null || existingWalletCategory.UserId != userId)
+    {
+        return null;
+    }
 
-            existingWalletCategory.Name = walletCategoryRequest.Name;
-            existingWalletCategory.Description = walletCategoryRequest.Description;
-            existingWalletCategory.IconPath = walletCategoryRequest.IconPath;
-            existingWalletCategory.Color = walletCategoryRequest.Color;
+    // Keep the rest of the update logic
+    existingWalletCategory.Name = walletCategoryRequest.Name;
+    existingWalletCategory.Description = walletCategoryRequest.Description;
+    existingWalletCategory.IconPath = walletCategoryRequest.IconPath;
+    existingWalletCategory.Color = walletCategoryRequest.Color;
 
-            existingWalletCategory = await walletCategoryRepository.UpdateAsync(existingWalletCategory);
+    // Add WalletTypeId update
+    existingWalletCategory.WalletTypeId = walletCategoryRequest.WalletTypeId;
 
-            return mapper.Map<WalletCategoryResponse>(existingWalletCategory);
-        }
+    existingWalletCategory = await walletCategoryRepository.UpdateAsync(existingWalletCategory);
+
+    return mapper.Map<WalletCategoryResponse>(existingWalletCategory);
+}
     }
 }
