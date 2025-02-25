@@ -24,7 +24,7 @@ namespace MoneyMind_BLL.Services.Implementations
         private readonly ITransactionTagRepository _transactionTagRepository;
         private readonly IClassificationService _classificationService;
         private readonly ITransactionService _transactionService;
-		private readonly ITransactionSyncLogRepository _syncLogRepository;
+        private readonly ITransactionSyncLogRepository _syncLogRepository;
         private readonly string _contentRootPath;
         private readonly ILogger<GoogleSheetSyncService> _logger;
         private readonly INotificationService _notificationService;
@@ -44,10 +44,10 @@ namespace MoneyMind_BLL.Services.Implementations
             _classificationService = classificationService;
             _syncLogRepository = syncLogRepository;
             _contentRootPath = hostEnvironment.ContentRootPath;
-			_transactionService = transactionService;
+            _transactionService = transactionService;
             _logger = logger;
             _notificationService = notificationService;
-		}
+        }
 
         public async Task<SyncResult> SyncTransactionsFromSheet(GoogleSheetRequest request)
         {
@@ -68,7 +68,7 @@ namespace MoneyMind_BLL.Services.Implementations
                 // Initialize Google Sheets service
                 GoogleCredential credential;
                 var credentialsPath = Path.Combine(_contentRootPath, "credentials.json");
-                
+
                 Console.WriteLine($"Looking for credentials at: {credentialsPath}");
                 if (!File.Exists(credentialsPath))
                 {
@@ -92,7 +92,7 @@ namespace MoneyMind_BLL.Services.Implementations
 
                 // Lấy danh sách tên sheets
                 var sheetNames = await GetSheetNames(service, request.SheetId);
-                
+
                 foreach (var sheetName in sheetNames)
                 {
                     try
@@ -117,29 +117,30 @@ namespace MoneyMind_BLL.Services.Implementations
                                 {
                                     processedRows++;
                                     Console.WriteLine($"Processing row {processedRows}/{rows.Count}");
-                                    
+
                                     // Map row data to MBBankSheetRow object
                                     var sheetRow = MapRowToMBBankSheetRow(row);
-                                    
+
                                     if (sheetRow.Amount != null)
                                     {
                                         // Xóa dấu phân cách hàng nghìn (.) và thay thế dấu phẩy thập phân (,) bằng dấu chấm (.) nếu có
                                         string normalizedAmount = sheetRow.Amount.Replace(".", "").Replace(",", ".");
-                                        
+
                                         Console.WriteLine($"Original amount: {sheetRow.Amount}");
                                         Console.WriteLine($"Normalized amount: {normalizedAmount}");
-                                        
+
                                         if (decimal.TryParse(normalizedAmount, NumberStyles.Any, CultureInfo.InvariantCulture, out decimal amount))
                                         {
                                             // Lấy giá trị tuyệt đối của amount vì chúng ta chỉ quan tâm đến giá trị dương
                                             amount = Math.Abs(amount);
                                             Console.WriteLine($"Parsed amount: {amount}");
 
-                                            Console.WriteLine($"Checking for existing transaction: {sheetRow.Description}, Amount: {amount}");
-                                            // Check if transaction already exists
+                                            Console.WriteLine($"Checking for existing transaction: {sheetRow.Description}, Amount: {amount}, UserId: {request.UserId}");
+                                            // Sửa lại: Thêm UserId vào kiểm tra transaction tồn tại
                                             var existingTransaction = await _transactionRepository.IsExistTransaction(
                                                 sheetRow.Description,
-                                                (double)amount
+                                                (double)amount,
+                                                request.UserId // Thêm UserId để kiểm tra trong phạm vi user
                                             );
 
                                             if (existingTransaction == null)
@@ -153,28 +154,26 @@ namespace MoneyMind_BLL.Services.Implementations
                                                 {
                                                     Console.WriteLine($"Category classified as: {tag.Name}");
 
-
                                                     var transaction = new TransactionRequest
-													{
-														Amount = (double)amount,
-														Description = sheetRow.Description,
-														TransactionDate = DateTime.ParseExact(
-															sheetRow.TransactionDate,
-															new string[] {
-																"dd/MM/yyyy HH:mm:ss",
-																"yyyy-MM-dd HH:mm:ss",
-																"MM/dd/yyyy HH:mm:ss"
-															},
-															CultureInfo.InvariantCulture,
-															DateTimeStyles.None),
-														RecipientName = sheetRow.CounterAccountName,
-													};
+                                                    {
+                                                        Amount = (double)amount,
+                                                        Description = sheetRow.Description,
+                                                        TransactionDate = DateTime.ParseExact(
+                                                            sheetRow.TransactionDate,
+                                                            new string[] {
+                                                        "dd/MM/yyyy HH:mm:ss",
+                                                        "yyyy-MM-dd HH:mm:ss",
+                                                        "MM/dd/yyyy HH:mm:ss"
+                                                            },
+                                                            CultureInfo.InvariantCulture,
+                                                            DateTimeStyles.None),
+                                                        RecipientName = sheetRow.CounterAccountName,
+                                                    };
 
-													await _transactionService.AddTransactionAsync(request.UserId, transaction);
-													newTransactions++;
+                                                    await _transactionService.AddTransactionAsync(request.UserId, transaction);
+                                                    newTransactions++;
                                                     Console.WriteLine("New transaction added successfully");
                                                     result.NewTransactions++;
-                                                    
                                                 }
                                                 else
                                                 {
@@ -184,7 +183,7 @@ namespace MoneyMind_BLL.Services.Implementations
                                             else
                                             {
                                                 skippedTransactions++;
-                                                Console.WriteLine("Transaction already exists, skipping");
+                                                Console.WriteLine("Transaction already exists for this user, skipping");
                                             }
                                         }
                                         else
@@ -220,18 +219,17 @@ namespace MoneyMind_BLL.Services.Implementations
                     }
                 }
 
-
                 syncLog.Status = "Success";
                 await _syncLogRepository.UpdateAsync(syncLog);
                 Console.WriteLine("Sync completed successfully");
-                
+
                 // Send final sync notification
-               await _notificationService.SendNotificationToUser(
-    request.UserId,
-    $"Đồng bộ hoàn tất! Đã thêm {result.NewTransactions} giao dịch mới.",
-    "success"
-);
-                
+                await _notificationService.SendNotificationToUser(
+                    request.UserId,
+                    $"Đồng bộ hoàn tất! Đã thêm {result.NewTransactions} giao dịch mới.",
+                    "success"
+                );
+
                 return result;
             }
             catch (Exception ex)
@@ -244,7 +242,6 @@ namespace MoneyMind_BLL.Services.Implementations
                 throw;
             }
         }
-
         private async Task<List<string>> GetSheetNames(SheetsService service, string spreadsheetId)
         {
             try
@@ -264,7 +261,7 @@ namespace MoneyMind_BLL.Services.Implementations
 
         private BankSheetRow MapRowToMBBankSheetRow(IList<object> row)
         {
-            return new  BankSheetRow
+            return new BankSheetRow
             {
                 Id = row.Count > 0 ? row[0]?.ToString() : "",
                 Description = row.Count > 1 ? row[1]?.ToString() : "",
@@ -282,5 +279,5 @@ namespace MoneyMind_BLL.Services.Implementations
             };
         }
 
-	}
-} 
+    }
+}

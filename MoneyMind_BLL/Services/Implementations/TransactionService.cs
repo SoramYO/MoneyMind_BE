@@ -99,7 +99,7 @@ namespace MoneyMind_BLL.Services.Implementations
                     Month = transactionDomain.TransactionDate.Month,
                     Year = transactionDomain.TransactionDate.Year
                 };
-                var monthlyGoalReponse  = await monthlyGoalService.AddMonthlyGoalAsync(userId, monthlyGoalRequest);
+                var monthlyGoalReponse = await monthlyGoalService.AddMonthlyGoalAsync(userId, monthlyGoalRequest);
                 monthlyGoal = mapper.Map<MonthlyGoal>(monthlyGoalReponse);
             }
             if (transactionRequest.WalletId.HasValue)
