@@ -280,7 +280,7 @@ namespace MoneyMind_BLL.Services.Implementations
 
                         // B2: Giảm UsedAmount trong GoalItem cũ
                         var oldWallet = await walletRepository.GetByIdAsync(existingTransaction.WalletId.Value);
-                        var oldSubWalletType = await walletCategoryRepository.GetByIdAsync(oldWallet.WalletCategory);
+                        var oldSubWalletType = await walletCategoryRepository.GetByIdAsync(oldWallet.WalletCategory.Id);
 
                         await goalItemService.UpdateGoalItemAsync(
                             userId,
@@ -323,7 +323,7 @@ namespace MoneyMind_BLL.Services.Implementations
 
                     // B2: Cập nhật GoalItem
                     var wallet = await walletRepository.GetByIdAsync(transactionRequest.WalletId.Value);
-                    var walletCategory = await walletCategoryRepository.GetByIdAsync(wallet.WalletCategory);
+                    var walletCategory = await walletCategoryRepository.GetByIdAsync(wallet.WalletCategory.Id);
 
                     await goalItemService.UpdateGoalItemAsync(
                         userId,
