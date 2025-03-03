@@ -54,7 +54,7 @@ namespace MoneyMind_BLL.Services.Implementations
 
         public async Task<WalletResponse> GetWalletByIdAsync(Guid walletId)
         {
-            var wallet = await walletRepository.GetByIdAsync(walletId);
+            var wallet = await walletRepository.GetByIdAsync(walletId, w => w.WalletCategory);
 
             if (wallet == null)
             {
