@@ -27,6 +27,8 @@ namespace MoneyMind_BLL.Services.Implementations
         private readonly ITransactionTagRepository transactionTagRepository;
         private readonly ITransactionActivityRepository transactionActivityRepository;
         private readonly IMonthlyGoalRepository monthlyGoalRepository;
+        private readonly IActivityRepository activityRepository;
+        private readonly ITagRepository tagRepository;
         private readonly IMonthlyGoalService monthlyGoalService;
         private readonly IGoalItemService goalItemService;
         private readonly IGoalItemRepository goalItemRepository;
@@ -40,6 +42,8 @@ namespace MoneyMind_BLL.Services.Implementations
             ITransactionTagRepository transactionTagRepository,
             ITransactionActivityRepository transactionActivityRepository,
             IMonthlyGoalRepository monthlyGoalRepository,
+            IActivityRepository activityRepository,
+            ITagRepository tagRepository,
             IMonthlyGoalService monthlyGoalService,
             IGoalItemService goalItemService,
             IGoalItemRepository goalItemRepository,
@@ -52,6 +56,8 @@ namespace MoneyMind_BLL.Services.Implementations
             this.transactionTagRepository = transactionTagRepository;
             this.transactionActivityRepository = transactionActivityRepository;
             this.monthlyGoalRepository = monthlyGoalRepository;
+            this.activityRepository = activityRepository;
+            this.tagRepository = tagRepository;
             this.monthlyGoalService = monthlyGoalService;
             this.goalItemService = goalItemService;
             this.goalItemRepository = goalItemRepository;
@@ -207,11 +213,13 @@ namespace MoneyMind_BLL.Services.Implementations
             return listResponse;
         }
 
-        public async Task<TransactionResponse> GetTransactionByIdAsync(Guid transactionId)
+        public async Task<TransactionResponse?> GetTransactionByIdAsync(Guid transactionId)
         {
+            // Lấy transaction bao gồm TransactionTags và TransactionActivities
             var transaction = await transactionRepository.GetByIdAsync(
                 transactionId,
-                t => t.TransactionTags // Bao gồm bảng trung gian TransactionTag
+                t => t.TransactionTags,
+                t => t.TransactionActivities
             );
 
             if (transaction == null)
@@ -219,21 +227,55 @@ namespace MoneyMind_BLL.Services.Implementations
                 return null;
             }
 
-            // Lấy danh sách Tags từ bảng TransactionTags
+            // Ánh xạ Transaction thành TransactionResponse
             var transactionResponse = mapper.Map<TransactionResponse>(transaction);
-            transactionResponse.Tags = transaction.TransactionTags.
-               Where(tt => tt.Tag != null)
-              .Select(tt => new TagResponse
-              {
-                  Id = tt.Tag.Id,
-                  Name = tt.Tag.Name,
-                  Color = tt.Tag.Color,
-                  Description = tt.Tag.Description
-              }).ToList();
+
+            // Lấy danh sách ID của các Tags và Activities
+            var tagIds = transaction.TransactionTags?.Select(tt => tt.TagId).Distinct().ToList() ?? new List<Guid>();
+            var activityIds = transaction.TransactionActivities?.Select(ta => ta.ActivityId).Distinct().ToList() ?? new List<Guid>();
+
+            // Lấy dữ liệu từ tagRepository theo cách tuần tự để tránh sử dụng DbContext cùng lúc trên nhiều thread
+            var tags = new List<Tag>();
+            foreach (var id in tagIds)
+            {
+                var tag = await tagRepository.GetByIdAsync(id);
+                if (tag != null)
+                {
+                    tags.Add(tag);
+                }
+            }
+
+            // Lấy dữ liệu từ activityRepository theo cách tuần tự
+            var activities = new List<Activity>();
+            foreach (var id in activityIds)
+            {
+                var activity = await activityRepository.GetByIdAsync(id);
+                if (activity != null)
+                {
+                    activities.Add(activity);
+                }
+            }
+
+            // Gán danh sách Tags vào TransactionResponse
+            transactionResponse.Tags = tags.Select(tag => new TagResponse
+            {
+                Id = tag.Id,
+                Name = tag.Name,
+                Color = tag.Color,
+                Description = tag.Description
+            }).ToList();
+
+            // Gán danh sách Activities vào TransactionResponse
+            transactionResponse.Activities = activities.Select(activity => new ActivityResponse
+            {
+                Id = activity.Id,
+                Name = activity.Name,
+                Description = activity.Description,
+                CreatedAt = activity.CreatedAt
+            }).ToList();
 
             return transactionResponse;
         }
-
 
         public async Task<TransactionResponse> UpdateTransactionAsync(Guid transactionId, Guid userId, TransactionRequest transactionRequest)
         {

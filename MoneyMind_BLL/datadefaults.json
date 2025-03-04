@@ -150,7 +150,7 @@
       "Name": "Tuition",
       "Description": "Fees for schools or universities.",
       "WalletTypeId": "19ea7e67-8095-4a13-bba4-bda0a4a47a38",
-      "IconPath": "tuition.png",
+      "IconPath": "https://firebasestorage.googleapis.com/v0/b/moneymind-972f5.firebasestorage.app/o/Icons%2Ftuition.png?alt=media&token=8f793c2d-4c24-4bc0-8b5b-788059ac9448",
       "Color": "#3388FF",
       "Activities": [
         {
