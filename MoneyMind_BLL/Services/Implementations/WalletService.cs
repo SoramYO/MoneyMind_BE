@@ -93,7 +93,7 @@ namespace MoneyMind_BLL.Services.Implementations
 
         public async Task<WalletResponse> UpdateWalletAsync(Guid walletId, Guid userId, WalletRequest walletRequest)
         {
-            var existingWallet = await walletRepository.GetByIdAsync(walletId);
+            var existingWallet = await walletRepository.GetByIdAsync(walletId, w => w.WalletCategory);
             if (existingWallet == null || existingWallet.UserId != userId || walletRequest.WalletCategoryId != existingWallet.WalletCategoryId)
             {
                 return null;
