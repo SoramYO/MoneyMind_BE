@@ -99,8 +99,8 @@ namespace MoneyMind_BLL.Services.Implementations
                 return null;
             }
 
-            existingWallet.Name = existingWallet.Name;
-            existingWallet.Description = existingWallet.Description;
+            existingWallet.Name = walletRequest.Name;
+            existingWallet.Description = walletRequest.Description;
             existingWallet.Balance = walletRequest.Balance;
             existingWallet.LastUpdatedTime = DateTime.UtcNow;
 

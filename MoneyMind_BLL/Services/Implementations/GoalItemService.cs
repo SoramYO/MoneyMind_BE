@@ -144,7 +144,7 @@ namespace MoneyMind_BLL.Services.Implementations
         }
         public async Task UpdateGoalStatusAsync(Guid monthlyGoalId)
         {
-            var monthlyGoal = await monthlyGoalRepository.GetByIdAsync(monthlyGoalId);
+            var monthlyGoal = await monthlyGoalRepository.GetByIdAsync(monthlyGoalId, m => m.GoalItems);
             if (monthlyGoal == null) return;
 
             bool allAchieved = true;
