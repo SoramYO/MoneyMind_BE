@@ -246,7 +246,7 @@ namespace MoneyMind_BLL.Services.Implementations
             }
 
             // Lấy dữ liệu từ activityRepository theo cách tuần tự
-            var activities = new List<Activity>();
+            var activities = new List <Activity>();
             foreach (var id in activityIds)
             {
                 var activity = await activityRepository.GetByIdAsync(id);
@@ -408,12 +408,18 @@ namespace MoneyMind_BLL.Services.Implementations
                         ActivityId = activityId
                     }).ToList();
 
-                await transactionActivityRepository.InsertRangeAsync(transactionActivities);
+                    await transactionActivityRepository.InsertRangeAsync(transactionActivities);
             }
 
             existingTransaction = await transactionRepository.UpdateAsync(existingTransaction);
-
-            return mapper.Map<TransactionResponse>(existingTransaction);
+            var response = mapper.Map<TransactionResponse>(existingTransaction);
+            response.Tags.Add(mapper.Map<TagResponse>(tag));
+            foreach(var activityId in transactionRequest.Activities)
+            {
+                var activityResponse = await activityRepository.GetByIdAsync(activityId);
+                response.Activities.Add(mapper.Map<ActivityResponse>(activityResponse));
+            }
+            return response;
         }
 
     }
