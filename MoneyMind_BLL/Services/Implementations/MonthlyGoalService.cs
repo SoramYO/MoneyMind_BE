@@ -17,13 +17,17 @@ namespace MoneyMind_BLL.Services.Implementations
         private readonly ITransactionRepository transactionRepository;
         private readonly IGoalItemRepository goalItemRepository;
         private readonly IGoalItemService goalItemService;
+        private readonly INotificationService _notificationService;
+
         private readonly IMapper mapper;
 
-        public MonthlyGoalService(IWalletTypeRepository walletTypeRepository,
+        public MonthlyGoalService(
+            IWalletTypeRepository walletTypeRepository,
             IMonthlyGoalRepository monthlyGoalRepository,
             ITransactionRepository transactionRepository,
             IGoalItemRepository goalItemRepository,
             IGoalItemService goalItemService,
+            INotificationService notificationService,
             IMapper mapper)
         {
             this.walletTypeRepository = walletTypeRepository;
@@ -31,6 +35,7 @@ namespace MoneyMind_BLL.Services.Implementations
             this.transactionRepository = transactionRepository;
             this.goalItemRepository = goalItemRepository;
             this.goalItemService = goalItemService;
+            this._notificationService = notificationService;
             this.mapper = mapper;
         }
 
@@ -40,7 +45,7 @@ namespace MoneyMind_BLL.Services.Implementations
             var jsonString = await File.ReadAllTextAsync(jsonFilePath);
             var dataDefaults = JsonSerializer.Deserialize<DataDefaults>(jsonString);
 
-            var goalDefaults = dataDefaults.GoalItem;   
+            var goalDefaults = dataDefaults.GoalItem;
 
             // Map DTO sang Domain Model
             var monthlyGoalDomain = mapper.Map<MonthlyGoal>(monthlyGoalRequest);
@@ -149,10 +154,11 @@ namespace MoneyMind_BLL.Services.Implementations
 
         public async Task UpdateGoalStatusAsync(Guid monthlyGoalId)
         {
-            var monthlyGoal = await monthlyGoalRepository.GetByIdAsync(monthlyGoalId);
+            var monthlyGoal = await monthlyGoalRepository.GetByIdAsync(monthlyGoalId, g => g.GoalItems);
             if (monthlyGoal == null) return;
 
             bool allAchieved = true;
+            bool previouslyCompleted = monthlyGoal.IsCompleted;
 
             foreach (var goalItem in monthlyGoal.GoalItems)
             {
@@ -163,10 +169,26 @@ namespace MoneyMind_BLL.Services.Implementations
                 }
             }
 
+            // Check if the status changed from incomplete to complete
+            if (allAchieved && !previouslyCompleted)
+            {
+                // Send notification only when status changes from incomplete to complete
+                await _notificationService.SendNotificationToUser(
+                    monthlyGoal.UserId,
+                    $"Congratulations! You've achieved all your financial goals for {GetMonthName(monthlyGoal.Month)} {monthlyGoal.Year}.",
+                    "monthly_goal_completion"
+                );
+            }
+
             monthlyGoal.IsCompleted = allAchieved;
-            monthlyGoal.Status = allAchieved ? GoalStatus.Completed :  GoalStatus.InProgress;
+            monthlyGoal.Status = allAchieved ? GoalStatus.Completed : GoalStatus.InProgress;
 
             await monthlyGoalRepository.UpdateAsync(monthlyGoal);
+        }
+
+        private string GetMonthName(int month)
+        {
+            return new DateTime(2022, month, 1).ToString("MMMM");
         }
 
         public async Task<MonthlyGoalResponse> UpdateMonthlyGoalAsync(Guid monthlyGoalId, Guid userId, MonthlyGoalRequest monthlyGoalRequest)
