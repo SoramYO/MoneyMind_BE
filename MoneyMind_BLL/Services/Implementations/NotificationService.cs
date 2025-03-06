@@ -14,8 +14,8 @@ public class NotificationService : INotificationService
     private readonly FirebaseMessaging _firebaseMessaging;
     private readonly IUserFcmTokenRepository _fcmTokenRepository;
 
-	public NotificationService(
-		IUserFcmTokenRepository fcmTokenRepository)
+    public NotificationService(
+        IUserFcmTokenRepository fcmTokenRepository)
     {
         _fcmTokenRepository = fcmTokenRepository;
 
@@ -23,7 +23,7 @@ public class NotificationService : INotificationService
         {
             var projectDir = AppDomain.CurrentDomain.BaseDirectory;
             var credentialPath = Path.Combine(projectDir, "firebase-adminsdk.json");
-            
+
             FirebaseApp.Create(new AppOptions()
             {
                 Credential = GoogleCredential.FromFile(credentialPath)
@@ -36,16 +36,19 @@ public class NotificationService : INotificationService
     {
         try
         {
+            // Get all FCM tokens for the specified user
             var userTokens = await _fcmTokenRepository.GetAsync(
                 filter: t => t.UserId == userId
             );
 
+            // Check if user has any tokens
             if (!userTokens.Item1.Any())
             {
                 Console.WriteLine("No FCM token found for user {0}", userId);
                 return;
             }
 
+            // Send notification to each token associated with the user
             foreach (var token in userTokens.Item1)
             {
                 await SendPushNotification(new NotificationRequest
@@ -57,7 +60,7 @@ public class NotificationService : INotificationService
                 });
             }
         }
-          catch (Exception ex)
+        catch (Exception ex)
         {
             Console.WriteLine("Error sending notification to user {0}: {1}", userId, ex.Message);
         }
@@ -80,22 +83,38 @@ public class NotificationService : INotificationService
         }
         catch (Exception ex)
         {
-			Console.WriteLine("Error broadcasting notification");
+            Console.WriteLine("Error broadcasting notification");
         }
     }
 
     public async Task SaveUserFcmToken(Guid userId, string fcmToken)
     {
-        var token = new UserFcmToken
-        {
-            Id = Guid.NewGuid(),
-            UserId = userId,
-            FcmToken = fcmToken,
-            CreatedAt = DateTime.UtcNow,
-            LastUsed = DateTime.UtcNow
-        };
+        // Check if the token already exists for this user
+        var existingTokens = await _fcmTokenRepository.GetAsync(
+            filter: t => t.UserId == userId && t.FcmToken == fcmToken
+        );
 
-        await _fcmTokenRepository.InsertAsync(token);
+        if (existingTokens.Item1.Any())
+        {
+            // Token exists, update LastUsed time
+            var existingToken = existingTokens.Item1.First();
+            existingToken.LastUsed = DateTime.UtcNow;
+            await _fcmTokenRepository.UpdateAsync(existingToken);
+        }
+        else
+        {
+            // Token doesn't exist, create new one
+            var token = new UserFcmToken
+            {
+                Id = Guid.NewGuid(),
+                UserId = userId,
+                FcmToken = fcmToken,
+                CreatedAt = DateTime.UtcNow,
+                LastUsed = DateTime.UtcNow
+            };
+
+            await _fcmTokenRepository.InsertAsync(token);
+        }
     }
 
     public async Task SendPushNotification(NotificationRequest request)
@@ -111,7 +130,7 @@ public class NotificationService : INotificationService
             Data = request.Data
         };
 
-        try 
+        try
         {
             var result = await _firebaseMessaging.SendAsync(message);
             Console.WriteLine($"Successfully sent message: {result}");
@@ -122,4 +141,4 @@ public class NotificationService : INotificationService
             throw;
         }
     }
-} 
+}
