@@ -217,7 +217,7 @@ namespace MoneyMind_BLL.Services.Implementations
                     }
             }
             var finalPrompt = message;
-            if (contextData != null)
+            if (!contextData.Equals(""))
             {
                 finalPrompt = BuildPrompt(intent, message, contextData);
             }
