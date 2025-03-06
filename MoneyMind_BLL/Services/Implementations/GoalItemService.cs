@@ -14,16 +14,19 @@ namespace MoneyMind_BLL.Services.Implementations
         private readonly ITransactionRepository transactionRepository;
         private readonly IMonthlyGoalRepository monthlyGoalRepository;
         private readonly IMapper mapper;
+        private readonly INotificationService _notificationService;
 
         public GoalItemService(
             IGoalItemRepository goalItemRepository,
             ITransactionRepository transactionRepository,
             IMonthlyGoalRepository monthlyGoalRepository,
+            INotificationService notificationService,
             IMapper mapper)
         {
             this.goalItemRepository = goalItemRepository;
             this.transactionRepository = transactionRepository;
             this.monthlyGoalRepository = monthlyGoalRepository;
+            this._notificationService = notificationService;
             this.mapper = mapper;
         }
         public async Task<GoalItemResponse> AddGoalItemAsync(Guid userId, GoalItemRequest goalItemRequest)
@@ -132,11 +135,26 @@ namespace MoneyMind_BLL.Services.Implementations
             var goalItem = await goalItemRepository.GetByWalletTypeAsync(userId, walletTypeId, monthlyGoalId);
             if (goalItem != null)
             {
+                bool wasAchievedBefore = goalItem.IsAchieved;
+
                 goalItem.UsedAmount += amountDifference;
                 goalItem.UsedPercentage = (goalItem.UsedAmount / totalAmount) * 100;
 
                 // Cập nhật trạng thái đạt mục tiêu
                 UpdateIsAchieved(goalItem);
+
+                // Check if goal item status changed to achieved
+                if (!wasAchievedBefore && goalItem.IsAchieved)
+                {
+                    var walletType = goalItem.WalletType;
+
+                    // Send notification for goal item achievement
+                    await _notificationService.SendNotificationToUser(
+                        userId,
+                        $"Goal achieved! Your {walletType?.Name ?? "budget"} goal has been reached.",
+                        "goal_item_achievement"
+                    );
+                }
 
                 await goalItemRepository.UpdateAsync(goalItem);
             }
@@ -148,6 +166,7 @@ namespace MoneyMind_BLL.Services.Implementations
             if (monthlyGoal == null) return;
 
             bool allAchieved = true;
+            bool previouslyCompleted = monthlyGoal.IsCompleted;
 
             foreach (var goalItem in monthlyGoal.GoalItems)
             {
@@ -158,10 +177,25 @@ namespace MoneyMind_BLL.Services.Implementations
                 }
             }
 
+            if (allAchieved && !previouslyCompleted)
+            {
+                // Send notification only when status changes from incomplete to complete
+                await _notificationService.SendNotificationToUser(
+                    monthlyGoal.UserId,
+                    $"Congratulations! You've achieved all your financial goals for {GetMonthName(monthlyGoal.Month)} {monthlyGoal.Year}.",
+                    "goal_completion"
+                );
+            }
+
             monthlyGoal.IsCompleted = allAchieved;
             monthlyGoal.Status = allAchieved ? GoalStatus.Completed : GoalStatus.InProgress;
 
             await monthlyGoalRepository.UpdateAsync(monthlyGoal);
+        }
+
+        private string GetMonthName(int month)
+        {
+            return new DateTime(2022, month, 1).ToString("MMMM");
         }
         public void UpdateIsAchieved(GoalItem goalItem)
         {
