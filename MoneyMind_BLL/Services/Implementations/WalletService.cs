@@ -19,11 +19,14 @@ namespace MoneyMind_BLL.Services.Implementations
     public class WalletService : IWalletService
     {
         private readonly IWalletRepository walletRepository;
+        private readonly IWalletCategoryRepository walletCategoryRepository;
         private readonly IMapper mapper;
 
-        public WalletService(IWalletRepository walletRepository, IMapper mapper)
+        public WalletService(IWalletRepository walletRepository, IWalletCategoryRepository walletCategoryRepository, IMapper mapper)
         {
+
             this.walletRepository = walletRepository;
+            this.walletCategoryRepository = walletCategoryRepository;
             this.mapper = mapper;
         }
         public async Task<WalletResponse> AddWalletAsync(Guid userId, WalletRequest walletRequest)
@@ -33,7 +36,7 @@ namespace MoneyMind_BLL.Services.Implementations
             walletDomain.UserId = userId;
             // Use Domain Model to create Author
             walletDomain = await walletRepository.InsertAsync(walletDomain);
-
+            walletDomain.WalletCategory = await walletCategoryRepository.GetByIdAsync(walletDomain.WalletCategoryId) ?? throw new InvalidOperationException("Wallet category not found");
             return mapper.Map<WalletResponse>(walletDomain);
         }
 
