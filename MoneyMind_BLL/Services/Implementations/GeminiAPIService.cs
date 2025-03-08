@@ -45,7 +45,7 @@ namespace MoneyMind_BLL.Services.Implementations
                 var content = new StringContent(requestJson, Encoding.UTF8, "application/json");
 
                 var response = await _httpClient.PostAsync(
-                    $"https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key={_apiKey}",
+                    $"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key={_apiKey}",
                     content
                 );
 
