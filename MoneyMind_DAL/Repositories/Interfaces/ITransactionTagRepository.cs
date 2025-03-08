@@ -9,6 +9,6 @@ namespace MoneyMind_DAL.Repositories.Interfaces
 {
     public interface ITransactionTagRepository : IGenericRepository<TransactionTag>
     {
-        Task<bool> DeleteAllByTransactionId(Guid transactionId);
+        Task DeleteByTransactionIdAsync(Guid transactionId);
     }
 }

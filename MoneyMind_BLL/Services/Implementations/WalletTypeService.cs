@@ -1,8 +1,10 @@
 ﻿using AutoMapper;
 using MoneyMind_BLL.DTOs;
+using MoneyMind_BLL.DTOs.Wallets;
 using MoneyMind_BLL.DTOs.WalletTypes;
 using MoneyMind_BLL.Services.Interfaces;
 using MoneyMind_DAL.Entities;
+using MoneyMind_DAL.Repositories.Implementations;
 using MoneyMind_DAL.Repositories.Interfaces;
 using System;
 using System.Collections.Generic;
@@ -23,6 +25,44 @@ namespace MoneyMind_BLL.Services.Implementations
             this.walletTypeRepository = walletTypeRepository;
             this.mapper = mapper;
         }
+
+        public async Task<WalletTypeResponse> AddWalletTypeAsync(WalletTypeRequest walletTypeRequest)
+        {
+            // Map or Convert DTO to Domain Model
+            var walletTypeDomain = mapper.Map<WalletType>(walletTypeRequest);
+            // Use Domain Model to create Author
+            walletTypeDomain = await walletTypeRepository.InsertAsync(walletTypeDomain);
+
+            return mapper.Map<WalletTypeResponse>(walletTypeDomain);
+        }
+
+        public async Task<WalletTypeResponse> DeleteWalletTypeAsync(Guid walletTypeId)
+        {
+            var existingWalletType = await walletTypeRepository.GetByIdAsync(walletTypeId);
+            if (existingWalletType == null)
+            {
+                return null;
+            }
+
+            existingWalletType.IsDisabled = true;
+
+            existingWalletType = await walletTypeRepository.UpdateAsync(existingWalletType);
+
+            return mapper.Map<WalletTypeResponse>(existingWalletType);
+        }
+
+        public async Task<WalletTypeResponse> GetWalletTypeByIdAsync(Guid walletTypeId)
+        {
+            var existingWalletType = await walletTypeRepository.GetByIdAsync(walletTypeId);
+
+            if (existingWalletType == null)
+            {
+                return null;
+            }
+
+            return mapper.Map<WalletTypeResponse>(existingWalletType);
+        }
+
         public async Task<ListDataResponse> GetWalletTypesAsync(
             Expression<Func<WalletType, bool>>? filter,
             Func<IQueryable<WalletType>, IOrderedQueryable<WalletType>> orderBy,
@@ -53,6 +93,22 @@ namespace MoneyMind_BLL.Services.Implementations
             };
 
             return listResponse;
+        }
+
+        public async Task<WalletTypeResponse> UpdateWalletTypeAsync(Guid walletTypeId, WalletTypeRequest walletTypeRequest)
+        {
+            var existingWalletType = await walletTypeRepository.GetByIdAsync(walletTypeId);
+            if (existingWalletType == null)
+            {
+                return null;
+            }
+
+            existingWalletType.Name = walletTypeRequest.Name;
+            existingWalletType.Description = walletTypeRequest.Description;
+
+            existingWalletType = await walletTypeRepository.UpdateAsync(existingWalletType);
+
+            return mapper.Map<WalletTypeResponse>(existingWalletType);
         }
     }
 }

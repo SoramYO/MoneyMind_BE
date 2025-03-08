@@ -24,7 +24,6 @@ namespace MoneyMind_BLL.DTOs.GoalItems
         public bool IsAchieved { get; set; }
 
         public Guid MonthlyGoalId { get; set; }
-        public string MonthlyGoalName { get; set; } = string.Empty;
 
         public Guid WalletTypeId { get; set; }
         public string WalletTypeName { get; set; } = string.Empty;

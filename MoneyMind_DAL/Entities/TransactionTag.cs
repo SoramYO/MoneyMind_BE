@@ -8,15 +8,14 @@ namespace MoneyMind_DAL.Entities
 {
     public class TransactionTag
     {
-        public Guid Id { get; set; }
-
-        /// <summary>
-        /// Properties related 
-        /// </summary>
-        public Guid TagId { get; set; }
+        public TransactionTag()
+        {
+            CreatedAt = DateTime.UtcNow;
+        }
         public Guid TransactionId { get; set; }
-        public virtual Transaction Transaction { get; set; }    
-        public virtual Tag Tag { get; set; }
-
+        public Guid TagId { get; set; }
+        public DateTime CreatedAt { get; set; }
+        public virtual Tag Tag { get; set; } = null!;
+        public virtual Transaction Transaction { get; set; } = null!;
     }
 }

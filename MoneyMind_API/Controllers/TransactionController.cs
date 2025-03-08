@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using MoneyMind_BLL.DTOs.SubWalletTypes;
+using MoneyMind_BLL.DTOs.WalletCategories;
 using MoneyMind_BLL.DTOs;
 using MoneyMind_BLL.Services.Implementations;
 using MoneyMind_BLL.Services.Interfaces;
@@ -77,7 +77,7 @@ namespace MoneyMind_API.Controllers
             var listDataResponse = await transactionService.GetTransactionAsync(
                 filter: filterExpression,
                 orderBy: orderByFunc,
-                includeProperties: "TransactionTags",
+                includeProperties: "TransactionTags.Tag,TransactionActivities.Activity",
                 pageIndex: pageIndex,
                 pageSize: pageSize
             );
@@ -174,7 +174,7 @@ namespace MoneyMind_API.Controllers
             var response = new ResponseObject
             {
                 Status = System.Net.HttpStatusCode.OK,
-                Message = "Update sub wallet types successfully !",
+                Message = "Update transactions successfully !",
                 Data = transactionResponse
             };
             return Ok(response);

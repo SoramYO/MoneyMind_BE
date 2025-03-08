@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
 using MoneyMind_BLL.DTOs;
 using MoneyMind_BLL.DTOs.MonthlyGoals;
-using MoneyMind_BLL.DTOs.SubWalletTypes;
+using MoneyMind_BLL.DTOs.WalletCategories;
 using MoneyMind_BLL.DTOs.Wallets;
 using MoneyMind_BLL.Services.Interfaces;
 using MoneyMind_DAL.Entities;
@@ -54,7 +54,7 @@ namespace MoneyMind_BLL.Services.Implementations
 
         public async Task<WalletResponse> GetWalletByIdAsync(Guid walletId)
         {
-            var wallet = await walletRepository.GetByIdAsync(walletId);
+            var wallet = await walletRepository.GetByIdAsync(walletId, w => w.WalletCategory);
 
             if (wallet == null)
             {
@@ -93,18 +93,30 @@ namespace MoneyMind_BLL.Services.Implementations
 
         public async Task<WalletResponse> UpdateWalletAsync(Guid walletId, Guid userId, WalletRequest walletRequest)
         {
-            var existingWallet = await walletRepository.GetByIdAsync(walletId);
-            if (existingWallet == null || existingWallet.UserId != userId)
+            var existingWallet = await walletRepository.GetByIdAsync(walletId, w => w.WalletCategory);
+            if (existingWallet == null || existingWallet.UserId != userId || walletRequest.WalletCategoryId != existingWallet.WalletCategoryId)
             {
                 return null;
             }
 
+            existingWallet.Name = walletRequest.Name;
+            existingWallet.Description = walletRequest.Description;
             existingWallet.Balance = walletRequest.Balance;
-            existingWallet.SubWalletTypeId = walletRequest.SubWalletTypeId;
+            existingWallet.LastUpdatedTime = DateTime.UtcNow;
 
             existingWallet = await walletRepository.UpdateAsync(existingWallet);
 
             return mapper.Map<WalletResponse>(existingWallet);
+        }
+        public async Task UpdateBalanceAsync(Guid walletId, double amountDifference)
+        {
+            var wallet = await walletRepository.GetByIdAsync(walletId);
+            if (wallet != null)
+            {
+                wallet.Balance += amountDifference; // Có thể là cộng hoặc trừ
+                wallet.LastUpdatedTime = DateTime.UtcNow;
+                await walletRepository.UpdateAsync(wallet);
+            }
         }
     }
 }

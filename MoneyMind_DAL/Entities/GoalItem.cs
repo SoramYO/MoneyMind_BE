@@ -21,6 +21,8 @@ namespace MoneyMind_DAL.Entities
         public GoalItem()
         {
             Id = Guid.NewGuid();
+            TargetMode = TargetMode.NoTarget;
+            IsAchieved = false;
         }
         public Guid Id { get; set; }
         public string Description { get; set; } 

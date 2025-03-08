@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Identity;
+using MoneyMind_DAL.Entities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,7 +10,7 @@ namespace MoneyMind_BLL.Services.Interfaces
 {
     public interface ITokenService
     {
-        string CreateJWTToken(IdentityUser user, List<string> roles);
+        string CreateJWTToken(ApplicationUser user, List<string> roles);
         string GenerateRefreshToken();
     }
 }

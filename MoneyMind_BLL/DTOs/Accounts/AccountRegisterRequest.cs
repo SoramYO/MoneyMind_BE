@@ -14,7 +14,7 @@ namespace MoneyMind_BLL.DTOs.Accounts
         public string Email { get; set; }
 
         [Required]
-        public string Username { get; set; }
+        public string FullName { get; set; }
 
         [Required]
         [DataType(DataType.Password)]

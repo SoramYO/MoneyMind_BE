@@ -6,17 +6,25 @@ using System.Threading.Tasks;
 
 namespace MoneyMind_DAL.Entities
 {
+    public enum MessageType
+    {
+        Text,
+        Audio,
+        Video,
+        File,
+    }
     public class Message
     {
         public Message()
         {
             Id = Guid.NewGuid();
+            SentTime = DateTime.UtcNow;
         }
         public Guid Id { get; set; }
         public Guid SenderId { get; set; }
         public string MessageContent { get; set; } = null!;
         public DateTime SentTime { get; set; }
-        public string MessageType { get; set; } = null!;
+        public MessageType MessageType { get; set; }
         public bool IsBotResponse { get; set; }
 
         /// <summary>

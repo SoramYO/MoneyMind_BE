@@ -1,4 +1,4 @@
-﻿using MoneyMind_BLL.DTOs.SubWalletTypes;
+﻿using MoneyMind_BLL.DTOs.WalletCategories;
 using MoneyMind_BLL.DTOs;
 using MoneyMind_DAL.Entities;
 using System;
@@ -22,5 +22,7 @@ namespace MoneyMind_BLL.Services.Interfaces
         Task<MonthlyGoalResponse> AddMonthlyGoalAsync(Guid userId, MonthlyGoalRequest monthlyGoalRequest);
         Task<MonthlyGoalResponse> UpdateMonthlyGoalAsync(Guid monthlyGoalId, Guid userId, MonthlyGoalRequest monthlyGoalRequest);
         Task<MonthlyGoalResponse> GetMonthlyGoalByIdAsync(Guid monthlyGoalId);
+        Task UpdateGoalItemPercentages(MonthlyGoal monthlyGoal);
+        Task UpdateGoalStatusAsync(Guid monthlyGoalId);
     }
 }

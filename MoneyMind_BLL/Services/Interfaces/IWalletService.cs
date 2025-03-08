@@ -1,4 +1,4 @@
-﻿using MoneyMind_BLL.DTOs.SubWalletTypes;
+﻿using MoneyMind_BLL.DTOs.WalletCategories;
 using MoneyMind_BLL.DTOs;
 using MoneyMind_DAL.Entities;
 using System;
@@ -23,5 +23,6 @@ namespace MoneyMind_BLL.Services.Interfaces
         Task<WalletResponse> UpdateWalletAsync(Guid walletId, Guid userId, WalletRequest walletRequest);
         Task<WalletResponse> DeleteWalletAsync(Guid walletId, Guid userId);
         Task<WalletResponse> GetWalletByIdAsync(Guid walletId);
+        Task UpdateBalanceAsync(Guid walletId, double amountDifference);
     }
 }

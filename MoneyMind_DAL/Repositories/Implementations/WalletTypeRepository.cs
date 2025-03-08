@@ -1,4 +1,5 @@
-﻿using MoneyMind_DAL.DBContexts;
+﻿using Microsoft.EntityFrameworkCore;
+using MoneyMind_DAL.DBContexts;
 using MoneyMind_DAL.Entities;
 using MoneyMind_DAL.Repositories.Interfaces;
 using System;
@@ -13,6 +14,11 @@ namespace MoneyMind_DAL.Repositories.Implementations
     {
         public WalletTypeRepository(MoneyMindDbContext context) : base(context)
         {
+        }
+
+        public async Task<bool> ExistsAsync(Guid walletTypeId)
+        {
+            return await _dbSet.AnyAsync(wt => wt.Id == walletTypeId);
         }
     }
 }

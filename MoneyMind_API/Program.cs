@@ -2,25 +2,29 @@
 
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.ML;
 using Microsoft.OpenApi.Models;
+
 using MoneyMind_API.Middlewares;
+using MoneyMind_API.Hubs;
 using MoneyMind_BLL.Mapping;
 using MoneyMind_BLL.Services.BackgroundServices;
-using MoneyMind_BLL.Services.Implementations;
+//using MoneyMind_BLL.Hubs;
 using MoneyMind_BLL.Services.Interfaces;
+using MoneyMind_BLL.Services.Implementations;
 using MoneyMind_DAL.DBContexts;
-using MoneyMind_DAL.Repositories.Implementations;
+using MoneyMind_DAL.Entities;
 using MoneyMind_DAL.Repositories.Interfaces;
+using MoneyMind_DAL.Repositories.Implementations;
+
 using System.Text;
+using MoneyMind_BLL.MLModels;
 
 var builder = WebApplication.CreateBuilder(args);
-var mlContext = new MLContext();
-var modelPath = Path.Combine(AppContext.BaseDirectory, "transaction_model.zip");
-var loadedModel = mlContext.Model.Load(modelPath, out _);
 
 // Add services to the container.
 
@@ -66,27 +70,50 @@ builder.Services.AddDbContext<MoneyMindAuthDbContext>(options =>
         builder.Configuration.GetConnectionString("MoneyMindAuthConnectionString"),
         b => b.MigrationsAssembly("MoneyMind_DAL")));
 
+builder.Services.AddHttpContextAccessor();
+
 //Initial Model AI
-builder.Services.AddSingleton(mlContext);
-builder.Services.AddSingleton(loadedModel);
+builder.Services.AddSingleton<IMLModel, MLModel>();
 
 //Background Service
-
-builder.Services.AddHostedService<SheetSyncService>();
-
+//builder.Services.AddHostedService<SheetSyncService>();
 //Service
+builder.Services.Scan(scan => scan
+    .FromAssemblyOf<IActivityService>()
+    .AddClasses(classes => classes.InNamespaces(
+        "MoneyMind_BLL.Services.Implementations"
+    ))
+    .AsImplementedInterfaces()
+    .WithScopedLifetime()
+);
 
 
+// Repositories
+builder.Services.Scan(scan => scan
+    .FromAssemblyOf<IActivityRepository>()
+    .AddClasses(classes => classes.InNamespaces(
+        "MoneyMind_DAL.Repositories.Implementations"
+    ))
+    .AsImplementedInterfaces()
+    .WithScopedLifetime()
+);
+
+builder.Services.AddScoped<IUserFcmTokenRepository, UserFcmTokenRepository>();
+
+// Services
+builder.Services.AddScoped<INotificationService, NotificationService>();
+builder.Services.AddScoped<IGoogleSheetSyncService, GoogleSheetSyncService>();
 
 // AutoMapper configuration
 builder.Services.AddAutoMapper(typeof(AutoMapperProfiles));
 
 // Add Identity services
-builder.Services.AddIdentity<IdentityUser, IdentityRole>()
+builder.Services.AddIdentity<ApplicationUser, IdentityRole>() 
     .AddRoles<IdentityRole>()
-    .AddTokenProvider<DataProtectorTokenProvider<IdentityUser>>("MoneyMind")
+    .AddTokenProvider<DataProtectorTokenProvider<ApplicationUser>>("MoneyMind") 
     .AddEntityFrameworkStores<MoneyMindAuthDbContext>()
     .AddDefaultTokenProviders();
+
 builder.Services.Configure<IdentityOptions>(options =>
 {
     options.Password.RequireDigit = false;
@@ -102,7 +129,8 @@ builder.Services.Configure<IdentityOptions>(options =>
 builder.Services.AddAuthentication(options =>
 {
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-}).AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, options =>
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+}).AddJwtBearer(options =>
 {
     options.TokenValidationParameters = new TokenValidationParameters
     {
@@ -114,32 +142,59 @@ builder.Services.AddAuthentication(options =>
         ValidAudience = builder.Configuration["Jwt:Audience"],
         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]))
     };
+
+    options.Events = new JwtBearerEvents
+    {
+        OnMessageReceived = context =>
+        {
+            var accessToken = context.Request.Query["access_token"];
+            var path = context.HttpContext.Request.Path;
+            if (!string.IsNullOrEmpty(accessToken) && path.StartsWithSegments("/notificationHub"))
+            {
+                context.Token = accessToken;
+            }
+            return Task.CompletedTask;
+        }
+    };
+
+    options.Events = new JwtBearerEvents
+    {
+        OnMessageReceived = context =>
+        {
+            var path = context.HttpContext.Request.Path;
+            if (!string.IsNullOrEmpty(context.Request.Query["access_token"]) &&
+                (path.StartsWithSegments("/chathub") || path.StartsWithSegments("/api/chathub")))
+            {
+                context.Token = context.Request.Query["access_token"];
+            }
+            return Task.CompletedTask;
+        }
+    };
 });
 
 // CORS configuration
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowAll", policy =>
-    {
-        policy.AllowAnyOrigin()
-              .AllowAnyMethod()
-              .AllowAnyHeader();
-    });
+	options.AddPolicy("AllowAll", policy =>
+	{
+		policy.AllowAnyOrigin()
+			  .AllowAnyMethod()
+			  .AllowAnyHeader();
+	});
 });
+
 
 // Add MB Bank sync services
 builder.Services.AddHttpClient();
 
+// Add SignalR services
+builder.Services.AddSignalR();
+
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
-
+app.UseSwagger();
+app.UseSwaggerUI();
 
 app.UseMiddleware<ExceptionHandlerMiddleware>();
 app.UseHttpsRedirection();
@@ -158,9 +213,12 @@ app.UseStaticFiles(new StaticFileOptions
 
 app.UseCors("AllowAll");
 
-app.UseAuthorization();
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+app.MapHub<ChatHub>("/chathub");
+
+app.MapGet("/", () => "Welcome to MoneyMind API!");
 
 app.Run();

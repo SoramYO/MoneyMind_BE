@@ -10,17 +10,11 @@ namespace MoneyMind_BLL.DTOs.GoalItems
     public class GoalItemRequest
     {
         public string Description { get; set; } = string.Empty;
-
-        public double UsedAmount { get; set; }
-        public double UsedPercentage { get; set; }
-
         public double? MinTargetPercentage { get; set; }
         public double? MaxTargetPercentage { get; set; }
         public double? MinAmount { get; set; }
         public double? MaxAmount { get; set; }
-
-        public TargetMode TargetMode { get; set; }
-        public bool IsAchieved { get; set; }
+        public TargetMode TargetMode { get; set; } = TargetMode.NoTarget;
 
         /// <summary>
         /// ID của MonthlyGoal mà GoalItem thuộc về

@@ -12,7 +12,7 @@ namespace MoneyMind_DAL.Entities
         public TransactionSyncLog()
         {
             Id = Guid.NewGuid();
-            SyncTime = DateTime.Now;
+            SyncTime = DateTime.UtcNow;
             Status = "InProcess";
             ErrorMessage = string.Empty;
         }

@@ -17,25 +17,34 @@ namespace MoneyMind_DAL.DBContexts
         public MoneyMindDbContext(DbContextOptions<MoneyMindDbContext> options) : base(options)
         {
         }
-        public virtual DbSet<Chat> Chats { get; set; }
-        public virtual DbSet<GoalItem> GoalItems { get; set; }
-        public virtual DbSet<Message> Messages { get; set; }
-        public virtual DbSet<MonthlyGoal> MonthlyGoals { get; set; }
-        public virtual DbSet<SheetTransction> SheetTransctions { get; set; }
-        public virtual DbSet<SubWalletType> SubWalletTypes { get; set; }
-        public virtual DbSet<Tag> Tags { get; set; }
-        public virtual DbSet<Transaction> Transactions { get; set; }
-        public virtual DbSet<TransactionSyncLog> TransactionSyncLogs { get; set; }
-        public virtual DbSet<TransactionTag> TransactionTags { get; set; }
-        public virtual DbSet<Wallet> Wallets { get; set; }
-        public virtual DbSet<WalletType> WalletTypes { get; set; }
+        public virtual DbSet<Activity> Activity { get; set; }
+        public virtual DbSet<Chat> Chat { get; set; }
+        public virtual DbSet<GoalItem> GoalItem { get; set; }
+        public virtual DbSet<Message> Message { get; set; }
+        public virtual DbSet<MonthlyGoal> MonthlyGoal { get; set; }
+        public virtual DbSet<SheetTransction> SheetTransction { get; set; }
+        public virtual DbSet<WalletCategory> WalletCategory { get; set; }
+        public virtual DbSet<Tag> Tag { get; set; }
+        public virtual DbSet<Transaction> Transaction { get; set; }
+        public virtual DbSet<TransactionActivity> TransactionActivity { get; set; }
+        public virtual DbSet<TransactionSyncLog> TransactionSyncLog { get; set; }
+        public virtual DbSet<TransactionTag> TransactionTag { get; set; }
+        public virtual DbSet<Wallet> Wallet { get; set; }
+        public virtual DbSet<WalletType> WalletType { get; set; }
+        public virtual DbSet<Notification> Notification { get; set; }
+		public virtual DbSet<UserFcmToken> UserFcmTokens { get; set; }
 
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+		protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             => optionsBuilder.UseSqlServer("Name=MoneyMindConnectionString");
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+
+            modelBuilder.Entity<TransactionActivity>()
+                .HasKey(ta => new { ta.TransactionId, ta.ActivityId });
+            modelBuilder.Entity<TransactionTag>()
+                .HasKey(tt => new { tt.TransactionId, tt.TagId });
 
             modelBuilder.Entity<WalletType>(entity =>
             {
@@ -54,37 +63,43 @@ namespace MoneyMind_DAL.DBContexts
                 {
                     Id = Guid.Parse(necessitiesId),
                     Name = "Necessities",
-                    Description = "Essential expenses for daily living, including food, housing, and utilities."
+                    Description = "Essential expenses for daily living, including food, housing, and utilities.",
+                    IsDisabled = false
                 },
                 new WalletType
                 {
                     Id = Guid.Parse(financialFreedomId),
                     Name = "Financial Freedom",
-                    Description = "Allocations for building wealth and achieving long-term financial independence."
+                    Description = "Allocations for building wealth and achieving long-term financial independence.",
+                    IsDisabled = false,
                 },
                 new WalletType
                 {
                     Id = Guid.Parse(educationId),
                     Name = "Education",
-                    Description = "Investments in personal growth, such as books, courses, and training programs."
+                    Description = "Investments in personal growth, such as books, courses, and training programs.",
+                    IsDisabled = false
                 },
                 new WalletType
                 {
                     Id = Guid.Parse(leisureId),
                     Name = "Leisure",
-                    Description = "Spending on entertainment and recreational activities for enjoyment."
+                    Description = "Spending on entertainment and recreational activities for enjoyment.",
+                    IsDisabled = false
                 },
                 new WalletType
                 {
                     Id = Guid.Parse(charityId),
                     Name = "Charity",
-                    Description = "Contributions to charitable causes or support for those in need."
+                    Description = "Contributions to charitable causes or support for those in need.",
+                    IsDisabled = false
                 },
                 new WalletType
                 {
                     Id = Guid.Parse(savingsId),
                     Name = "Savings",
-                    Description = "Funds set aside for major purchases, emergencies, or future needs."
+                    Description = "Funds set aside for major purchases, emergencies, or future needs.",
+                    IsDisabled = false
                 }
             );
 

@@ -1,4 +1,5 @@
-﻿using MoneyMind_DAL.DBContexts;
+﻿using Microsoft.EntityFrameworkCore;
+using MoneyMind_DAL.DBContexts;
 using MoneyMind_DAL.Entities;
 using MoneyMind_DAL.Repositories.Interfaces;
 using System;
@@ -15,14 +16,18 @@ namespace MoneyMind_DAL.Repositories.Implementations
         {
         }
 
-        public Task<bool> DeleteAllByTransactionId(Guid transactionId)
+        public async Task DeleteByTransactionIdAsync(Guid transactionId)
         {
-            return Task.Run(() =>
+            var transactionTags = await _context.TransactionTag
+                                                .Where(tt => tt.TransactionId == transactionId)
+                                                .ToListAsync();
+
+            if (transactionTags.Any())
             {
-                var transactionTags = _dbSet.Where(tt => tt.TransactionId == transactionId).ToList();
-                _dbSet.RemoveRange(transactionTags);
-                return true;
-            });
+                _context.TransactionTag.RemoveRange(transactionTags);
+                await _context.SaveChangesAsync();
+            }
         }
+
     }
 }

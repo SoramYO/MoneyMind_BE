@@ -17,9 +17,16 @@ namespace MoneyMind_DAL.Repositories.Implementations
         {
         }
 
-        public async Task<Transaction> IsExistTransaction(string description, double amount)
+        public async Task<double> GetSumAsync(Expression<Func<Transaction, bool>> predicate, Expression<Func<Transaction, double>> selector)
         {
-            var exist = await _dbSet.FirstOrDefaultAsync(t => t.Description.Equals(description) && t.Amount == amount);
+                return await _dbSet
+                    .Where(predicate)
+                    .SumAsync(selector);
+        }
+
+        public async Task<Transaction> IsExistTransaction(string description, double amount, Guid userId)
+        {
+            var exist = await _dbSet.FirstOrDefaultAsync(t => t.Description.Equals(description) && t.Amount == amount && t.UserId == userId);
             return exist;
         }
     }

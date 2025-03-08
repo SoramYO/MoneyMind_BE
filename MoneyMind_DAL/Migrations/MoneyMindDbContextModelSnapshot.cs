@@ -22,6 +22,36 @@ namespace MoneyMind_DAL.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
+            modelBuilder.Entity("MoneyMind_DAL.Entities.Activity", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid>("WalletCategoryId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("WalletCategoryId");
+
+                    b.ToTable("Activity");
+                });
+
             modelBuilder.Entity("MoneyMind_DAL.Entities.Chat", b =>
                 {
                     b.Property<Guid>("Id")
@@ -40,9 +70,8 @@ namespace MoneyMind_DAL.Migrations
                     b.Property<DateTime>("StartTime")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
 
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("datetime2");
@@ -52,7 +81,7 @@ namespace MoneyMind_DAL.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Chats");
+                    b.ToTable("Chat");
                 });
 
             modelBuilder.Entity("MoneyMind_DAL.Entities.GoalItem", b =>
@@ -101,7 +130,7 @@ namespace MoneyMind_DAL.Migrations
 
                     b.HasIndex("WalletTypeId");
 
-                    b.ToTable("GoalItems");
+                    b.ToTable("GoalItem");
                 });
 
             modelBuilder.Entity("MoneyMind_DAL.Entities.Message", b =>
@@ -120,9 +149,8 @@ namespace MoneyMind_DAL.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("MessageType")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<int>("MessageType")
+                        .HasColumnType("int");
 
                     b.Property<Guid>("SenderId")
                         .HasColumnType("uniqueidentifier");
@@ -134,7 +162,7 @@ namespace MoneyMind_DAL.Migrations
 
                     b.HasIndex("ChatId");
 
-                    b.ToTable("Messages");
+                    b.ToTable("Message");
                 });
 
             modelBuilder.Entity("MoneyMind_DAL.Entities.MonthlyGoal", b =>
@@ -166,7 +194,35 @@ namespace MoneyMind_DAL.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("MonthlyGoals");
+                    b.ToTable("MonthlyGoal");
+                });
+
+            modelBuilder.Entity("MoneyMind_DAL.Entities.Notification", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsRead")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Message")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Notification");
                 });
 
             modelBuilder.Entity("MoneyMind_DAL.Entities.SheetTransction", b =>
@@ -184,48 +240,7 @@ namespace MoneyMind_DAL.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("SheetTransctions");
-                });
-
-            modelBuilder.Entity("MoneyMind_DAL.Entities.SubWalletType", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("Color")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("CreateAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("IconPath")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("WalletTypeId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("WalletTypeId");
-
-                    b.ToTable("SubWalletTypes");
+                    b.ToTable("SheetTransction");
                 });
 
             modelBuilder.Entity("MoneyMind_DAL.Entities.Tag", b =>
@@ -242,6 +257,9 @@ namespace MoneyMind_DAL.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
@@ -251,7 +269,7 @@ namespace MoneyMind_DAL.Migrations
                     b.HasIndex("Name")
                         .IsUnique();
 
-                    b.ToTable("Tags");
+                    b.ToTable("Tag");
 
                     b.HasData(
                         new
@@ -259,6 +277,7 @@ namespace MoneyMind_DAL.Migrations
                             Id = new Guid("52eb2c6a-3a1e-45bd-8e55-33558f69cc3e"),
                             Color = "#FF5733",
                             Description = "Monthly rent payments.",
+                            IsActive = false,
                             Name = "Rent"
                         },
                         new
@@ -266,6 +285,7 @@ namespace MoneyMind_DAL.Migrations
                             Id = new Guid("a01486cd-23db-4dde-b674-0292f5074549"),
                             Color = "#33FF57",
                             Description = "Electricity, water, and internet bills.",
+                            IsActive = false,
                             Name = "Utilities"
                         },
                         new
@@ -273,6 +293,7 @@ namespace MoneyMind_DAL.Migrations
                             Id = new Guid("e26a8c01-bf3c-4df7-95cf-8f31a801f003"),
                             Color = "#3375FF",
                             Description = "Daily groceries and household items.",
+                            IsActive = false,
                             Name = "Groceries"
                         },
                         new
@@ -280,6 +301,7 @@ namespace MoneyMind_DAL.Migrations
                             Id = new Guid("a9e231c4-aa32-4cb9-b55e-e7608b25b528"),
                             Color = "#FF33B5",
                             Description = "Fuel or public transport expenses.",
+                            IsActive = false,
                             Name = "Transportation"
                         },
                         new
@@ -287,6 +309,7 @@ namespace MoneyMind_DAL.Migrations
                             Id = new Guid("a5c41682-e6e8-4482-a021-47a876e5d2ff"),
                             Color = "#FFAA33",
                             Description = "Health, car, or property insurance payments.",
+                            IsActive = false,
                             Name = "Insurance"
                         },
                         new
@@ -294,6 +317,7 @@ namespace MoneyMind_DAL.Migrations
                             Id = new Guid("7289ab51-6305-4011-a00d-75f2f7bd37cf"),
                             Color = "#E74C3C",
                             Description = "Medical bills, prescriptions, and doctor visits.",
+                            IsActive = false,
                             Name = "Healthcare"
                         },
                         new
@@ -301,6 +325,7 @@ namespace MoneyMind_DAL.Migrations
                             Id = new Guid("cbc1c237-0527-403c-951f-f659536dbf89"),
                             Color = "#F39C12",
                             Description = "Investments in stocks, bonds, or mutual funds.",
+                            IsActive = false,
                             Name = "Investments"
                         },
                         new
@@ -308,6 +333,7 @@ namespace MoneyMind_DAL.Migrations
                             Id = new Guid("b1d4bc63-215b-4e8a-aeb8-55fea7dc5ffe"),
                             Color = "#16A085",
                             Description = "Funds saved for future use.",
+                            IsActive = false,
                             Name = "Savings"
                         },
                         new
@@ -315,6 +341,7 @@ namespace MoneyMind_DAL.Migrations
                             Id = new Guid("22534a32-cf9e-41c4-ae8a-0a155a9d9701"),
                             Color = "#2ECC71",
                             Description = "Spending on assets that generate income.",
+                            IsActive = false,
                             Name = "Passive Income"
                         },
                         new
@@ -322,6 +349,7 @@ namespace MoneyMind_DAL.Migrations
                             Id = new Guid("19085b7c-4115-4d03-9c78-8793771b3699"),
                             Color = "#D35400",
                             Description = "Payments towards loans or credit card debts.",
+                            IsActive = false,
                             Name = "Debt Repayment"
                         },
                         new
@@ -329,6 +357,7 @@ namespace MoneyMind_DAL.Migrations
                             Id = new Guid("c95afcd0-5684-477d-a5a0-c92d1381fdc3"),
                             Color = "#1ABC9C",
                             Description = "School or university tuition fees.",
+                            IsActive = false,
                             Name = "Tuition"
                         },
                         new
@@ -336,6 +365,7 @@ namespace MoneyMind_DAL.Migrations
                             Id = new Guid("1e23668b-8e90-4e07-9746-c307ed9d4feb"),
                             Color = "#8E44AD",
                             Description = "Purchasing books for education or self-study.",
+                            IsActive = false,
                             Name = "Books"
                         },
                         new
@@ -343,6 +373,7 @@ namespace MoneyMind_DAL.Migrations
                             Id = new Guid("f8c65a1f-b7f0-427e-9072-68736eb09e19"),
                             Color = "#2980B9",
                             Description = "E-learning platforms like Udemy or Coursera.",
+                            IsActive = false,
                             Name = "Online Courses"
                         },
                         new
@@ -350,6 +381,7 @@ namespace MoneyMind_DAL.Migrations
                             Id = new Guid("ef3630b6-8e69-4e02-99a7-0df799de2e35"),
                             Color = "#9B59B6",
                             Description = "Attending workshops or skill training.",
+                            IsActive = false,
                             Name = "Workshops"
                         },
                         new
@@ -357,6 +389,7 @@ namespace MoneyMind_DAL.Migrations
                             Id = new Guid("94237b82-5892-429c-af7d-988577f6ee33"),
                             Color = "#34495E",
                             Description = "Stationery and other study materials.",
+                            IsActive = false,
                             Name = "School Supplies"
                         },
                         new
@@ -364,6 +397,7 @@ namespace MoneyMind_DAL.Migrations
                             Id = new Guid("e495893f-1aa6-49f3-8b9f-41b255b1ef05"),
                             Color = "#F1C40F",
                             Description = "Meals at restaurants or cafes.",
+                            IsActive = false,
                             Name = "Dining Out"
                         },
                         new
@@ -371,6 +405,7 @@ namespace MoneyMind_DAL.Migrations
                             Id = new Guid("91482b6a-32b7-4b79-adc4-95367abfe584"),
                             Color = "#1F618D",
                             Description = "Expenses for vacations or trips.",
+                            IsActive = false,
                             Name = "Travel"
                         },
                         new
@@ -378,6 +413,7 @@ namespace MoneyMind_DAL.Migrations
                             Id = new Guid("11c4f80b-59bf-495a-9dc9-8ea68e83478b"),
                             Color = "#E67E22",
                             Description = "Movies, games, or music subscriptions.",
+                            IsActive = false,
                             Name = "Entertainment"
                         },
                         new
@@ -385,6 +421,7 @@ namespace MoneyMind_DAL.Migrations
                             Id = new Guid("b2a9c566-333d-486f-b6eb-3cedf781501d"),
                             Color = "#C0392B",
                             Description = "Clothes, accessories, and other non-essential items.",
+                            IsActive = false,
                             Name = "Shopping"
                         },
                         new
@@ -392,6 +429,7 @@ namespace MoneyMind_DAL.Migrations
                             Id = new Guid("2111d251-a6b3-4e14-97ce-33098c75d140"),
                             Color = "#7D3C98",
                             Description = "Spending on personal hobbies like photography or painting.",
+                            IsActive = false,
                             Name = "Hobbies"
                         },
                         new
@@ -399,6 +437,7 @@ namespace MoneyMind_DAL.Migrations
                             Id = new Guid("e4f334d5-4ae8-4823-8d7d-a4a14783988e"),
                             Color = "#27AE60",
                             Description = "Gym memberships or sports equipment.",
+                            IsActive = false,
                             Name = "Fitness"
                         },
                         new
@@ -406,6 +445,7 @@ namespace MoneyMind_DAL.Migrations
                             Id = new Guid("a2e9b2f8-d0bd-4ad6-b59f-deab605a668e"),
                             Color = "#D5A6BD",
                             Description = "Charitable donations to organizations or causes.",
+                            IsActive = false,
                             Name = "Donations"
                         },
                         new
@@ -413,6 +453,7 @@ namespace MoneyMind_DAL.Migrations
                             Id = new Guid("a786a452-2931-440d-b4ef-840ed2c56a25"),
                             Color = "#B03A2E",
                             Description = "Helping local communities or individuals in need.",
+                            IsActive = false,
                             Name = "Community Support"
                         },
                         new
@@ -420,6 +461,7 @@ namespace MoneyMind_DAL.Migrations
                             Id = new Guid("e6ffb782-edda-4081-bad4-4f765062afea"),
                             Color = "#AF601A",
                             Description = "Contributions to fundraisers or events.",
+                            IsActive = false,
                             Name = "Fundraising"
                         },
                         new
@@ -427,6 +469,7 @@ namespace MoneyMind_DAL.Migrations
                             Id = new Guid("50493244-74f4-4d06-a2b6-7f32ea665804"),
                             Color = "#784212",
                             Description = "Supporting disaster relief efforts.",
+                            IsActive = false,
                             Name = "Relief Aid"
                         },
                         new
@@ -434,6 +477,7 @@ namespace MoneyMind_DAL.Migrations
                             Id = new Guid("9d0a31a1-2ff8-47e1-bd92-c77a89767854"),
                             Color = "#616A6B",
                             Description = "Savings set aside for emergencies.",
+                            IsActive = false,
                             Name = "Emergency Fund"
                         },
                         new
@@ -441,6 +485,7 @@ namespace MoneyMind_DAL.Migrations
                             Id = new Guid("ad9a5ea0-288f-465d-8ced-ca751d913c9d"),
                             Color = "#F8C471",
                             Description = "Funds saved for retirement.",
+                            IsActive = false,
                             Name = "Retirement"
                         },
                         new
@@ -448,6 +493,7 @@ namespace MoneyMind_DAL.Migrations
                             Id = new Guid("39480faf-a33f-4d23-a3cb-767ac288a8ef"),
                             Color = "#5499C7",
                             Description = "Saving for big-ticket items like a car or home.",
+                            IsActive = false,
                             Name = "Future Purchases"
                         },
                         new
@@ -455,6 +501,7 @@ namespace MoneyMind_DAL.Migrations
                             Id = new Guid("3b79a615-ef8b-424d-920b-096676cf51b9"),
                             Color = "#A569BD",
                             Description = "Savings for children's education or needs.",
+                            IsActive = false,
                             Name = "Children's Fund"
                         },
                         new
@@ -462,6 +509,7 @@ namespace MoneyMind_DAL.Migrations
                             Id = new Guid("02600672-6809-42ba-a921-c7da1dc9b0b2"),
                             Color = "#1ABC9C",
                             Description = "Saving for future travel plans.",
+                            IsActive = false,
                             Name = "Travel Savings"
                         },
                         new
@@ -469,6 +517,7 @@ namespace MoneyMind_DAL.Migrations
                             Id = new Guid("3209b649-90cd-4094-a9b3-90fcec03179c"),
                             Color = "#FF5733",
                             Description = "Purchases of gifts for others.",
+                            IsActive = false,
                             Name = "Gifts"
                         },
                         new
@@ -476,6 +525,7 @@ namespace MoneyMind_DAL.Migrations
                             Id = new Guid("89e11720-5151-40cc-8941-55ad35b0792c"),
                             Color = "#DFFF00",
                             Description = "Expenses for weddings, birthdays, or anniversaries.",
+                            IsActive = false,
                             Name = "Special Occasions"
                         },
                         new
@@ -483,6 +533,7 @@ namespace MoneyMind_DAL.Migrations
                             Id = new Guid("48826d61-2571-4ec8-8da3-1f23e4766d07"),
                             Color = "#8E44AD",
                             Description = "Monthly or yearly subscription services.",
+                            IsActive = false,
                             Name = "Subscriptions"
                         },
                         new
@@ -490,6 +541,7 @@ namespace MoneyMind_DAL.Migrations
                             Id = new Guid("b343a8d0-9f6c-4865-8910-85b8c80eb9ad"),
                             Color = "#BDC3C7",
                             Description = "Expenses that don't fit any other category.",
+                            IsActive = false,
                             Name = "Uncategorized"
                         },
                         new
@@ -497,6 +549,7 @@ namespace MoneyMind_DAL.Migrations
                             Id = new Guid("c519c028-5b5d-48a4-b4bb-25cfc91ce18d"),
                             Color = "#5D6D7E",
                             Description = "Bank or credit card fees and charges.",
+                            IsActive = false,
                             Name = "Fees & Charges"
                         });
                 });
@@ -539,7 +592,22 @@ namespace MoneyMind_DAL.Migrations
 
                     b.HasIndex("WalletId");
 
-                    b.ToTable("Transactions");
+                    b.ToTable("Transaction");
+                });
+
+            modelBuilder.Entity("MoneyMind_DAL.Entities.TransactionActivity", b =>
+                {
+                    b.Property<Guid>("TransactionId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("ActivityId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("TransactionId", "ActivityId");
+
+                    b.HasIndex("ActivityId");
+
+                    b.ToTable("TransactionActivity");
                 });
 
             modelBuilder.Entity("MoneyMind_DAL.Entities.TransactionSyncLog", b =>
@@ -564,28 +632,49 @@ namespace MoneyMind_DAL.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("TransactionSyncLogs");
+                    b.ToTable("TransactionSyncLog");
                 });
 
             modelBuilder.Entity("MoneyMind_DAL.Entities.TransactionTag", b =>
                 {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
+                    b.Property<Guid>("TransactionId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<Guid>("TagId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid>("TransactionId")
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("TransactionId", "TagId");
+
+                    b.HasIndex("TagId");
+
+                    b.ToTable("TransactionTag");
+                });
+
+            modelBuilder.Entity("MoneyMind_DAL.Entities.UserFcmToken", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("FcmToken")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("LastUsed")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("UserId")
                         .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("TagId");
-
-                    b.HasIndex("TransactionId");
-
-                    b.ToTable("TransactionTags");
+                    b.ToTable("UserFcmTokens");
                 });
 
             modelBuilder.Entity("MoneyMind_DAL.Entities.Wallet", b =>
@@ -604,23 +693,72 @@ namespace MoneyMind_DAL.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<bool>("IsActive")
                         .HasColumnType("bit");
 
                     b.Property<DateTime>("LastUpdatedTime")
                         .HasColumnType("datetime2");
 
-                    b.Property<Guid>("SubWalletTypeId")
-                        .HasColumnType("uniqueidentifier");
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<Guid>("UserId")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<Guid>("WalletCategoryId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.HasKey("Id");
 
-                    b.HasIndex("SubWalletTypeId");
+                    b.HasIndex("WalletCategoryId");
 
-                    b.ToTable("Wallets");
+                    b.ToTable("Wallet");
+                });
+
+            modelBuilder.Entity("MoneyMind_DAL.Entities.WalletCategory", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Color")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreateAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("IconPath")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("WalletTypeId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("WalletTypeId");
+
+                    b.ToTable("WalletCategory");
                 });
 
             modelBuilder.Entity("MoneyMind_DAL.Entities.WalletType", b =>
@@ -633,6 +771,9 @@ namespace MoneyMind_DAL.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<bool>("IsDisabled")
+                        .HasColumnType("bit");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
@@ -642,45 +783,62 @@ namespace MoneyMind_DAL.Migrations
                     b.HasIndex("Name")
                         .IsUnique();
 
-                    b.ToTable("WalletTypes");
+                    b.ToTable("WalletType");
 
                     b.HasData(
                         new
                         {
                             Id = new Guid("b203ae2f-3023-41c1-a25a-2b2ec238321d"),
                             Description = "Essential expenses for daily living, including food, housing, and utilities.",
+                            IsDisabled = false,
                             Name = "Necessities"
                         },
                         new
                         {
                             Id = new Guid("654a9673-4d23-44b1-9af8-a9562341a60e"),
                             Description = "Allocations for building wealth and achieving long-term financial independence.",
+                            IsDisabled = false,
                             Name = "Financial Freedom"
                         },
                         new
                         {
                             Id = new Guid("19ea7e67-8095-4a13-bba4-bda0a4a47a38"),
                             Description = "Investments in personal growth, such as books, courses, and training programs.",
+                            IsDisabled = false,
                             Name = "Education"
                         },
                         new
                         {
                             Id = new Guid("6193fcb1-c8c4-44e9-abde-78cdb4258c4e"),
                             Description = "Spending on entertainment and recreational activities for enjoyment.",
+                            IsDisabled = false,
                             Name = "Leisure"
                         },
                         new
                         {
                             Id = new Guid("b79d14db-7a81-4046-b66e-1acd761123bb"),
                             Description = "Contributions to charitable causes or support for those in need.",
+                            IsDisabled = false,
                             Name = "Charity"
                         },
                         new
                         {
                             Id = new Guid("ebebc667-520d-4eac-88ed-ef9eb8e26aab"),
                             Description = "Funds set aside for major purchases, emergencies, or future needs.",
+                            IsDisabled = false,
                             Name = "Savings"
                         });
+                });
+
+            modelBuilder.Entity("MoneyMind_DAL.Entities.Activity", b =>
+                {
+                    b.HasOne("MoneyMind_DAL.Entities.WalletCategory", "WalletCategory")
+                        .WithMany("Activities")
+                        .HasForeignKey("WalletCategoryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("WalletCategory");
                 });
 
             modelBuilder.Entity("MoneyMind_DAL.Entities.GoalItem", b =>
@@ -713,17 +871,6 @@ namespace MoneyMind_DAL.Migrations
                     b.Navigation("Chat");
                 });
 
-            modelBuilder.Entity("MoneyMind_DAL.Entities.SubWalletType", b =>
-                {
-                    b.HasOne("MoneyMind_DAL.Entities.WalletType", "WalletType")
-                        .WithMany("SubWalletTypes")
-                        .HasForeignKey("WalletTypeId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("WalletType");
-                });
-
             modelBuilder.Entity("MoneyMind_DAL.Entities.Transaction", b =>
                 {
                     b.HasOne("MoneyMind_DAL.Entities.Wallet", "Wallet")
@@ -731,6 +878,25 @@ namespace MoneyMind_DAL.Migrations
                         .HasForeignKey("WalletId");
 
                     b.Navigation("Wallet");
+                });
+
+            modelBuilder.Entity("MoneyMind_DAL.Entities.TransactionActivity", b =>
+                {
+                    b.HasOne("MoneyMind_DAL.Entities.Activity", "Activity")
+                        .WithMany("TransactionActivities")
+                        .HasForeignKey("ActivityId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("MoneyMind_DAL.Entities.Transaction", "Transaction")
+                        .WithMany("TransactionActivities")
+                        .HasForeignKey("TransactionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Activity");
+
+                    b.Navigation("Transaction");
                 });
 
             modelBuilder.Entity("MoneyMind_DAL.Entities.TransactionTag", b =>
@@ -754,13 +920,29 @@ namespace MoneyMind_DAL.Migrations
 
             modelBuilder.Entity("MoneyMind_DAL.Entities.Wallet", b =>
                 {
-                    b.HasOne("MoneyMind_DAL.Entities.SubWalletType", "SubWalletType")
+                    b.HasOne("MoneyMind_DAL.Entities.WalletCategory", "WalletCategory")
                         .WithMany("Wallets")
-                        .HasForeignKey("SubWalletTypeId")
+                        .HasForeignKey("WalletCategoryId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("SubWalletType");
+                    b.Navigation("WalletCategory");
+                });
+
+            modelBuilder.Entity("MoneyMind_DAL.Entities.WalletCategory", b =>
+                {
+                    b.HasOne("MoneyMind_DAL.Entities.WalletType", "WalletType")
+                        .WithMany("WalletCategories")
+                        .HasForeignKey("WalletTypeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("WalletType");
+                });
+
+            modelBuilder.Entity("MoneyMind_DAL.Entities.Activity", b =>
+                {
+                    b.Navigation("TransactionActivities");
                 });
 
             modelBuilder.Entity("MoneyMind_DAL.Entities.Chat", b =>
@@ -773,11 +955,6 @@ namespace MoneyMind_DAL.Migrations
                     b.Navigation("GoalItems");
                 });
 
-            modelBuilder.Entity("MoneyMind_DAL.Entities.SubWalletType", b =>
-                {
-                    b.Navigation("Wallets");
-                });
-
             modelBuilder.Entity("MoneyMind_DAL.Entities.Tag", b =>
                 {
                     b.Navigation("TransactionTags");
@@ -785,6 +962,8 @@ namespace MoneyMind_DAL.Migrations
 
             modelBuilder.Entity("MoneyMind_DAL.Entities.Transaction", b =>
                 {
+                    b.Navigation("TransactionActivities");
+
                     b.Navigation("TransactionTags");
                 });
 
@@ -793,11 +972,18 @@ namespace MoneyMind_DAL.Migrations
                     b.Navigation("Transactions");
                 });
 
+            modelBuilder.Entity("MoneyMind_DAL.Entities.WalletCategory", b =>
+                {
+                    b.Navigation("Activities");
+
+                    b.Navigation("Wallets");
+                });
+
             modelBuilder.Entity("MoneyMind_DAL.Entities.WalletType", b =>
                 {
                     b.Navigation("GoalItems");
 
-                    b.Navigation("SubWalletTypes");
+                    b.Navigation("WalletCategories");
                 });
 #pragma warning restore 612, 618
         }

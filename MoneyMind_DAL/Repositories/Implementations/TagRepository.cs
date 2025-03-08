@@ -18,7 +18,7 @@ namespace MoneyMind_DAL.Repositories.Implementations
 
         public async Task<Tag> GetByName(string name)
         {
-            return await _context.Tags.FirstOrDefaultAsync(x => x.Name == name);
+            return await _context.Tag.FirstOrDefaultAsync(x => x.Name == name);
         }
     }
 }
